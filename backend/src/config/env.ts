@@ -13,6 +13,15 @@ const envSchema = z.object({
   DATABASE_URL: z.url(),
   FRONTEND_URL: z.url().default("http://localhost:3000"),
 
+  BETTER_AUTH_SECRET: z.string().min(32),
+  BETTER_AUTH_URL: z.url().default("http://localhost:4000"),
+  // Set in production (e.g. ".example.com") so app. and api. subdomains share the session cookie.
+  COOKIE_DOMAIN: optionalString,
+  GOOGLE_CLIENT_ID: optionalString,
+  GOOGLE_CLIENT_SECRET: optionalString,
+  GITHUB_CLIENT_ID: optionalString,
+  GITHUB_CLIENT_SECRET: optionalString,
+
   AI_PROVIDER: z.enum(["openai", "anthropic", "openrouter"]).default("openai"),
   AI_MODEL_FAST: optionalString,
   AI_MODEL_SMART: optionalString,
