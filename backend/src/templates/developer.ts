@@ -152,12 +152,14 @@ function renderSection(s: ResumeSection): string {
 
 export function renderDeveloper(input: ResumeContent) {
   const { basics, sections } = visibleContent(input);
-  const headline = basics.headline ? `\n  \\small ${tex(basics.headline)} \\\\ \\vspace{1pt}` : "";
+  const lines = [`{\\Huge \\scshape ${tex(basics.name)}}`];
+  if (basics.headline) lines.push(`\\small ${tex(basics.headline)}`);
+  const contacts = header(basics);
+  if (contacts) lines.push(contacts);
   return `${preamble}
 \\begin{document}
 \\begin{center}
-  {\\Huge \\scshape ${tex(basics.name)}} \\\\ \\vspace{1pt}${headline}
-  ${header(basics)} \\\\
+  ${lines.join(" \\\\ \\vspace{1pt}\n  ")}
   \\vspace{-3pt}
 \\end{center}
 
