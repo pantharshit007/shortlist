@@ -23,3 +23,9 @@ export async function getUsername(req: ValidatedRequest<{ params: typeof usernam
   const { username } = req.params;
   sendData(res, usernameResponse, { username, available: await isUsernameAvailable(username) });
 }
+
+export async function exportMyData(req: Request, res: Response) {
+  res
+    .set("Content-Disposition", 'attachment; filename="my-data.json"')
+    .json({ data: await usersService.exportMyData(currentUser(req).id) });
+}

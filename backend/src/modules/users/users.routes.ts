@@ -9,4 +9,5 @@ export const usersRouter = Router();
 usersRouter.get("/me", requireAuth, controller.getMe);
 usersRouter.patch("/me", requireAuth, ...validated({ body: updateMeBody }, controller.updateMe));
 usersRouter.delete("/me", requireAuth, controller.deleteMe);
+usersRouter.get("/me/data", requireAuth, controller.exportMyData);
 usersRouter.get("/usernames/:username", ...validated({ params: usernameParams }, controller.getUsername));

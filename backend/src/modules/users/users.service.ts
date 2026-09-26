@@ -1,7 +1,20 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { usernameRedirects, users } from "../../db/schema/index.js";
+import {
+  jobs,
+  profiles,
+  resumes,
+  resumeVersions,
+  shareLinks,
+  subscriptions,
+  uploads,
+  usernameRedirects,
+  users,
+} from "../../db/schema/index.js";
 import { ConflictError, NotFoundError } from "../../lib/errors.js";
+import { logger } from "../../lib/logger.js";
+import { razorpay } from "../../lib/razorpay.js";
+import { storage } from "../../lib/storage.js";
 import { isReservedUsername, isUsernameTaken } from "./usernames.js";
 
 const meColumns = {
@@ -55,7 +68,49 @@ export async function updateMe(userId: string, changes: { name?: string | undefi
   });
 }
 
-// Deletes the account and, through foreign key cascades, everything the user owns.
+// Deletes the account, the user's files and, through foreign key cascades, every row they own.
 export async function deleteMe(userId: string) {
+  const activePro = await db
+    .select({ remoteId: subscriptions.razorpaySubscriptionId })
+    .from(subscriptions)
+    .where(and(eq(subscriptions.userId, userId), eq(subscriptions.plan, "pro"), eq(subscriptions.status, "active")));
+  for (const { remoteId } of activePro) {
+    if (!remoteId) continue;
+    // Stop future charges; a failure here must not block deletion.
+    await razorpay("POST", `/subscriptions/${remoteId}/cancel`, { cancel_at_cycle_end: 0 }).catch((err) =>
+      logger.error({ err, remoteId }, "Could not cancel subscription during account deletion"),
+    );
+  }
+  await storage.deletePrefix(`users/${userId}/`);
   await db.delete(users).where(eq(users.id, userId));
+}
+
+// Everything we store about the user, for data portability requests.
+export async function exportMyData(userId: string) {
+  const me = await getMe(userId);
+  const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId));
+  const resumeRows = await db.select().from(resumes).where(eq(resumes.userId, userId)).orderBy(asc(resumes.createdAt));
+  const versions = resumeRows.length
+    ? await db
+        .select()
+        .from(resumeVersions)
+        .where(inArray(resumeVersions.resumeId, resumeRows.map((r) => r.id)))
+        .orderBy(asc(resumeVersions.createdAt))
+    : [];
+  const [jobRows, links, uploadRows, subscriptionRows] = await Promise.all([
+    db.select().from(jobs).where(eq(jobs.userId, userId)),
+    db.select().from(shareLinks).where(eq(shareLinks.userId, userId)),
+    db.select().from(uploads).where(eq(uploads.userId, userId)),
+    db.select().from(subscriptions).where(eq(subscriptions.userId, userId)),
+  ]);
+  return {
+    exportedAt: new Date(),
+    account: me,
+    profile: profile?.data ?? null,
+    resumes: resumeRows.map((resume) => ({ ...resume, versions: versions.filter((v) => v.resumeId === resume.id) })),
+    jobs: jobRows,
+    shareLinks: links.map(({ passwordHash: _passwordHash, ...link }) => link),
+    uploads: uploadRows,
+    subscriptions: subscriptionRows,
+  };
 }
