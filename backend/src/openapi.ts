@@ -3,7 +3,7 @@ import { createDocument, type ZodOpenApiOperationObject, type ZodOpenApiPathsObj
 import { checkoutResponse, createCheckoutBody, subscriptionResponse } from "./modules/billing/billing.schemas.js";
 import { createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
 import { createJobBody, jobListResponse, jobParams, jobResponse } from "./modules/jobs/jobs.schemas.js";
-import { createPreviewBody, resumePdfQuery } from "./modules/pdfs/pdfs.schemas.js";
+import { createPreviewBody, resumeExportQuery, resumePdfQuery } from "./modules/pdfs/pdfs.schemas.js";
 import { profileResponse, putProfileBody } from "./modules/profiles/profiles.schemas.js";
 import {
   publicProfileResponse,
@@ -206,6 +206,22 @@ const paths: ZodOpenApiPathsObject = {
       params: resumeParams,
       query: resumePdfQuery,
       pdf: true,
+    }),
+  },
+  "/v1/resumes/{resumeId}/tex": {
+    get: op({
+      summary: "Download the LaTeX source of a version",
+      tag: "PDFs",
+      params: resumeParams,
+      query: resumeExportQuery,
+    }),
+  },
+  "/v1/resumes/{resumeId}/json-resume": {
+    get: op({
+      summary: "Export a structured resume as JSON Resume",
+      tag: "PDFs",
+      params: resumeParams,
+      query: resumeExportQuery,
     }),
   },
   "/v1/previews": {

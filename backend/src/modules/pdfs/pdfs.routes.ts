@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { NotFoundError } from "../../lib/errors.js";
+import { ConflictError, NotFoundError } from "../../lib/errors.js";
 import { currentUser, requireAuth } from "../../middleware/require-auth.js";
 import { compileLimiter } from "../../middleware/rate-limit.js";
 import { validated } from "../../middleware/validate.js";
 import { resumeParams } from "../resumes/resumes.schemas.js";
 import { getResume, getVersion } from "../resumes/resumes.service.js";
-import { createPreviewBody, resumePdfQuery } from "./pdfs.schemas.js";
+import { toJsonResume } from "./json-resume.js";
+import { createPreviewBody, resumeExportQuery, resumePdfQuery } from "./pdfs.schemas.js";
 import { compileOrThrow, pdfFileName, renderStructured, sendPdf, texForVersion } from "./pdfs.service.js";
 
 export const pdfsRouter = Router();
@@ -22,6 +23,37 @@ pdfsRouter.get(
 
     const { pdf, pageCount } = await compileOrThrow(texForVersion(resume, version));
     sendPdf(res, pdf, pdfFileName(version.content?.basics.name, resume.title), pageCount, req.query.download);
+  }),
+);
+
+// LaTeX source of a version, e.g. to continue editing on Overleaf.
+pdfsRouter.get(
+  "/resumes/:resumeId/tex",
+  requireAuth,
+  ...validated({ params: resumeParams, query: resumeExportQuery }, async (req, res) => {
+    const userId = currentUser(req).id;
+    const resume = await getResume(userId, req.params.resumeId);
+    const version = req.query.versionId ? await getVersion(userId, resume.id, req.query.versionId) : resume.head;
+    if (!version) throw new NotFoundError("Version");
+    const fileName = pdfFileName(version.content?.basics.name, resume.title).replace(/\.pdf$/, ".tex");
+    res
+      .type("application/x-tex")
+      .set("Content-Disposition", `attachment; filename="${fileName}"`)
+      .send(texForVersion(resume, version));
+  }),
+);
+
+// Structured content in the JSON Resume format.
+pdfsRouter.get(
+  "/resumes/:resumeId/json-resume",
+  requireAuth,
+  ...validated({ params: resumeParams, query: resumeExportQuery }, async (req, res) => {
+    const userId = currentUser(req).id;
+    const resume = await getResume(userId, req.params.resumeId);
+    const version = req.query.versionId ? await getVersion(userId, resume.id, req.query.versionId) : resume.head;
+    if (!version?.content) throw new ConflictError("JSON Resume export is only available for structured resumes");
+    const fileName = pdfFileName(version.content.basics.name, resume.title).replace(/\.pdf$/, ".json");
+    res.set("Content-Disposition", `attachment; filename="${fileName}"`).json(toJsonResume(version.content));
   }),
 );
 
