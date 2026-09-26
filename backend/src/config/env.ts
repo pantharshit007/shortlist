@@ -49,6 +49,12 @@ const envSchema = z.object({
   // Optional; raises Jina Reader's rate limit when fetching job posts from URLs.
   JINA_API_KEY: optionalString,
 
+  RAZORPAY_KEY_ID: optionalString,
+  RAZORPAY_KEY_SECRET: optionalString,
+  RAZORPAY_WEBHOOK_SECRET: optionalString,
+  // Monthly plan created in the Razorpay dashboard for Pro.
+  RAZORPAY_PRO_PLAN_ID: optionalString,
+
   RESEND_API_KEY: optionalString,
   EMAIL_FROM: z.string().default("Resume Builder <onboarding@resend.dev>"),
 });

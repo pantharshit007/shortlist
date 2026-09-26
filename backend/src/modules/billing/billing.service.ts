@@ -1,0 +1,99 @@
+import { and, desc, eq, gt, inArray } from "drizzle-orm";
+import { env } from "../../config/env.js";
+import { db } from "../../db/index.js";
+import { payments, subscriptions, users } from "../../db/schema/index.js";
+import { AppError, ConflictError, NotFoundError } from "../../lib/errors.js";
+import { razorpay } from "../../lib/razorpay.js";
+
+export const prices = { season_pass: 49_900, pro: 12_900 } as const;
+
+type Plan = (typeof users.$inferSelect)["plan"];
+
+// The user's plan is derived from their active subscriptions, never set directly.
+export async function recomputePlan(userId: string) {
+  const active = await db
+    .select({ plan: subscriptions.plan })
+    .from(subscriptions)
+    .where(
+      and(
+        eq(subscriptions.userId, userId),
+        inArray(subscriptions.status, ["active", "cancelled", "past_due"]),
+        gt(subscriptions.currentPeriodEnd, new Date()),
+      ),
+    );
+  const plan: Plan = active.some((s) => s.plan === "pro") ? "pro" : active.length > 0 ? "season_pass" : "free";
+  await db.update(users).set({ plan }).where(eq(users.id, userId));
+  return plan;
+}
+
+export async function createCheckout(userId: string, plan: "season_pass" | "pro") {
+  const keyId = env.RAZORPAY_KEY_ID;
+  if (!keyId) throw new AppError(503, "PAYMENTS_NOT_CONFIGURED", "Payments are not configured");
+
+  if (plan === "season_pass") {
+    const order = await razorpay<{ id: string }>("POST", "/orders", {
+      amount: prices.season_pass,
+      currency: "INR",
+      receipt: `sp_${Date.now()}`,
+      notes: { userId, plan },
+    });
+    const [subscription] = await db.insert(subscriptions).values({ userId, plan, status: "created" }).returning();
+    await db.insert(payments).values({
+      userId,
+      subscriptionId: subscription!.id,
+      razorpayOrderId: order.id,
+      amountPaise: prices.season_pass,
+    });
+    return { provider: "razorpay" as const, keyId, plan, orderId: order.id, razorpaySubscriptionId: null, amountPaise: prices.season_pass, currency: "INR" as const };
+  }
+
+  if (!env.RAZORPAY_PRO_PLAN_ID) throw new AppError(503, "PAYMENTS_NOT_CONFIGURED", "The Pro plan is not configured");
+  const [existing] = await db
+    .select({ id: subscriptions.id })
+    .from(subscriptions)
+    .where(and(eq(subscriptions.userId, userId), eq(subscriptions.plan, "pro"), eq(subscriptions.status, "active")))
+    .limit(1);
+  if (existing) throw new ConflictError("You already have an active Pro subscription");
+
+  const remote = await razorpay<{ id: string }>("POST", "/subscriptions", {
+    plan_id: env.RAZORPAY_PRO_PLAN_ID,
+    total_count: 120,
+    customer_notify: 1,
+    notes: { userId, plan },
+  });
+  await db.insert(subscriptions).values({ userId, plan, status: "created", razorpaySubscriptionId: remote.id });
+  return { provider: "razorpay" as const, keyId, plan, orderId: null, razorpaySubscriptionId: remote.id, amountPaise: prices.pro, currency: "INR" as const };
+}
+
+export async function getSubscription(userId: string) {
+  const [user] = await db.select({ plan: users.plan }).from(users).where(eq(users.id, userId));
+  const [subscription] = await db
+    .select({
+      id: subscriptions.id,
+      plan: subscriptions.plan,
+      status: subscriptions.status,
+      currentPeriodEnd: subscriptions.currentPeriodEnd,
+      cancelledAt: subscriptions.cancelledAt,
+    })
+    .from(subscriptions)
+    .where(and(eq(subscriptions.userId, userId), inArray(subscriptions.status, ["active", "cancelled", "past_due"])))
+    .orderBy(desc(subscriptions.currentPeriodEnd))
+    .limit(1);
+  return { plan: user!.plan, subscription: subscription ?? null };
+}
+
+// Cancels Pro at the end of the current billing period. Season Pass simply runs out.
+export async function cancelSubscription(userId: string) {
+  const [subscription] = await db
+    .select()
+    .from(subscriptions)
+    .where(and(eq(subscriptions.userId, userId), eq(subscriptions.plan, "pro"), eq(subscriptions.status, "active")))
+    .limit(1);
+  if (!subscription?.razorpaySubscriptionId) throw new NotFoundError("Active Pro subscription");
+  await razorpay("POST", `/subscriptions/${subscription.razorpaySubscriptionId}/cancel`, { cancel_at_cycle_end: 1 });
+  await db
+    .update(subscriptions)
+    .set({ status: "cancelled", cancelledAt: new Date() })
+    .where(eq(subscriptions.id, subscription.id));
+  return getSubscription(userId);
+}
