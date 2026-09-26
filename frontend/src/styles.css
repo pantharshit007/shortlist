@@ -1,17 +1,186 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@fontsource-variable/source-serif-4';
+@import '@fontsource-variable/hanken-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
 
-@import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
 
-* {
-  box-sizing: border-box;
+/*
+  Light mode is "paper": a cool sage grey, never pure white. The only white surface is the
+  resume sheet itself, because that is what the PDF will look like.
+  Accent is fountain-pen teal; the highlighter marks AI changes.
+*/
+:root {
+  --background: #eef0eb;
+  --foreground: #18201d;
+  --card: #f7f8f4;
+  --card-foreground: #18201d;
+  --popover: #f7f8f4;
+  --popover-foreground: #18201d;
+  --primary: #0b6e65;
+  --primary-foreground: #f4f7f3;
+  --secondary: #e2e6df;
+  --secondary-foreground: #18201d;
+  --muted: #e5e9e2;
+  --muted-foreground: #59645f;
+  --accent: #dfe5dd;
+  --accent-foreground: #18201d;
+  --destructive: #b3261e;
+  --border: #d3d9d1;
+  --input: #cbd2c9;
+  --ring: #0b6e65;
+  --radius: 0.625rem;
+
+  --highlight: #f2d14b;
+  --highlight-foreground: #18201d;
+  --success: #1f7a4d;
+  --sheet: #ffffff;
+  --sheet-foreground: #111111;
+
+  --sidebar: #e7eae4;
+  --sidebar-foreground: #18201d;
+  --sidebar-primary: #0b6e65;
+  --sidebar-primary-foreground: #f4f7f3;
+  --sidebar-accent: #dbe1d8;
+  --sidebar-accent-foreground: #18201d;
+  --sidebar-border: #d3d9d1;
+  --sidebar-ring: #0b6e65;
+
+  --chart-1: #0b6e65;
+  --chart-2: #c9a227;
+  --chart-3: #4c7a9a;
+  --chart-4: #8a9a5b;
+  --chart-5: #b3261e;
 }
 
-html,
-body,
-#app {
-  min-height: 100%;
+.dark {
+  --background: #121816;
+  --foreground: #e4eae5;
+  --card: #1a2220;
+  --card-foreground: #e4eae5;
+  --popover: #1a2220;
+  --popover-foreground: #e4eae5;
+  --primary: #58bfae;
+  --primary-foreground: #0c1513;
+  --secondary: #232d2a;
+  --secondary-foreground: #e4eae5;
+  --muted: #202926;
+  --muted-foreground: #97a39d;
+  --accent: #26312d;
+  --accent-foreground: #e4eae5;
+  --destructive: #f07167;
+  --border: #2b3532;
+  --input: #34403c;
+  --ring: #58bfae;
+
+  --highlight: #d9b83a;
+  --highlight-foreground: #121816;
+  --success: #5cc98f;
+  --sheet: #fbfbf8;
+  --sheet-foreground: #111111;
+
+  --sidebar: #161d1b;
+  --sidebar-foreground: #e4eae5;
+  --sidebar-primary: #58bfae;
+  --sidebar-primary-foreground: #0c1513;
+  --sidebar-accent: #222c29;
+  --sidebar-accent-foreground: #e4eae5;
+  --sidebar-border: #2b3532;
+  --sidebar-ring: #58bfae;
+
+  --chart-1: #58bfae;
+  --chart-2: #d9b83a;
+  --chart-3: #7fb2d6;
+  --chart-4: #b3c47a;
+  --chart-5: #f07167;
 }
 
-body {
-  margin: 0;
+@theme inline {
+  --font-sans: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Source Serif 4 Variable', ui-serif, Georgia, serif;
+  --font-mono:
+    'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-success: var(--success);
+  --color-sheet: var(--sheet);
+  --color-sheet-foreground: var(--sheet-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-serif;
+    text-wrap: balance;
+    font-optical-sizing: auto;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--highlight) 55%, transparent);
+    color: var(--foreground);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

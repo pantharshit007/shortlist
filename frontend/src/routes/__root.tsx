@@ -1,28 +1,32 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
-
+import { Toaster } from '@/components/ui/sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { site } from '@/lib/site'
+import { ThemeProvider, themeScript } from '@/lib/theme'
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: `${site.name}: resumes tailored to every job` },
+      { name: 'description', content: site.description },
       {
-        charSet: 'utf-8',
+        name: 'theme-color',
+        content: '#eef0eb',
+        media: '(prefers-color-scheme: light)',
       },
       {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        name: 'theme-color',
+        content: '#121816',
+        media: '(prefers-color-scheme: dark)',
       },
-      {
-        title: 'TanStack Start Starter',
-      },
+      { property: 'og:site_name', content: site.name },
     ],
     links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
     ],
   }),
   shellComponent: RootDocument,
@@ -30,23 +34,18 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <HeadContent />
       </head>
       <body>
-        {children}
-        <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
+        <ThemeProvider>
+          <TooltipProvider>
+            {children}
+            <Toaster position="bottom-right" />
+          </TooltipProvider>
+        </ThemeProvider>
         <Scripts />
       </body>
     </html>
