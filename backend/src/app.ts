@@ -8,6 +8,7 @@ import { auth } from "./lib/auth.js";
 import { logger } from "./lib/logger.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { notFound } from "./middleware/not-found.js";
+import { apiLimiter } from "./middleware/rate-limit.js";
 import { v1 } from "./routes.js";
 
 export const app = express();
@@ -28,7 +29,7 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-app.use("/v1", v1);
+app.use("/v1", apiLimiter, v1);
 
 app.use(notFound);
 app.use(errorHandler);

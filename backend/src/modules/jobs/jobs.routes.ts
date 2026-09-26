@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { sendData } from "../../lib/http.js";
 import { currentUser, requireAuth } from "../../middleware/require-auth.js";
+import { aiLimiter } from "../../middleware/rate-limit.js";
 import { validated } from "../../middleware/validate.js";
 import { createJobBody, jobListResponse, jobParams, jobResponse } from "./jobs.schemas.js";
 import * as service from "./jobs.service.js";
@@ -15,6 +16,7 @@ jobsRouter.get("/jobs", async (req, res) => {
 
 jobsRouter.post(
   "/jobs",
+  aiLimiter,
   ...validated({ body: createJobBody }, async (req, res) => {
     sendData(res, jobResponse, await service.createJob(currentUser(req).id, req.body), 201);
   }),

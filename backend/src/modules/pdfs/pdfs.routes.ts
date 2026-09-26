@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { NotFoundError } from "../../lib/errors.js";
 import { currentUser, requireAuth } from "../../middleware/require-auth.js";
+import { compileLimiter } from "../../middleware/rate-limit.js";
 import { validated } from "../../middleware/validate.js";
 import { resumeParams } from "../resumes/resumes.schemas.js";
 import { getResume, getVersion } from "../resumes/resumes.service.js";
@@ -12,6 +13,7 @@ export const pdfsRouter = Router();
 pdfsRouter.get(
   "/resumes/:resumeId/pdf",
   requireAuth,
+  compileLimiter,
   ...validated({ params: resumeParams, query: resumePdfQuery }, async (req, res) => {
     const userId = currentUser(req).id;
     const resume = await getResume(userId, req.params.resumeId);
@@ -27,6 +29,7 @@ pdfsRouter.get(
 pdfsRouter.post(
   "/previews",
   requireAuth,
+  compileLimiter,
   ...validated({ body: createPreviewBody }, async (req, res) => {
     const tex = "content" in req.body ? renderStructured(req.body.templateId, req.body.content) : req.body.texSource;
     const { pdf, pageCount } = await compileOrThrow(tex);

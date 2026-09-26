@@ -2,12 +2,15 @@ import type { Request } from "express";
 import { Router } from "express";
 import { sendData } from "../../lib/http.js";
 import { optionalAuth } from "../../middleware/optional-auth.js";
+import { publicLimiter } from "../../middleware/rate-limit.js";
 import { validated } from "../../middleware/validate.js";
 import { compileOrThrow, pdfFileName, sendPdf, texForVersion } from "../pdfs/pdfs.service.js";
 import { publicProfileResponse, publicResumeParams, publicResumeResponse, publicUserParams } from "./public.schemas.js";
 import * as service from "./public.service.js";
 
 export const publicRouter = Router();
+
+publicRouter.use("/public", publicLimiter);
 
 // The frontend renders share pages server-side, so it forwards the visitor's own details in these headers.
 function viewerFrom(req: Request) {

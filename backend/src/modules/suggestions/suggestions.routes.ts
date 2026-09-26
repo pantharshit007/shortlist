@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { sendData } from "../../lib/http.js";
 import { currentUser, requireAuth } from "../../middleware/require-auth.js";
+import { aiLimiter } from "../../middleware/rate-limit.js";
 import { validated } from "../../middleware/validate.js";
 import { resumeParams } from "../resumes/resumes.schemas.js";
 import { createSuggestionBody, suggestionListResponse, suggestionParams, suggestionResponse } from "./suggestions.schemas.js";
@@ -19,6 +20,7 @@ suggestionsRouter.get(
 suggestionsRouter.post(
   "/resumes/:resumeId/suggestions",
   requireAuth,
+  aiLimiter,
   ...validated({ params: resumeParams, body: createSuggestionBody }, async (req, res) => {
     const suggestion = await service.createSuggestion(currentUser(req).id, req.params.resumeId, req.body);
     sendData(res, suggestionResponse, suggestion, 201);
