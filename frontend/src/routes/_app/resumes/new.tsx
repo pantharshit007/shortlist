@@ -32,7 +32,8 @@ import { profileQuery } from '@/lib/api/queries'
 import type { CreateResumeBody, ResumeContent } from '@/lib/api/types'
 import { apiUrl } from '@/lib/env'
 import { site } from '@/lib/site'
-import { type TemplateId, templateCatalog } from '@/lib/templates'
+import { templateCatalog } from '@/lib/templates'
+import type { TemplateId } from '@/lib/templates'
 import { cn } from '@/lib/utils'
 
 const searchSchema = z.object({

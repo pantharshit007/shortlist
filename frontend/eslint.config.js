@@ -15,6 +15,13 @@ export default [
     },
   },
   {
-    ignores: ['eslint.config.js', 'prettier.config.js'],
+    // Generated or vendored code.
+    ignores: [
+      'eslint.config.js',
+      'prettier.config.js',
+      'src/components/ui/**',
+      'src/routeTree.gen.ts',
+      'src/lib/api/schema.d.ts',
+    ],
   },
 ]

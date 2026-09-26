@@ -8,18 +8,18 @@ type JsonData<T> = T extends {
 
 // Payload type of a successful JSON response, e.g. ResponseData<'/v1/me', 'get'>.
 export type ResponseData<
-  P extends keyof paths,
-  M extends keyof paths[P],
-> = paths[P][M] extends { responses: infer R }
+  TPath extends keyof paths,
+  TMethod extends keyof paths[TPath],
+> = paths[TPath][TMethod] extends { responses: infer R }
   ? JsonData<
       R extends { 200: infer S } ? S : R extends { 201: infer S } ? S : never
     >
   : never
 
 export type RequestBody<
-  P extends keyof paths,
-  M extends keyof paths[P],
-> = paths[P][M] extends {
+  TPath extends keyof paths,
+  TMethod extends keyof paths[TPath],
+> = paths[TPath][TMethod] extends {
   requestBody?: { content: { 'application/json': infer B } }
 }
   ? B

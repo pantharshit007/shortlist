@@ -41,7 +41,8 @@ import {
 import { meQuery, usageQuery } from '@/lib/api/queries'
 import { signOut } from '@/lib/auth-client'
 import { planLabels } from '@/lib/format'
-import { type Theme, useTheme } from '@/lib/theme'
+import { useTheme } from '@/lib/theme'
+import type { Theme } from '@/lib/theme'
 
 const nav = [
   {
@@ -70,7 +71,7 @@ function initials(name: string) {
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part[0]!.toUpperCase())
+    .map((part) => part[0].toUpperCase())
     .join('')
 }
 
