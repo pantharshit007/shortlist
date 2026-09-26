@@ -19,6 +19,9 @@ const envSchema = z.object({
   OPENAI_API_KEY: optionalString,
   ANTHROPIC_API_KEY: optionalString,
   OPENROUTER_API_KEY: optionalString,
+
+  RESEND_API_KEY: optionalString,
+  EMAIL_FROM: z.string().default("Resume Builder <onboarding@resend.dev>"),
 });
 
 const parsed = envSchema.safeParse(process.env);
