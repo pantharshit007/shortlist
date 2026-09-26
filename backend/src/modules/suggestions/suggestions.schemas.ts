@@ -1,0 +1,84 @@
+import { z } from "zod";
+
+export const suggestionParams = z.object({ resumeId: z.uuid(), suggestionId: z.uuid() });
+
+export const createSuggestionBody = z.discriminatedUnion("type", [
+  // Rewrites the resume for a job, using only facts from the resume and the master profile.
+  z.object({ type: z.literal("tailor"), jobId: z.uuid(), instructions: z.string().trim().max(1000).optional() }),
+  // Free-form request, optionally limited to specific sections, entries or bullets.
+  z.object({
+    type: z.literal("edit"),
+    instruction: z.string().trim().min(3).max(1000),
+    targetIds: z.array(z.string()).max(50).optional(),
+  }),
+  // Code-mode resumes that fail to compile.
+  z.object({ type: z.literal("fix_compile") }),
+]);
+
+export const suggestionType = z.enum(["tailor", "edit", "fix_compile"]);
+
+const operationResponse = z.object({
+  id: z.string(),
+  type: z.enum(["update_bullet", "update_headline", "set_hidden", "reorder", "update_skills", "replace_source"]),
+  reason: z.string(),
+  // Non-empty when the operation may add facts the user never gave, or its LaTeX doesn't compile.
+  flags: z.array(z.string()),
+  bulletId: z.string().optional(),
+  targetId: z.string().optional(),
+  parentId: z.string().optional(),
+  groupId: z.string().optional(),
+  text: z.string().optional(),
+  hidden: z.boolean().optional(),
+  orderedIds: z.array(z.string()).optional(),
+  items: z.array(z.string()).optional(),
+  texSource: z.string().optional(),
+});
+
+export const suggestionResponse = z.object({
+  id: z.uuid(),
+  type: suggestionType,
+  status: z.enum(["pending", "applied"]),
+  baseVersionId: z.uuid(),
+  appliedVersionId: z.uuid().nullable(),
+  summary: z.string(),
+  operations: z.array(operationResponse),
+  createdAt: z.date(),
+});
+
+export const suggestionListResponse = z.array(suggestionResponse.omit({ operations: true }));
+
+// Stored in ai_runs.patch_ops.
+export const storedSuggestion = z.object({
+  type: suggestionType,
+  baseVersionId: z.uuid(),
+  summary: z.string(),
+  operations: z.array(z.record(z.string(), z.unknown())),
+});
+
+// What the model returns for structured resumes.
+export const aiStructuredOutput = z.object({
+  summary: z.string().describe("One or two sentences on what changed and why"),
+  operations: z.array(
+    z.object({
+      type: z.enum(["update_bullet", "update_headline", "set_hidden", "reorder", "update_skills"]),
+      targetId: z
+        .string()
+        .nullable()
+        .describe(
+          "update_bullet: bullet id; set_hidden: section, entry or bullet id; reorder: parent id (section id, entry id, or 'sections'); update_skills: skill group id; update_headline: null",
+        ),
+      text: z.string().nullable().describe("New text for update_bullet or update_headline"),
+      hidden: z.boolean().nullable(),
+      orderedIds: z.array(z.string()).nullable().describe("reorder: every child id of the parent, in the new order"),
+      items: z.array(z.string()).nullable().describe("update_skills: the group's items, reordered or trimmed"),
+      reason: z.string().describe("Short reason shown to the user"),
+    }),
+  ),
+});
+
+// What the model returns for code-mode resumes.
+export const aiCodeOutput = z.object({
+  summary: z.string(),
+  texSource: z.string().describe("The complete revised LaTeX document"),
+  reason: z.string(),
+});
