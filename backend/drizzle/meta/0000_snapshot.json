@@ -1,5 +1,5 @@
 {
-  "id": "a9299336-f629-4366-95b5-74c9959ca278",
+  "id": "ff68166a-ec2b-4ad5-be52-4f8dd0735377",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,13 +10,14 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -133,13 +134,14 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -234,9 +236,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "name": {
           "name": "name",
@@ -321,9 +324,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "identifier": {
           "name": "identifier",
@@ -395,7 +399,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -516,7 +520,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -716,7 +720,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -1054,7 +1058,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -1234,7 +1238,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -1447,7 +1451,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -1541,7 +1545,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -1698,7 +1702,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },

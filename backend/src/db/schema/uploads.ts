@@ -9,7 +9,7 @@ export const uploads = pgTable(
   "uploads",
   {
     id: uuid().primaryKey().defaultRandom(),
-    userId: text()
+    userId: uuid()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     kind: uploadKind().notNull(),

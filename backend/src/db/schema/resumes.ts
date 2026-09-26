@@ -19,7 +19,7 @@ import { createdAt, timestamps } from "./columns.js";
 // draw from this. One per user, current state only (no history for MVP).
 export const profiles = pgTable("profiles", {
   id: uuid().primaryKey().defaultRandom(),
-  userId: text()
+  userId: uuid()
     .notNull()
     .unique()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -44,7 +44,7 @@ export const jobs = pgTable(
   "jobs",
   {
     id: uuid().primaryKey().defaultRandom(),
-    userId: text()
+    userId: uuid()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     company: text(),
@@ -66,7 +66,7 @@ export const resumes = pgTable(
   "resumes",
   {
     id: uuid().primaryKey().defaultRandom(),
-    userId: text()
+    userId: uuid()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     title: text().notNull(),

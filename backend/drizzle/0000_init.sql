@@ -8,8 +8,8 @@ CREATE TYPE "public"."payment_status" AS ENUM('created', 'captured', 'failed', '
 CREATE TYPE "public"."subscription_plan" AS ENUM('season_pass', 'pro');--> statement-breakpoint
 CREATE TYPE "public"."subscription_status" AS ENUM('created', 'active', 'past_due', 'cancelled', 'expired');--> statement-breakpoint
 CREATE TABLE "accounts" (
-	"id" text PRIMARY KEY NOT NULL,
-	"user_id" text NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
 	"account_id" text NOT NULL,
 	"provider_id" text NOT NULL,
 	"access_token" text,
@@ -24,8 +24,8 @@ CREATE TABLE "accounts" (
 );
 --> statement-breakpoint
 CREATE TABLE "sessions" (
-	"id" text PRIMARY KEY NOT NULL,
-	"user_id" text NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
 	"token" text NOT NULL,
 	"expires_at" timestamp with time zone NOT NULL,
 	"ip_address" text,
@@ -36,7 +36,7 @@ CREATE TABLE "sessions" (
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
 	"email" text NOT NULL,
 	"email_verified" boolean DEFAULT false NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE "users" (
 );
 --> statement-breakpoint
 CREATE TABLE "verifications" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"identifier" text NOT NULL,
 	"value" text NOT NULL,
 	"expires_at" timestamp with time zone NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE "verifications" (
 --> statement-breakpoint
 CREATE TABLE "jobs" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"company" text,
 	"role" text,
 	"source_url" text,
@@ -73,7 +73,7 @@ CREATE TABLE "jobs" (
 --> statement-breakpoint
 CREATE TABLE "profiles" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"data" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"schema_version" integer DEFAULT 1 NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE "resume_versions" (
 --> statement-breakpoint
 CREATE TABLE "resumes" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"title" text NOT NULL,
 	"mode" "resume_mode" DEFAULT 'structured' NOT NULL,
 	"template_id" text,
@@ -133,7 +133,7 @@ CREATE TABLE "link_views" (
 --> statement-breakpoint
 CREATE TABLE "share_links" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"resume_id" uuid NOT NULL,
 	"slug" text NOT NULL,
 	"pinned_version_id" uuid,
@@ -150,7 +150,7 @@ CREATE TABLE "share_links" (
 --> statement-breakpoint
 CREATE TABLE "ai_runs" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"resume_id" uuid,
 	"job_id" uuid,
 	"version_id" uuid,
@@ -170,7 +170,7 @@ CREATE TABLE "ai_runs" (
 --> statement-breakpoint
 CREATE TABLE "uploads" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"kind" "upload_kind" NOT NULL,
 	"storage_key" text NOT NULL,
 	"file_name" text NOT NULL,
@@ -181,7 +181,7 @@ CREATE TABLE "uploads" (
 --> statement-breakpoint
 CREATE TABLE "payments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"subscription_id" uuid,
 	"razorpay_order_id" text NOT NULL,
 	"razorpay_payment_id" text,
@@ -197,7 +197,7 @@ CREATE TABLE "payments" (
 --> statement-breakpoint
 CREATE TABLE "subscriptions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"plan" "subscription_plan" NOT NULL,
 	"status" "subscription_status" DEFAULT 'created' NOT NULL,
 	"razorpay_subscription_id" text,

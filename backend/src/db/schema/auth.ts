@@ -1,10 +1,10 @@
-import { boolean, index, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { timestamps } from "./columns.js";
 
 export const userPlan = pgEnum("user_plan", ["free", "season_pass", "pro"]);
 
 export const users = pgTable("users", {
-  id: text().primaryKey(),
+  id: uuid().primaryKey().defaultRandom(),
   name: text().notNull(),
   email: text().notNull().unique(),
   emailVerified: boolean().notNull().default(false),
@@ -18,8 +18,8 @@ export const users = pgTable("users", {
 export const sessions = pgTable(
   "sessions",
   {
-    id: text().primaryKey(),
-    userId: text()
+    id: uuid().primaryKey().defaultRandom(),
+    userId: uuid()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     token: text().notNull().unique(),
@@ -34,8 +34,8 @@ export const sessions = pgTable(
 export const accounts = pgTable(
   "accounts",
   {
-    id: text().primaryKey(),
-    userId: text()
+    id: uuid().primaryKey().defaultRandom(),
+    userId: uuid()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     accountId: text().notNull(),
@@ -55,7 +55,7 @@ export const accounts = pgTable(
 export const verifications = pgTable(
   "verifications",
   {
-    id: text().primaryKey(),
+    id: uuid().primaryKey().defaultRandom(),
     identifier: text().notNull(),
     value: text().notNull(),
     expiresAt: timestamp({ withTimezone: true }).notNull(),

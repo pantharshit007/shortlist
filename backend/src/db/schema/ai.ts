@@ -21,7 +21,7 @@ export const aiRuns = pgTable(
   "ai_runs",
   {
     id: uuid().primaryKey().defaultRandom(),
-    userId: text()
+    userId: uuid()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     resumeId: uuid().references(() => resumes.id, { onDelete: "set null" }),

@@ -17,7 +17,7 @@ export const shareLinks = pgTable(
   "share_links",
   {
     id: uuid().primaryKey().defaultRandom(),
-    userId: text()
+    userId: uuid()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     resumeId: uuid()
