@@ -30,6 +30,7 @@
     "motion": "^13.4.4",
     "nitro": "3.0.260610-beta",
     "openapi-fetch": "^0.17.0",
+    "pdfjs-dist": "^6.3.289",
     "radix-ui": "^1.6.7",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
