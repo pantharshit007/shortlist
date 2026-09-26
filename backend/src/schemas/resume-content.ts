@@ -1,0 +1,106 @@
+import { z } from "zod";
+
+// Stable ids let AI suggestions and diffs target a specific section, entry or bullet.
+const id = z.string().min(1).max(64);
+const shortText = z.string().trim().max(200);
+// "2025" or "2025-06"; end dates may also be "present".
+const yearMonth = z.string().regex(/^\d{4}(-(0[1-9]|1[0-2]))?$/, "Use YYYY or YYYY-MM");
+const endDate = z.union([yearMonth, z.literal("present")]);
+
+export const bulletSchema = z.object({
+  id,
+  text: z.string().trim().max(600),
+  hidden: z.boolean().default(false),
+});
+
+const linkSchema = z.object({
+  label: z.string().trim().max(40),
+  url: z.url(),
+});
+
+const entryBase = {
+  id,
+  hidden: z.boolean().default(false),
+  bullets: z.array(bulletSchema).max(20).default([]),
+};
+
+const experienceEntry = z.object({
+  ...entryBase,
+  organization: shortText,
+  role: shortText,
+  location: shortText.optional(),
+  start: yearMonth.optional(),
+  end: endDate.optional(),
+});
+
+const educationEntry = z.object({
+  ...entryBase,
+  institution: shortText,
+  degree: shortText.optional(),
+  field: shortText.optional(),
+  location: shortText.optional(),
+  start: yearMonth.optional(),
+  end: endDate.optional(),
+  // CGPA or percentage as the user writes it, e.g. "8.7/10" or "92%".
+  score: z.string().trim().max(20).optional(),
+});
+
+const projectEntry = z.object({
+  ...entryBase,
+  name: shortText,
+  url: z.url().optional(),
+  technologies: z.array(z.string().trim().max(40)).max(20).default([]),
+  start: yearMonth.optional(),
+  end: endDate.optional(),
+});
+
+// Achievements, certifications, positions of responsibility and any custom section.
+const genericEntry = z.object({
+  ...entryBase,
+  title: shortText,
+  subtitle: shortText.optional(),
+  date: z.string().trim().max(40).optional(),
+  url: z.url().optional(),
+});
+
+const skillGroup = z.object({
+  id,
+  name: z.string().trim().max(60),
+  items: z.array(z.string().trim().max(60)).max(40),
+});
+
+const sectionBase = {
+  id,
+  title: z.string().trim().min(1).max(60),
+  hidden: z.boolean().default(false),
+};
+
+export const sectionSchema = z.discriminatedUnion("type", [
+  z.object({ ...sectionBase, type: z.literal("experience"), entries: z.array(experienceEntry).max(30) }),
+  z.object({ ...sectionBase, type: z.literal("education"), entries: z.array(educationEntry).max(10) }),
+  z.object({ ...sectionBase, type: z.literal("projects"), entries: z.array(projectEntry).max(30) }),
+  z.object({ ...sectionBase, type: z.literal("skills"), groups: z.array(skillGroup).max(15) }),
+  z.object({ ...sectionBase, type: z.literal("list"), entries: z.array(genericEntry).max(40) }),
+]);
+
+export const basicsSchema = z.object({
+  name: z.string().trim().max(100),
+  headline: shortText.optional(),
+  email: z.email().optional(),
+  phone: z.string().trim().max(30).optional(),
+  location: shortText.optional(),
+  links: z.array(linkSchema).max(10).default([]),
+});
+
+export const resumeContentSchema = z.object({
+  basics: basicsSchema,
+  sections: z.array(sectionSchema).max(20),
+});
+
+export type ResumeContent = z.infer<typeof resumeContentSchema>;
+export type ResumeSection = z.infer<typeof sectionSchema>;
+
+export const emptyResumeContent: ResumeContent = {
+  basics: { name: "", links: [] },
+  sections: [],
+};
