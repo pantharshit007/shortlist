@@ -93,12 +93,7 @@ async function recordView(link: typeof shareLinks.$inferSelect, viewer: Viewer) 
     .update(`${viewer.visitorKey}|${viewer.userAgent}|${day}`)
     .digest("hex");
   const device = /ipad|tablet/i.test(viewer.userAgent) ? "tablet" : /mobile|android|iphone/i.test(viewer.userAgent) ? "mobile" : "desktop";
-  let referrer: string | null = null;
-  try {
-    referrer = viewer.referrer ? new URL(viewer.referrer).hostname : null;
-  } catch {
-    referrer = null;
-  }
+  const referrer = URL.canParse(viewer.referrer ?? "") ? new URL(viewer.referrer!).hostname : null;
 
   await db.insert(linkViews).values({
     shareLinkId: link.id,
