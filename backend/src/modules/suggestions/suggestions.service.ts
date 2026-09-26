@@ -10,6 +10,7 @@ import type { ResumeContent } from "../../schemas/resume-content.js";
 import { getJob } from "../jobs/jobs.service.js";
 import { getProfile } from "../profiles/profiles.service.js";
 import { appendVersion, getOwnedResume, getResume } from "../resumes/resumes.service.js";
+import { assertAiQuota } from "../usage/quotas.js";
 import { applyOperations, factText, isApplicable, type Operation, operationSchema, unverifiedTerms } from "./operations.js";
 import {
   aiCodeOutput,
@@ -158,6 +159,7 @@ export async function createSuggestion(userId: string, resumeId: string, input: 
   if (input.type === "fix_compile" && resume.mode !== "code") {
     throw new ConflictError("Only code-mode resumes can have compile fixes");
   }
+  await assertAiQuota(userId, input.type === "tailor" ? "tailor" : "edit");
 
   const result =
     resume.mode === "code"

@@ -1,5 +1,6 @@
 import { generateStructured } from "../../lib/ai/generate.js";
 import { readUpload } from "../uploads/uploads.service.js";
+import { assertAiQuota } from "../usage/quotas.js";
 import { extractionSchema, normalizeExtraction } from "./extraction.js";
 
 const system = `You extract resumes into structured JSON.
@@ -14,6 +15,7 @@ Rules:
 - Fill every field; use null or [] when something doesn't apply.`;
 
 export async function createImport(userId: string, input: { uploadId: string } | { text: string }) {
+  await assertAiQuota(userId, "import");
   let prompt = "Extract this resume.";
   const files: { data: Buffer; mediaType: string; filename: string }[] = [];
 

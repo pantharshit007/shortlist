@@ -9,6 +9,7 @@ import { shareLinksRouter } from "./modules/share-links/share-links.routes.js";
 import { suggestionsRouter } from "./modules/suggestions/suggestions.routes.js";
 import { templatesRouter } from "./modules/templates/templates.routes.js";
 import { uploadsRouter } from "./modules/uploads/uploads.routes.js";
+import { usageRouter } from "./modules/usage/usage.routes.js";
 import { usersRouter } from "./modules/users/users.routes.js";
 
 export const v1 = Router();
@@ -24,3 +25,4 @@ v1.use(jobsRouter);
 v1.use(suggestionsRouter);
 v1.use(shareLinksRouter);
 v1.use(publicRouter);
+v1.use(usageRouter);

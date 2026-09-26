@@ -6,6 +6,7 @@ import { emptyResumeContent, type ResumeContent, resumeContentSchema } from "../
 import { findTemplate } from "../../templates/index.js";
 import { getProfile } from "../profiles/profiles.service.js";
 import { assertTemplateExists } from "../templates/templates.service.js";
+import { assertResumeQuota } from "../usage/quotas.js";
 import type { z } from "zod";
 import type { createResumeBody, createVersionBody, updateResumeBody } from "./resumes.schemas.js";
 
@@ -149,6 +150,7 @@ async function resolveSource(
 }
 
 export async function createResume(userId: string, input: z.infer<typeof createResumeBody>) {
+  await assertResumeQuota(userId);
   const templateId = input.templateId ?? (input.mode === "structured" ? DEFAULT_TEMPLATE : null);
   if (templateId) await assertTemplateExists(templateId);
   if (input.jobId) await assertJobOwned(userId, input.jobId);
