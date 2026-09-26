@@ -16,7 +16,8 @@ export function PublicShell({
         <div className="mx-auto flex h-14 max-w-4xl items-center gap-3 px-4">
           <Link
             to="/"
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            aria-label={`Made with ${site.name}`}
+            className="flex items-center gap-2 rounded-md text-sm text-muted-foreground hover:text-foreground"
           >
             <LogoMark className="size-6" />
             <span className="hidden sm:inline">Made with {site.name}</span>
@@ -27,13 +28,15 @@ export function PublicShell({
           </div>
         </div>
       </header>
-      <main className="flex-1">{children}</main>
+      <main id="main" tabIndex={-1} className="flex-1 outline-none">
+        {children}
+      </main>
       <footer className="border-t py-8 text-center text-sm text-muted-foreground">
         Want a resume like this?{' '}
         <Link
           to="/login"
           search={{ mode: 'signup' }}
-          className="font-medium text-foreground underline underline-offset-4"
+          className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
         >
           Make yours free on {site.name}
         </Link>

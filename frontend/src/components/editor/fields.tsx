@@ -2,6 +2,11 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 
+type InputPassthrough = Pick<
+  React.ComponentProps<typeof Input>,
+  'autoComplete' | 'inputMode' | 'spellCheck' | 'name' | 'autoCapitalize'
+>
+
 export function TextField({
   id,
   label,
@@ -10,6 +15,7 @@ export function TextField({
   placeholder,
   type = 'text',
   className,
+  ...inputProps
 }: {
   id: string
   label: string
@@ -18,7 +24,7 @@ export function TextField({
   placeholder?: string
   type?: string
   className?: string
-}) {
+} & InputPassthrough) {
   return (
     <Field className={className}>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
@@ -27,6 +33,7 @@ export function TextField({
         type={type}
         value={value ?? ''}
         placeholder={placeholder}
+        {...inputProps}
         onChange={(event) =>
           onChange(event.target.value === '' ? undefined : event.target.value)
         }
@@ -104,16 +111,20 @@ export function ListField({
   value,
   onChange,
   placeholder,
+  hideLabel = false,
 }: {
   id: string
   label: string
   value: string[]
   onChange: (value: string[]) => void
   placeholder?: string
+  hideLabel?: boolean
 }) {
   return (
     <Field>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <FieldLabel htmlFor={id} className={hideLabel ? 'sr-only' : undefined}>
+        {label}
+      </FieldLabel>
       <Input
         id={id}
         defaultValue={value.join(', ')}

@@ -298,6 +298,9 @@ function CreateLinkForm({
           <FieldLabel htmlFor="slug">Link name (optional)</FieldLabel>
           <Input
             id="slug"
+            autoComplete="off"
+            autoCapitalize="none"
+            spellCheck={false}
             placeholder="razorpay-backend"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
@@ -394,7 +397,7 @@ export function SharePanel({
             Send a link instead of an attachment. You'll see when it's opened.
           </SheetDescription>
         </SheetHeader>
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-4">
           {creating || (links && links.length === 0) ? (
             <CreateLinkForm
               resumeId={resumeId}

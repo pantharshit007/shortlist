@@ -216,7 +216,7 @@ function JobsPage() {
               <button
                 type="button"
                 onClick={() => setSelected(job.id)}
-                className="flex w-full items-center gap-4 px-4 py-3.5 text-left outline-none hover:bg-accent/50 focus-visible:bg-accent sm:px-5"
+                className="flex w-full items-center gap-4 px-4 py-3.5 text-left outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:px-5"
               >
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
                   <BriefcaseBusinessIcon className="size-5" />
@@ -275,7 +275,7 @@ function JobsPage() {
         open={selected !== null}
         onOpenChange={(open) => !open && setSelected(null)}
       >
-        <SheetContent className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-md">
+        <SheetContent className="flex w-full flex-col gap-0 overflow-y-auto overscroll-contain sm:max-w-md">
           <SheetHeader className="border-b">
             <SheetTitle>
               {selectedJob ? jobTitle(selectedJob) : 'Job'}

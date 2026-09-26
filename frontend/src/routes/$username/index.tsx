@@ -91,6 +91,7 @@ function ProfilePage() {
                   {resume.hasPassword && (
                     <LockIcon
                       className="size-4 text-muted-foreground"
+                      role="img"
                       aria-label="Password protected"
                     />
                   )}

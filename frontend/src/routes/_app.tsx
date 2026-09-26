@@ -20,7 +20,11 @@ function AppLayout() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="bg-background">
+      <SidebarInset
+        id="main"
+        tabIndex={-1}
+        className="bg-background outline-none"
+      >
         <Outlet />
       </SidebarInset>
     </SidebarProvider>

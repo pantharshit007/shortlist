@@ -19,15 +19,17 @@ import { site } from '@/lib/site'
 import { templateCatalog } from '@/lib/templates'
 
 function SectionHeading({
+  id,
   title,
   children,
 }: {
+  id?: string
   title: string
   children?: React.ReactNode
 }) {
   return (
     <div className="max-w-2xl">
-      <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+      <h2 id={id} className="text-3xl font-semibold tracking-tight sm:text-4xl">
         {title}
       </h2>
       {children && (
@@ -62,10 +64,10 @@ export function HowItWorks() {
       aria-labelledby="how-it-works"
       className="mx-auto max-w-6xl px-5 py-24"
     >
-      <SectionHeading title="From job post to tailored resume in about a minute" />
-      <h2 id="how-it-works" className="sr-only">
-        How it works
-      </h2>
+      <SectionHeading
+        id="how-it-works"
+        title="From job post to tailored resume in about a minute"
+      />
       <ol className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
         {steps.map((step, index) => (
           <li
@@ -269,7 +271,7 @@ export function ShareSection() {
         </p>
       </div>
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-5">
-        <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2.5 font-mono text-sm">
+        <div className="flex min-w-0 items-center gap-2 rounded-md bg-muted px-3 py-2.5 font-mono text-sm break-all">
           <LinkIcon className="size-4 text-muted-foreground" />
           {site.displayDomain}/aarav/swiggy-backend
         </div>

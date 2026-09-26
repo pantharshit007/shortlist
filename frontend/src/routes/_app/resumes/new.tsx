@@ -87,31 +87,31 @@ function TemplatePicker({
     <FieldSet>
       <FieldLegend>Template</FieldLegend>
       <FieldDescription>You can switch templates anytime.</FieldDescription>
-      <div
-        role="radiogroup"
+      <ToggleGroup
+        type="single"
+        value={value}
+        onValueChange={(next) => next && onChange(next as TemplateId)}
         aria-label="Template"
-        className="grid grid-cols-2 gap-4 sm:grid-cols-4"
+        className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4"
       >
         {templateCatalog.map((template) => {
           const selected = template.id === value
           return (
-            <button
+            <ToggleGroupItem
               key={template.id}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              onClick={() => onChange(template.id)}
-              className={cn(
-                'group flex flex-col gap-2 rounded-lg p-1.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                selected && 'bg-primary/10',
-              )}
+              value={template.id}
+              aria-label={template.name}
+              className="group flex h-auto flex-col items-stretch gap-2 rounded-lg p-1.5 text-left data-[state=on]:bg-primary/10"
             >
               <span className="relative block">
                 <img
                   src={`/templates/${template.id}.png`}
                   alt=""
+                  width={1020}
+                  height={1320}
+                  loading="lazy"
                   className={cn(
-                    'aspect-[17/22] w-full rounded-sm bg-sheet object-cover object-top ring-1 ring-black/10 transition',
+                    'aspect-[17/22] w-full rounded-sm bg-sheet object-cover object-top ring-1 ring-black/10 transition-shadow',
                     selected
                       ? 'ring-2 ring-primary'
                       : 'group-hover:ring-foreground/30',
@@ -126,10 +126,10 @@ function TemplatePicker({
               <span className="px-0.5 text-sm font-medium">
                 {template.name}
               </span>
-            </button>
+            </ToggleGroupItem>
           )
         })}
-      </div>
+      </ToggleGroup>
     </FieldSet>
   )
 }
@@ -277,6 +277,8 @@ function NewResumePage() {
             <FieldLabel htmlFor="title">Name</FieldLabel>
             <Input
               id="title"
+              name="title"
+              autoComplete="off"
               placeholder="Backend roles, 2026"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
@@ -356,6 +358,7 @@ function NewResumePage() {
                 <input
                   ref={fileInput}
                   type="file"
+                  aria-label="Choose a resume file"
                   accept=".pdf,.tex,.txt,application/pdf,text/plain"
                   className="sr-only"
                   onChange={(event) => pickFile(event.target.files?.[0])}

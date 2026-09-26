@@ -91,6 +91,7 @@ export function ImportDialog({
             <input
               ref={input}
               type="file"
+              aria-label="Choose a resume file"
               accept=".pdf,.tex,.txt,application/pdf,text/plain"
               className="sr-only"
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}

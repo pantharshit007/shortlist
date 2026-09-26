@@ -99,7 +99,11 @@ function LoginPage() {
           <ThemeToggle />
         </div>
 
-        <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-12">
+        <main
+          id="main"
+          tabIndex={-1}
+          className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-12 outline-none"
+        >
           {sentTo ? (
             <div className="flex flex-col gap-4" aria-live="polite">
               <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -188,6 +192,8 @@ function LoginPage() {
                     <FieldLabel htmlFor="email">Email</FieldLabel>
                     <Input
                       id="email"
+                      name="email"
+                      spellCheck={false}
                       type="email"
                       required
                       autoComplete="email"

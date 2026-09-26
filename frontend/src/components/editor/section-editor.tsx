@@ -285,7 +285,7 @@ function EntriesEditor({
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="Entry actions"
+                    aria-label={`Actions for ${entryLabel(section, entry)}`}
                   >
                     <MoreHorizontalIcon />
                   </Button>
@@ -412,7 +412,8 @@ function SkillsEditor({
           </Field>
           <ListField
             id={`${group.id}-items`}
-            label={index === 0 ? 'Skills, separated by commas' : ' '}
+            label="Skills, separated by commas"
+            hideLabel={index > 0}
             value={group.items}
             placeholder="TypeScript, Go, Python"
             onChange={(items) =>
@@ -469,7 +470,7 @@ export function SectionEditor({
 }) {
   return (
     <section
-      aria-label={section.title}
+      aria-label={section.title || 'Untitled section'}
       className={cn(
         'flex flex-col gap-4 rounded-xl border bg-card p-4 sm:p-5',
         section.hidden && 'opacity-70',

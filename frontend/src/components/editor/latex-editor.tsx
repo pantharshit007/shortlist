@@ -89,6 +89,7 @@ export const LatexEditor = forwardRef<
       syntaxHighlighting(highlight),
       theme,
       EditorView.lineWrapping,
+      EditorView.contentAttributes.of({ 'aria-label': 'LaTeX source' }),
       lintGutter(),
       linter(
         (view): Diagnostic[] =>
@@ -128,7 +129,6 @@ export const LatexEditor = forwardRef<
         highlightActiveLine: true,
         autocompletion: true,
       }}
-      aria-label="LaTeX source"
     />
   )
 })

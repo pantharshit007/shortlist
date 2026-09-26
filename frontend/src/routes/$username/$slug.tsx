@@ -142,6 +142,7 @@ function PasswordForm({
             <FieldLabel htmlFor="share-password">Password</FieldLabel>
             <Input
               id="share-password"
+              autoComplete="current-password"
               type="password"
               autoFocus
               aria-invalid={wrong}

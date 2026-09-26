@@ -156,6 +156,8 @@ function NameVersionDialog({
             </FieldLabel>
             <Input
               id="version-semver"
+              inputMode="decimal"
+              spellCheck={false}
               placeholder="1.0.0"
               value={semver}
               onChange={(e) => setSemver(e.target.value)}
@@ -246,7 +248,7 @@ export function HistoryPanel({
             onCheckedChange={setNamedOnly}
           />
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           {isPending ? (
             <div className="flex flex-col gap-2 p-4">
               {[0, 1, 2, 3].map((i) => (
@@ -275,7 +277,7 @@ export function HistoryPanel({
                       onClick={() =>
                         setSelected(isSelected ? null : version.id)
                       }
-                      className="flex w-full items-center gap-3 px-4 py-3 text-left outline-none focus-visible:bg-muted"
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left outline-none hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                       aria-expanded={isSelected}
                     >
                       <Icon className="size-4 shrink-0 text-muted-foreground" />

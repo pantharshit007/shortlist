@@ -56,7 +56,7 @@ export function PdfPreview({
                     {error.line !== null && onErrorClick ? (
                       <button
                         type="button"
-                        className="font-medium underline underline-offset-2"
+                        className="rounded-sm font-medium underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-ring"
                         onClick={() => onErrorClick(error.line!)}
                       >
                         Line {error.line}

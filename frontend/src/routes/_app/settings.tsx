@@ -157,6 +157,10 @@ function AccountTab({ me }: { me: Me }) {
               <InputGroupAddon>{site.displayDomain}/</InputGroupAddon>
               <InputGroupInput
                 id="username"
+                name="username"
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
                 value={username}
                 aria-invalid={
                   changedUsername && (!validFormat || availability === 'taken')
@@ -510,6 +514,8 @@ function DataTab({ me }: { me: Me }) {
               </AlertDialogHeader>
               <Input
                 aria-label="Your username"
+                autoComplete="off"
+                spellCheck={false}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
               />

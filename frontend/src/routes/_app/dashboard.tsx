@@ -129,7 +129,7 @@ function DashboardPage() {
           {resumes.data.map((resume) => (
             <li
               key={resume.id}
-              className="group relative flex items-center gap-4 px-4 py-3.5 sm:px-5"
+              className="group relative flex items-center gap-4 px-4 py-3.5 focus-within:bg-accent/40 focus-within:ring-2 focus-within:ring-ring focus-within:ring-inset sm:px-5 first:rounded-t-xl last:rounded-b-xl"
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
                 {resume.mode === 'code' ? (

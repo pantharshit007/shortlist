@@ -231,7 +231,11 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
           >
             <HistoryIcon />
           </Button>
-          <Button variant="outline" onClick={() => setShareOpen(true)}>
+          <Button
+            variant="outline"
+            aria-label="Share"
+            onClick={() => setShareOpen(true)}
+          >
             <Share2Icon data-icon="inline-start" />
             <span className="hidden sm:inline">Share</span>
           </Button>
@@ -240,7 +244,7 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
             title={title}
             structured={structured}
           />
-          <Button onClick={() => openAi('tailor')}>
+          <Button aria-label="Improve with AI" onClick={() => openAi('tailor')}>
             <SparklesIcon data-icon="inline-start" />
             <span className="hidden sm:inline">Improve with AI</span>
           </Button>

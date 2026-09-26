@@ -36,6 +36,7 @@ export function ContentEditor({
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             id="basics-name"
+            autoComplete="name"
             label="Full name"
             value={basics.name}
             onChange={(v) => setBasics({ name: v ?? '' })}
@@ -49,6 +50,8 @@ export function ContentEditor({
           />
           <TextField
             id="basics-email"
+            autoComplete="email"
+            spellCheck={false}
             label="Email"
             type="email"
             value={basics.email}
@@ -56,6 +59,8 @@ export function ContentEditor({
           />
           <TextField
             id="basics-phone"
+            autoComplete="tel"
+            inputMode="tel"
             label="Phone"
             type="tel"
             value={basics.phone}

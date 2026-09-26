@@ -9,7 +9,7 @@ export function LinksEditor({
   links,
   onChange,
   idPrefix,
-  labelPlaceholder = 'Github',
+  labelPlaceholder = 'GitHub',
   urlPlaceholder = 'https://github.com/you',
 }: {
   links: Link[]
@@ -63,7 +63,7 @@ export function LinksEditor({
             type="button"
             variant="ghost"
             size="icon"
-            aria-label="Remove link"
+            aria-label={`Remove ${link.label || 'link'}`}
             onClick={() => onChange(links.filter((_, i) => i !== index))}
           >
             <XIcon />

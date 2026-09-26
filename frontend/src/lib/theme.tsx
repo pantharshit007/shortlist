@@ -56,6 +56,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', resolvedTheme === 'dark')
+    // Keep the browser chrome color in step with a theme chosen by hand.
+    const color = getComputedStyle(document.body).backgroundColor
+    document
+      .querySelectorAll('meta[name="theme-color"]')
+      .forEach((meta) => meta.setAttribute('content', color))
   }, [resolvedTheme])
 
   const setTheme = useCallback((next: Theme) => {
