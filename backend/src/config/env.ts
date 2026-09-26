@@ -1,10 +1,7 @@
 import { z } from "zod";
 
 // Treats empty values like `KEY=` in .env as unset.
-const optionalString = z.preprocess(
-  (value) => (value === "" ? undefined : value),
-  z.string().trim().min(1).optional(),
-);
+const optionalString = z.preprocess((value) => (value === "" ? undefined : value), z.string().trim().min(1).optional());
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -61,7 +58,8 @@ const envSchema = z.object({
 
 const parsed = envSchema
   .refine(
-    (e) => e.STORAGE_DRIVER !== "r2" || (e.R2_ACCOUNT_ID && e.R2_ACCESS_KEY_ID && e.R2_SECRET_ACCESS_KEY && e.R2_BUCKET),
+    (e) =>
+      e.STORAGE_DRIVER !== "r2" || (e.R2_ACCOUNT_ID && e.R2_ACCESS_KEY_ID && e.R2_SECRET_ACCESS_KEY && e.R2_BUCKET),
     { message: "STORAGE_DRIVER=r2 needs R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and R2_BUCKET" },
   )
   .refine((e) => e.NODE_ENV !== "production" || e.REDIS_URL, { message: "REDIS_URL is required in production" })

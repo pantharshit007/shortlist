@@ -34,9 +34,17 @@ const commonPackages = String.raw`\documentclass[letterpaper,10pt]{article}
 \end{document}
 `;
 
-const compile = createTectonic({ bin: process.env.TECTONIC_BIN ?? "tectonic", onlyCached: false, timeoutMs: 600_000, concurrency: 1 });
+const compile = createTectonic({
+  bin: process.env.TECTONIC_BIN ?? "tectonic",
+  onlyCached: false,
+  timeoutMs: 600_000,
+  concurrency: 1,
+});
 
-const documents = [...templates.map((t) => ({ name: t.id, tex: t.render(sampleResume) })), { name: "common-packages", tex: commonPackages }];
+const documents = [
+  ...templates.map((t) => ({ name: t.id, tex: t.render(sampleResume) })),
+  { name: "common-packages", tex: commonPackages },
+];
 
 let failed = false;
 for (const doc of documents) {

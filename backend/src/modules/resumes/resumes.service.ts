@@ -95,10 +95,7 @@ export async function appendVersion(
     })
     .returning();
 
-  await tx
-    .update(resumes)
-    .set({ headVersionId: version!.id, updatedAt: new Date() })
-    .where(eq(resumes.id, resume.id));
+  await tx.update(resumes).set({ headVersionId: version!.id, updatedAt: new Date() }).where(eq(resumes.id, resume.id));
   return version!;
 }
 
@@ -129,7 +126,11 @@ async function resolveSource(
     case "tex":
       if (input.mode !== "code") {
         throw new ValidationError([
-          { location: "body", path: "mode", message: "Pasted LaTeX creates a code-mode resume; convert it with an import" },
+          {
+            location: "body",
+            path: "mode",
+            message: "Pasted LaTeX creates a code-mode resume; convert it with an import",
+          },
         ]);
       }
       return { payload: { texSource: source.texSource }, kind: "import", sourceResumeId: null };
@@ -141,7 +142,11 @@ async function resolveSource(
       if (version.content) return { payload: asMode(version.content), kind: "manual", sourceResumeId: original.id };
       if (input.mode === "structured") {
         throw new ValidationError([
-          { location: "body", path: "mode", message: "A code-mode resume can only be copied as code; convert it with an import" },
+          {
+            location: "body",
+            path: "mode",
+            message: "A code-mode resume can only be copied as code; convert it with an import",
+          },
         ]);
       }
       return { payload: { texSource: version.texSource! }, kind: "manual", sourceResumeId: original.id };
@@ -202,7 +207,8 @@ export async function updateResume(userId: string, resumeId: string, changes: z.
   if (changes.title) update.title = changes.title;
   if (changes.pageLimit) update.pageLimit = changes.pageLimit;
   if (changes.templateId) {
-    if (resume.mode === "code") throw new AppError(400, "TEMPLATE_NOT_ALLOWED", "Code-mode resumes don't use templates");
+    if (resume.mode === "code")
+      throw new AppError(400, "TEMPLATE_NOT_ALLOWED", "Code-mode resumes don't use templates");
     await assertTemplateExists(changes.templateId);
     update.templateId = changes.templateId;
   }
@@ -249,12 +255,16 @@ export async function createVersion(userId: string, resumeId: string, input: z.i
       const payload: VersionPayload = from.content
         ? { content: resumeContentSchema.parse(from.content) }
         : { texSource: from.texSource! };
-      return toVersionDetail(await appendVersion(tx, resume, "restore", payload, { label: `Restored from ${from.createdAt.toISOString()}` }));
+      return toVersionDetail(
+        await appendVersion(tx, resume, "restore", payload, { label: `Restored from ${from.createdAt.toISOString()}` }),
+      );
     }
 
     const payload = (input.content ? { content: input.content } : { texSource: input.texSource }) as VersionPayload;
     const kind: VersionKind = input.label ? "named" : "manual";
-    return toVersionDetail(await appendVersion(tx, resume, kind, payload, { label: input.label, semver: input.semver }));
+    return toVersionDetail(
+      await appendVersion(tx, resume, kind, payload, { label: input.label, semver: input.semver }),
+    );
   });
 }
 

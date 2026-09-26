@@ -118,9 +118,6 @@ export const resumeVersions = pgTable(
   },
   (t) => [
     index().on(t.resumeId, t.createdAt),
-    check(
-      "resume_versions_one_content",
-      sql`(${t.content} is not null) <> (${t.texSource} is not null)`,
-    ),
+    check("resume_versions_one_content", sql`(${t.content} is not null) <> (${t.texSource} is not null)`),
   ],
 );

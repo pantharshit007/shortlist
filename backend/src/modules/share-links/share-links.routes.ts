@@ -27,7 +27,12 @@ shareLinksRouter.post(
   "/resumes/:resumeId/share-links",
   requireAuth,
   ...validated({ params: resumeParams, body: createShareLinkBody }, async (req, res) => {
-    sendData(res, shareLinkResponse, await service.createShareLink(currentUser(req).id, req.params.resumeId, req.body), 201);
+    sendData(
+      res,
+      shareLinkResponse,
+      await service.createShareLink(currentUser(req).id, req.params.resumeId, req.body),
+      201,
+    );
   }),
 );
 
@@ -43,7 +48,11 @@ shareLinksRouter.patch(
   "/share-links/:shareLinkId",
   requireAuth,
   ...validated({ params: shareLinkParams, body: updateShareLinkBody }, async (req, res) => {
-    sendData(res, shareLinkResponse, await service.updateShareLink(currentUser(req).id, req.params.shareLinkId, req.body));
+    sendData(
+      res,
+      shareLinkResponse,
+      await service.updateShareLink(currentUser(req).id, req.params.shareLinkId, req.body),
+    );
   }),
 );
 

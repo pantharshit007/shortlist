@@ -50,7 +50,9 @@ describe("makeXetexCompatible", () => {
 
 describe("parseErrors", () => {
   it("extracts line numbers and adds hints", () => {
-    const errors = parseErrors("error: main.tex:12: Misplaced alignment tab character &\nerror: the XeTeX engine had an unrecoverable error");
+    const errors = parseErrors(
+      "error: main.tex:12: Misplaced alignment tab character &\nerror: the XeTeX engine had an unrecoverable error",
+    );
     expect(errors).toEqual([
       { line: 12, message: "Misplaced alignment tab character &", hint: "Write \\& for a literal ampersand." },
     ]);

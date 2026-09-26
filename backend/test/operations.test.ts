@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { applyOperations, factText, isApplicable, type Operation, unverifiedTerms } from "../src/modules/suggestions/operations.js";
+import {
+  applyOperations,
+  factText,
+  isApplicable,
+  type Operation,
+  unverifiedTerms,
+} from "../src/modules/suggestions/operations.js";
 import { resumeContentSchema } from "../src/schemas/resume-content.js";
 
 const content = resumeContentSchema.parse({
@@ -21,7 +27,12 @@ const content = resumeContentSchema.parse({
         },
       ],
     },
-    { id: "sk", type: "skills", title: "Skills", groups: [{ id: "g1", name: "Languages", items: ["Go", "TypeScript"] }] },
+    {
+      id: "sk",
+      type: "skills",
+      title: "Skills",
+      groups: [{ id: "g1", name: "Languages", items: ["Go", "TypeScript"] }],
+    },
   ],
 });
 const op = (fields: object) => ({ id: "x", reason: "", flags: [], ...fields }) as Operation;
@@ -64,7 +75,11 @@ describe("unverifiedTerms", () => {
   });
 
   it("flags invented tools, companies and numbers", () => {
-    expect(unverifiedTerms("Scaled Kafka pipelines to 10M events/day at Stripe", facts)).toEqual(["Kafka", "10M", "Stripe"]);
+    expect(unverifiedTerms("Scaled Kafka pipelines to 10M events/day at Stripe", facts)).toEqual([
+      "Kafka",
+      "10M",
+      "Stripe",
+    ]);
     expect(unverifiedTerms("Reduced p99 latency by 40%", facts)).toEqual(["p99"]);
   });
 });

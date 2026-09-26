@@ -7,8 +7,7 @@ import { type CompileError, createTectonic, makeXetexCompatible } from "./tecton
 
 export type { CompileError };
 export type CompileResult =
-  | { ok: true; pdf: Buffer; pageCount: number; cached: boolean }
-  | { ok: false; errors: CompileError[] };
+  { ok: true; pdf: Buffer; pageCount: number; cached: boolean } | { ok: false; errors: CompileError[] };
 
 // Development only: compiles in-process. Production uses the separate compiler service (COMPILER_URL).
 const localCompile = env.COMPILER_URL

@@ -11,7 +11,14 @@ import { getJob } from "../jobs/jobs.service.js";
 import { getProfile } from "../profiles/profiles.service.js";
 import { appendVersion, getOwnedResume, getResume } from "../resumes/resumes.service.js";
 import { assertAiQuota } from "../usage/quotas.js";
-import { applyOperations, factText, isApplicable, type Operation, operationSchema, unverifiedTerms } from "./operations.js";
+import {
+  applyOperations,
+  factText,
+  isApplicable,
+  type Operation,
+  operationSchema,
+  unverifiedTerms,
+} from "./operations.js";
 import {
   aiCodeOutput,
   aiStructuredOutput,
@@ -63,7 +70,13 @@ function toResponse(run: typeof aiRuns.$inferSelect) {
   };
 }
 
-async function structuredSuggestion(userId: string, resumeId: string, input: CreateInput, content: ResumeContent, pageLimit: number) {
+async function structuredSuggestion(
+  userId: string,
+  resumeId: string,
+  input: CreateInput,
+  content: ResumeContent,
+  pageLimit: number,
+) {
   const profile = (await getProfile(userId)).content;
   let prompt: string;
   let jobId: string | undefined;
@@ -80,7 +93,8 @@ ${input.instructions ? `\nThe user adds: ${input.instructions}\n` : ""}
 <resume>${JSON.stringify(content)}</resume>
 <master_profile>${JSON.stringify(profile)}</master_profile>`;
   } else {
-    const scope = input.type === "edit" && input.targetIds?.length ? `\nOnly change these ids: ${input.targetIds.join(", ")}` : "";
+    const scope =
+      input.type === "edit" && input.targetIds?.length ? `\nOnly change these ids: ${input.targetIds.join(", ")}` : "";
     prompt = `Apply this request to the resume: ${input.type === "edit" ? input.instruction : ""}${scope}
 <resume>${JSON.stringify(content)}</resume>
 <master_profile>${JSON.stringify(profile)}</master_profile>`;
@@ -144,7 +158,9 @@ ${input.instructions ? `The user adds: ${input.instructions}\n` : ""}
 
   // Every LaTeX suggestion is compiled before the user sees it.
   const compiled = await compileTex(data.texSource);
-  const flags = compiled.ok ? [] : compiled.errors.map((e) => `Does not compile${e.line ? ` (line ${e.line})` : ""}: ${e.message}`);
+  const flags = compiled.ok
+    ? []
+    : compiled.errors.map((e) => `Does not compile${e.line ? ` (line ${e.line})` : ""}: ${e.message}`);
   const operations: Operation[] = [
     { type: "replace_source", texSource: data.texSource, id: shortId(), reason: data.reason, flags },
   ];
@@ -168,7 +184,9 @@ export async function createSuggestion(userId: string, resumeId: string, input: 
 
   const [run] = await db
     .update(aiRuns)
-    .set({ patchOps: { type: input.type, baseVersionId: head.id, summary: result.summary, operations: result.operations } })
+    .set({
+      patchOps: { type: input.type, baseVersionId: head.id, summary: result.summary, operations: result.operations },
+    })
     .where(eq(aiRuns.id, result.runId))
     .returning();
   return toResponse(run!);
@@ -179,7 +197,12 @@ async function getOwnedSuggestionRun(userId: string, resumeId: string, suggestio
     .select()
     .from(aiRuns)
     .where(
-      and(eq(aiRuns.id, suggestionId), eq(aiRuns.userId, userId), eq(aiRuns.resumeId, resumeId), isNotNull(aiRuns.patchOps)),
+      and(
+        eq(aiRuns.id, suggestionId),
+        eq(aiRuns.userId, userId),
+        eq(aiRuns.resumeId, resumeId),
+        isNotNull(aiRuns.patchOps),
+      ),
     )
     .limit(1);
   if (!run) throw new NotFoundError("Suggestion");
@@ -222,7 +245,13 @@ export async function applySuggestion(userId: string, resumeId: string, suggesti
     if (resume.mode === "code") {
       const replacement = accepted.find((op) => op.type === "replace_source");
       if (!replacement || replacement.type !== "replace_source") throw new ConflictError("Nothing to apply");
-      version = await appendVersion(tx, resume, "ai", { texSource: replacement.texSource }, { label: suggestion.summary.slice(0, 80) });
+      version = await appendVersion(
+        tx,
+        resume,
+        "ai",
+        { texSource: replacement.texSource },
+        { label: suggestion.summary.slice(0, 80) },
+      );
     } else {
       const applicable = accepted.filter((op) => isApplicable(current.head!.content!, op));
       if (applicable.length === 0) throw new ConflictError("The resume changed and these operations no longer apply");

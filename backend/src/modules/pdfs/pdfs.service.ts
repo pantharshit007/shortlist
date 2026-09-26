@@ -27,7 +27,10 @@ export async function compileOrThrow(tex: string) {
 }
 
 export function pdfFileName(...parts: (string | undefined)[]) {
-  const name = parts.map((part) => slugify(part ?? "", 40)).filter(Boolean).join("_");
+  const name = parts
+    .map((part) => slugify(part ?? "", 40))
+    .filter(Boolean)
+    .join("_");
   return `${name || "resume"}.pdf`;
 }
 

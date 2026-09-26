@@ -94,7 +94,12 @@ export async function exportMyData(userId: string) {
     ? await db
         .select()
         .from(resumeVersions)
-        .where(inArray(resumeVersions.resumeId, resumeRows.map((r) => r.id)))
+        .where(
+          inArray(
+            resumeVersions.resumeId,
+            resumeRows.map((r) => r.id),
+          ),
+        )
         .orderBy(asc(resumeVersions.createdAt))
     : [];
   const [jobRows, links, uploadRows, subscriptionRows] = await Promise.all([

@@ -8,9 +8,7 @@ export const publicProfileResponse = z.object({
   username: z.string(),
   name: z.string(),
   image: z.string().nullable(),
-  resumes: z.array(
-    z.object({ slug: z.string(), title: z.string(), hasPassword: z.boolean(), updatedAt: z.date() }),
-  ),
+  resumes: z.array(z.object({ slug: z.string(), title: z.string(), hasPassword: z.boolean(), updatedAt: z.date() })),
 });
 
 export const publicResumeResponse = z.object({

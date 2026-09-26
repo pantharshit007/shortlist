@@ -19,7 +19,9 @@ async function slugTaken(userId: string, slug: string, exceptId?: string) {
   const [existing] = await db
     .select({ id: shareLinks.id })
     .from(shareLinks)
-    .where(and(eq(shareLinks.userId, userId), eq(shareLinks.slug, slug), exceptId ? ne(shareLinks.id, exceptId) : undefined))
+    .where(
+      and(eq(shareLinks.userId, userId), eq(shareLinks.slug, slug), exceptId ? ne(shareLinks.id, exceptId) : undefined),
+    )
     .limit(1);
   return Boolean(existing);
 }
@@ -113,7 +115,8 @@ export async function updateShareLink(
   },
 ) {
   const link = await getOwnedShareLink(userId, shareLinkId);
-  if (changes.slug && (await slugTaken(userId, changes.slug, link.id))) throw new ConflictError("You already use this slug");
+  if (changes.slug && (await slugTaken(userId, changes.slug, link.id)))
+    throw new ConflictError("You already use this slug");
   if (changes.pinnedVersionId) await assertVersionOfResume(link.resumeId, changes.pinnedVersionId);
 
   const [updated] = await db
@@ -146,7 +149,10 @@ export async function getShareLinkStats(userId: string, shareLinkId: string) {
   const day = sql<string>`to_char(date_trunc('day', ${linkViews.viewedAt}), 'YYYY-MM-DD')`;
 
   const [[unique], byDay, referrers, countries] = await Promise.all([
-    db.select({ value: countDistinct(linkViews.visitorHash) }).from(linkViews).where(eq(linkViews.shareLinkId, link.id)),
+    db
+      .select({ value: countDistinct(linkViews.visitorHash) })
+      .from(linkViews)
+      .where(eq(linkViews.shareLinkId, link.id)),
     db.select({ day, views: count() }).from(linkViews).where(recent).groupBy(day).orderBy(day),
     db
       .select({ referrer: sql<string>`coalesce(${linkViews.referrer}, 'direct')`, views: count() })

@@ -65,7 +65,14 @@ async function resolveLink(username: string, slug: string, password: string | un
     .select({ link: shareLinks, resume: resumes })
     .from(shareLinks)
     .innerJoin(resumes, eq(resumes.id, shareLinks.resumeId))
-    .where(and(eq(shareLinks.userId, user.id), eq(shareLinks.slug, slug), isNull(shareLinks.deletedAt), isNull(resumes.deletedAt)))
+    .where(
+      and(
+        eq(shareLinks.userId, user.id),
+        eq(shareLinks.slug, slug),
+        isNull(shareLinks.deletedAt),
+        isNull(resumes.deletedAt),
+      ),
+    )
     .limit(1);
   if (!row) throw new NotFoundError("Resume");
   if (row.link.expiresAt && row.link.expiresAt <= new Date()) {
@@ -92,7 +99,11 @@ async function recordView(link: typeof shareLinks.$inferSelect, viewer: Viewer) 
   const visitorHash = createHmac("sha256", env.BETTER_AUTH_SECRET)
     .update(`${viewer.visitorKey}|${viewer.userAgent}|${day}`)
     .digest("hex");
-  const device = /ipad|tablet/i.test(viewer.userAgent) ? "tablet" : /mobile|android|iphone/i.test(viewer.userAgent) ? "mobile" : "desktop";
+  const device = /ipad|tablet/i.test(viewer.userAgent)
+    ? "tablet"
+    : /mobile|android|iphone/i.test(viewer.userAgent)
+      ? "mobile"
+      : "desktop";
   const referrer = URL.canParse(viewer.referrer ?? "") ? new URL(viewer.referrer!).hostname : null;
 
   await db.insert(linkViews).values({

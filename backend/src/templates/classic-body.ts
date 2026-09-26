@@ -41,8 +41,13 @@ function renderSectionBody(section: ResumeSection): string {
         .map((e) => {
           const name = e.url ? `\\href{${texUrl(e.url)}}{\\textbf{${tex(e.name)}}}` : `\\textbf{${tex(e.name)}}`;
           const tech = e.technologies.length ? ` $|$ \\emph{${tex(e.technologies.join(", "))}}` : "";
-          const links = e.links.map((link) => ` $|$ \\href{${texUrl(link.url)}}{\\underline{${tex(link.label)}}}`).join("");
-          return [`\\resumeProjectHeading{${name}${tech}${links}}{${dateRange(e.start, e.end)}}`, bullets(e.bullets)].join("\n");
+          const links = e.links
+            .map((link) => ` $|$ \\href{${texUrl(link.url)}}{\\underline{${tex(link.label)}}}`)
+            .join("");
+          return [
+            `\\resumeProjectHeading{${name}${tech}${links}}{${dateRange(e.start, e.end)}}`,
+            bullets(e.bullets),
+          ].join("\n");
         })
         .join("\n");
     case "list":
@@ -71,7 +76,9 @@ export function renderSections(sections: ResumeSection[]) {
       }
       if (section.type === "links") {
         if (section.links.length === 0) return "";
-        const links = section.links.map((link) => `\\href{${texUrl(link.url)}}{\\underline{${tex(link.label)}}}`).join(", ");
+        const links = section.links
+          .map((link) => `\\href{${texUrl(link.url)}}{\\underline{${tex(link.label)}}}`)
+          .join(", ");
         return `\\section{${tex(section.title)}}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n\\small{\\item{${links}}}\n\\end{itemize}`;
       }
       if (section.entries.length === 0) return "";

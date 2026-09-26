@@ -49,7 +49,11 @@ export async function listVersions(
   res: Response,
 ) {
   const { limit, before } = req.query;
-  sendData(res, versionListResponse, await service.listVersions(currentUser(req).id, req.params.resumeId, limit, before));
+  sendData(
+    res,
+    versionListResponse,
+    await service.listVersions(currentUser(req).id, req.params.resumeId, limit, before),
+  );
 }
 
 export async function createVersion(
@@ -79,4 +83,3 @@ export async function updateVersion(
   const { resumeId, versionId } = req.params;
   sendData(res, versionDetail, await service.updateVersion(currentUser(req).id, resumeId, versionId, req.body));
 }
-

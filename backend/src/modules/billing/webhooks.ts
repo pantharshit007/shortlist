@@ -9,8 +9,12 @@ type Entity = Record<string, unknown> & { id: string };
 type RazorpayEvent = {
   event: string;
   payload: {
-    payment?: { entity: Entity & { order_id?: string; method?: string; amount?: number; notes?: Record<string, string> } };
-    subscription?: { entity: Entity & { current_start?: number; current_end?: number; notes?: Record<string, string> } };
+    payment?: {
+      entity: Entity & { order_id?: string; method?: string; amount?: number; notes?: Record<string, string> };
+    };
+    subscription?: {
+      entity: Entity & { current_start?: number; current_end?: number; notes?: Record<string, string> };
+    };
     refund?: { entity: Entity & { payment_id?: string } };
   };
 };
@@ -39,7 +43,13 @@ async function onPaymentCaptured(payment: NonNullable<RazorpayEvent["payload"]["
     const [current] = await db
       .select({ end: subscriptions.currentPeriodEnd })
       .from(subscriptions)
-      .where(and(eq(subscriptions.userId, row.userId), eq(subscriptions.plan, "season_pass"), eq(subscriptions.status, "active")))
+      .where(
+        and(
+          eq(subscriptions.userId, row.userId),
+          eq(subscriptions.plan, "season_pass"),
+          eq(subscriptions.status, "active"),
+        ),
+      )
       .orderBy(subscriptions.currentPeriodEnd);
     const start = current?.end && current.end > new Date() ? current.end : new Date();
     const end = new Date(start);
@@ -55,7 +65,11 @@ async function onPaymentCaptured(payment: NonNullable<RazorpayEvent["payload"]["
 async function onSubscriptionEvent(event: RazorpayEvent, raw: unknown) {
   const remote = event.payload.subscription?.entity;
   if (!remote) return;
-  const [row] = await db.select().from(subscriptions).where(eq(subscriptions.razorpaySubscriptionId, remote.id)).limit(1);
+  const [row] = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.razorpaySubscriptionId, remote.id))
+    .limit(1);
   if (!row) {
     logger.warn({ subscriptionId: remote.id }, "Webhook for unknown subscription");
     return;
@@ -116,7 +130,8 @@ export async function handleRazorpayEvent(event: RazorpayEvent, eventId: string 
       break;
     case "refund.processed": {
       const paymentId = event.payload.refund?.entity.payment_id;
-      if (paymentId) await db.update(payments).set({ status: "refunded" }).where(eq(payments.razorpayPaymentId, paymentId));
+      if (paymentId)
+        await db.update(payments).set({ status: "refunded" }).where(eq(payments.razorpayPaymentId, paymentId));
       break;
     }
     case "subscription.activated":

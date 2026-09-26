@@ -79,7 +79,11 @@ function header(basics: ResumeContent["basics"]) {
 
 function bullets(items: { text: string }[]) {
   if (items.length === 0) return "";
-  return ["\\resumeItemListStart", ...items.map((item) => `  \\resumeItem{${texRich(item.text)}}`), "\\resumeItemListEnd"].join("\n");
+  return [
+    "\\resumeItemListStart",
+    ...items.map((item) => `  \\resumeItem{${texRich(item.text)}}`),
+    "\\resumeItemListEnd",
+  ].join("\n");
 }
 
 const link = (url: string, label: string) => `\\href{${texUrl(url)}}{\\underline{${tex(label)}}}`;
@@ -96,7 +100,10 @@ function renderSection(s: ResumeSection): string {
         .map((group) => `    \\textbf{${tex(group.name)}}{: ${tex(group.items.join(", "))}}`)
         .join(" \\\\\n");
       if (!lines) return "";
-      return section(s.title, `\\begin{itemize}[leftmargin=0.15in, label={}]\n  \\item \\small{\n${lines}\n  }\n\\end{itemize}`);
+      return section(
+        s.title,
+        `\\begin{itemize}[leftmargin=0.15in, label={}]\n  \\item \\small{\n${lines}\n  }\n\\end{itemize}`,
+      );
     }
     case "links":
       if (s.links.length === 0) return "";
@@ -112,12 +119,17 @@ function renderSection(s: ResumeSection): string {
           bullets(e.bullets),
         ].join("\n"),
       );
-      return section(s.title, `\\resumeSubHeadingListStart\n${entries.join("\n\\vspace{-5pt}\n")}\n\\resumeSubHeadingListEnd`);
+      return section(
+        s.title,
+        `\\resumeSubHeadingListStart\n${entries.join("\n\\vspace{-5pt}\n")}\n\\resumeSubHeadingListEnd`,
+      );
     }
     case "education": {
       if (s.entries.length === 0) return "";
       const entries = s.entries.map((e) => {
-        const degree = [e.degree ? tex(e.degree) : "", e.field ? `\\textbf{${tex(e.field)}}` : ""].filter(Boolean).join(" in ");
+        const degree = [e.degree ? tex(e.degree) : "", e.field ? `\\textbf{${tex(e.field)}}` : ""]
+          .filter(Boolean)
+          .join(" in ");
         const subtitle = [degree, e.score ? `(${tex(e.score)})` : ""].filter(Boolean).join(" ");
         return [
           `\\resumeSubheading\n  {${tex(e.institution)}}{${dateRange(e.start, e.end)}}\n  {${subtitle}}{${tex(e.location)}}`,
@@ -134,9 +146,15 @@ function renderSection(s: ResumeSection): string {
           ? ` $|$ \\emph{${e.technologies.map((t) => `\\textbf{${tex(t)}}`).join(", ")}}`
           : "";
         const links = e.links.map((l) => ` $|$ ${link(l.url, l.label)}`).join("");
-        return [`\\resumeProjectHeading\n  {${title}${tech}${links}}{${dateRange(e.start, e.end)}}\n\\vspace{-10pt}`, bullets(e.bullets)].join("\n");
+        return [
+          `\\resumeProjectHeading\n  {${title}${tech}${links}}{${dateRange(e.start, e.end)}}\n\\vspace{-10pt}`,
+          bullets(e.bullets),
+        ].join("\n");
       });
-      return section(s.title, `\\resumeSubHeadingListStart\n${entries.join("\n\\vspace{-13pt}\n")}\n\\resumeSubHeadingListEnd`);
+      return section(
+        s.title,
+        `\\resumeSubHeadingListStart\n${entries.join("\n\\vspace{-13pt}\n")}\n\\resumeSubHeadingListEnd`,
+      );
     }
     case "list": {
       if (s.entries.length === 0) return "";

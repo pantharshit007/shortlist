@@ -35,7 +35,12 @@ publicRouter.get(
   optionalAuth,
   ...validated({ params: publicResumeParams }, async (req, res) => {
     const { username, slug } = req.params;
-    const { data, isListed } = await service.getPublicResume(username, slug, req.get("x-share-password"), viewerFrom(req));
+    const { data, isListed } = await service.getPublicResume(
+      username,
+      slug,
+      req.get("x-share-password"),
+      viewerFrom(req),
+    );
     if (!isListed) res.set("X-Robots-Tag", "noindex, nofollow");
     sendData(res, publicResumeResponse, data);
   }),
@@ -45,7 +50,11 @@ publicRouter.get(
   "/public/users/:username/resumes/:slug/pdf",
   ...validated({ params: publicResumeParams }, async (req, res) => {
     const { username, slug } = req.params;
-    const { resume, version, isListed } = await service.getPublicResumeForPdf(username, slug, req.get("x-share-password"));
+    const { resume, version, isListed } = await service.getPublicResumeForPdf(
+      username,
+      slug,
+      req.get("x-share-password"),
+    );
     const { pdf, pageCount } = await compileOrThrow(texForVersion(resume, version));
     if (!isListed) res.set("X-Robots-Tag", "noindex, nofollow");
     sendPdf(res, pdf, pdfFileName(version.content?.basics.name, resume.title), pageCount);

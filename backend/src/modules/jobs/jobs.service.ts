@@ -22,7 +22,11 @@ async function fetchJobText(url: string) {
   }).catch(() => null);
   const text = response?.ok ? (await response.text()).trim() : "";
   if (text.length < 200) {
-    throw new AppError(422, "JOB_URL_UNREADABLE", "Couldn't read that job page. Paste the job description text instead.");
+    throw new AppError(
+      422,
+      "JOB_URL_UNREADABLE",
+      "Couldn't read that job page. Paste the job description text instead.",
+    );
   }
   return text.slice(0, 30_000);
 }
@@ -61,7 +65,13 @@ export async function createJob(userId: string, input: { rawText: string } | { s
 
 export async function listJobs(userId: string) {
   return db
-    .select({ id: jobs.id, company: jobs.company, role: jobs.role, sourceUrl: jobs.sourceUrl, createdAt: jobs.createdAt })
+    .select({
+      id: jobs.id,
+      company: jobs.company,
+      role: jobs.role,
+      sourceUrl: jobs.sourceUrl,
+      createdAt: jobs.createdAt,
+    })
     .from(jobs)
     .where(eq(jobs.userId, userId))
     .orderBy(desc(jobs.createdAt));

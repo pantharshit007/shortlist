@@ -47,7 +47,10 @@ export const createVersionBody = z.discriminatedUnion("kind", [
     content: resumeContentSchema.optional(),
     texSource: texSourceSchema.optional(),
     label: z.string().trim().min(1).max(80).optional(),
-    semver: z.string().regex(/^\d+\.\d+\.\d+$/).optional(),
+    semver: z
+      .string()
+      .regex(/^\d+\.\d+\.\d+$/)
+      .optional(),
   }),
   z.object({ kind: z.literal("restore"), fromVersionId: idParam }),
   // Applies the accepted operations of an AI suggestion.
@@ -57,7 +60,11 @@ export const createVersionBody = z.discriminatedUnion("kind", [
 export const updateVersionBody = z
   .object({
     label: z.string().trim().min(1).max(80).nullable().optional(),
-    semver: z.string().regex(/^\d+\.\d+\.\d+$/).nullable().optional(),
+    semver: z
+      .string()
+      .regex(/^\d+\.\d+\.\d+$/)
+      .nullable()
+      .optional(),
   })
   .refine((body) => Object.keys(body).length > 0, "Provide at least one field to update");
 

@@ -73,7 +73,17 @@ export const sampleResume: ResumeContent = resumeContentSchema.parse({
         },
       ],
     },
-    { id: "ach", type: "list", title: "Achievements", entries: [{ id: "a1", title: "Codeforces Expert", date: "2025" }] },
-    { id: "links", type: "links", title: "Profile Links", links: [{ label: "Leetcode", url: "https://leetcode.com/aarav" }] },
+    {
+      id: "ach",
+      type: "list",
+      title: "Achievements",
+      entries: [{ id: "a1", title: "Codeforces Expert", date: "2025" }],
+    },
+    {
+      id: "links",
+      type: "links",
+      title: "Profile Links",
+      links: [{ label: "Leetcode", url: "https://leetcode.com/aarav" }],
+    },
   ],
 });

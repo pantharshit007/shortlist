@@ -10,7 +10,8 @@ describe("usernames", () => {
 
   it("enforces the username format", () => {
     for (const valid of ["abc", "saurav-jha", "a1-b2"]) expect(USERNAME_PATTERN.test(valid)).toBe(true);
-    for (const invalid of ["ab", "-abc", "abc-", "Saurav", "a_b", "a".repeat(31)]) expect(USERNAME_PATTERN.test(invalid)).toBe(false);
+    for (const invalid of ["ab", "-abc", "abc-", "Saurav", "a_b", "a".repeat(31)])
+      expect(USERNAME_PATTERN.test(invalid)).toBe(false);
   });
 
   it("reserves app routes", () => {

@@ -32,12 +32,7 @@ export const subscriptions = pgTable(
   (t) => [index().on(t.userId)],
 );
 
-export const paymentStatus = pgEnum("payment_status", [
-  "created",
-  "captured",
-  "failed",
-  "refunded",
-]);
+export const paymentStatus = pgEnum("payment_status", ["created", "captured", "failed", "refunded"]);
 
 // Each Razorpay transaction, for receipts, refunds and support.
 export const payments = pgTable(

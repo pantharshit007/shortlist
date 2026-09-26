@@ -29,11 +29,15 @@ billingRouter.delete("/subscription", requireAuth, async (req, res) => {
 // Mounted before express.json() in app.ts: the signature is computed over the raw body.
 export const razorpayWebhookRouter = Router();
 
-razorpayWebhookRouter.post("/v1/webhooks/razorpay", express.raw({ type: "application/json", limit: "1mb" }), async (req, res) => {
-  const body = req.body as Buffer;
-  if (!Buffer.isBuffer(body) || !verifyWebhookSignature(body, req.get("x-razorpay-signature"))) {
-    throw new AppError(400, "INVALID_SIGNATURE", "Webhook signature verification failed");
-  }
-  await handleRazorpayEvent(JSON.parse(body.toString("utf8")), req.get("x-razorpay-event-id"));
-  res.status(200).json({ data: { received: true } });
-});
+razorpayWebhookRouter.post(
+  "/v1/webhooks/razorpay",
+  express.raw({ type: "application/json", limit: "1mb" }),
+  async (req, res) => {
+    const body = req.body as Buffer;
+    if (!Buffer.isBuffer(body) || !verifyWebhookSignature(body, req.get("x-razorpay-signature"))) {
+      throw new AppError(400, "INVALID_SIGNATURE", "Webhook signature verification failed");
+    }
+    await handleRazorpayEvent(JSON.parse(body.toString("utf8")), req.get("x-razorpay-event-id"));
+    res.status(200).json({ data: { received: true } });
+  },
+);

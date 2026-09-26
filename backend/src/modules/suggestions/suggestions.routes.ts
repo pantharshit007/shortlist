@@ -4,7 +4,12 @@ import { currentUser, requireAuth } from "../../middleware/require-auth.js";
 import { aiLimiter } from "../../middleware/rate-limit.js";
 import { validated } from "../../middleware/validate.js";
 import { resumeParams } from "../resumes/resumes.schemas.js";
-import { createSuggestionBody, suggestionListResponse, suggestionParams, suggestionResponse } from "./suggestions.schemas.js";
+import {
+  createSuggestionBody,
+  suggestionListResponse,
+  suggestionParams,
+  suggestionResponse,
+} from "./suggestions.schemas.js";
 import * as service from "./suggestions.service.js";
 
 export const suggestionsRouter = Router();

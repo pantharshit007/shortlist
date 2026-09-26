@@ -22,7 +22,10 @@ const hints: [RegExp, string][] = [
   [/Missing \$ inserted/, "Characters like _ ^ or $ need a backslash, e.g. \\_ or \\$."],
   [/Undefined control sequence/, "A command is misspelled or its package is missing."],
   [/File `(.+)' not found/, "This package or file isn't available. Remove it or use a supported package."],
-  [/File ended while scanning|Emergency stop|end of file/i, "A brace { or environment \\begin{...} is probably not closed."],
+  [
+    /File ended while scanning|Emergency stop|end of file/i,
+    "A brace { or environment \\begin{...} is probably not closed.",
+  ],
 ];
 
 export function parseErrors(output: string): CompileError[] {
@@ -59,7 +62,11 @@ export function createTectonic(options: TectonicOptions) {
     return new Promise((resolve, reject) => {
       const child = spawn(options.bin, args, {
         cwd,
-        env: { PATH: process.env.PATH ?? "", HOME: process.env.HOME ?? cwd, XDG_CACHE_HOME: process.env.XDG_CACHE_HOME ?? "" },
+        env: {
+          PATH: process.env.PATH ?? "",
+          HOME: process.env.HOME ?? cwd,
+          XDG_CACHE_HOME: process.env.XDG_CACHE_HOME ?? "",
+        },
         stdio: ["ignore", "pipe", "pipe"],
       });
       let output = "";
@@ -90,7 +97,13 @@ export function createTectonic(options: TectonicOptions) {
         if (timedOut) {
           return {
             ok: false,
-            errors: [{ line: null, message: "Compilation took too long and was stopped", hint: "Check for loops or very large content." }],
+            errors: [
+              {
+                line: null,
+                message: "Compilation took too long and was stopped",
+                hint: "Check for loops or very large content.",
+              },
+            ],
           };
         }
         if (code !== 0) return { ok: false, errors: parseErrors(output) };

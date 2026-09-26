@@ -74,7 +74,11 @@ export function isApplicable(content: ResumeContent, op: z.infer<typeof operatio
       return hasTarget(content, op.targetId);
     case "reorder": {
       const current = childIds(content, op.parentId);
-      return Boolean(current) && current!.length === op.orderedIds.length && current!.every((id) => op.orderedIds.includes(id));
+      return (
+        Boolean(current) &&
+        current!.length === op.orderedIds.length &&
+        current!.every((id) => op.orderedIds.includes(id))
+      );
     }
     case "update_skills": {
       const group = findSkillGroup(content, op.groupId);
@@ -118,7 +122,8 @@ export function applyOperations(content: ResumeContent, operations: Operation[])
         for (const section of next.sections) {
           if (section.id === op.parentId) {
             if (section.type === "skills") section.groups = reorderBy(section.groups, op.orderedIds);
-            else if (section.type !== "links") (section as { entries: Entry[] }).entries = reorderBy(entriesOf(section), op.orderedIds);
+            else if (section.type !== "links")
+              (section as { entries: Entry[] }).entries = reorderBy(entriesOf(section), op.orderedIds);
           }
           for (const entry of entriesOf(section)) {
             if (entry.id === op.parentId) entry.bullets = reorderBy(entry.bullets, op.orderedIds);
@@ -140,7 +145,18 @@ export function applyOperations(content: ResumeContent, operations: Operation[])
 // Terms that look like facts: numbers, and technology or proper names.
 const factPattern =
   /\b\d+(?:[.,]\d+)?(?:\s*(?:%|x|\+|[kKmMbB]\b|cr\b|lpa\b|ms\b))?|\b[a-z]+\d+[a-z0-9]*\b|\b[A-Z][A-Za-z0-9]*(?:[.#+-][A-Za-z0-9]+)*\+{0,2}|\b[a-z]+(?:\.[a-z]+)+\b/g;
-const ignored = new Set(["i", "a", "the", "built", "led", "developed", "designed", "implemented", "created", "improved"]);
+const ignored = new Set([
+  "i",
+  "a",
+  "the",
+  "built",
+  "led",
+  "developed",
+  "designed",
+  "implemented",
+  "created",
+  "improved",
+]);
 
 function normalizeTerm(term: string) {
   return term.toLowerCase().replace(/\s+/g, "");

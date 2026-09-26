@@ -20,7 +20,10 @@ resumesRouter.use("/resumes", requireAuth);
 resumesRouter.get("/resumes", ...validated({ query: listResumesQuery }, controller.listResumes));
 resumesRouter.post("/resumes", ...validated({ body: createResumeBody }, controller.createResume));
 resumesRouter.get("/resumes/:resumeId", ...validated({ params: resumeParams }, controller.getResume));
-resumesRouter.patch("/resumes/:resumeId", ...validated({ params: resumeParams, body: updateResumeBody }, controller.updateResume));
+resumesRouter.patch(
+  "/resumes/:resumeId",
+  ...validated({ params: resumeParams, body: updateResumeBody }, controller.updateResume),
+);
 resumesRouter.delete("/resumes/:resumeId", ...validated({ params: resumeParams }, controller.deleteResume));
 
 resumesRouter.get(
@@ -31,7 +34,10 @@ resumesRouter.post(
   "/resumes/:resumeId/versions",
   ...validated({ params: resumeParams, body: createVersionBody }, controller.createVersion),
 );
-resumesRouter.get("/resumes/:resumeId/versions/:versionId", ...validated({ params: versionParams }, controller.getVersion));
+resumesRouter.get(
+  "/resumes/:resumeId/versions/:versionId",
+  ...validated({ params: versionParams }, controller.getVersion),
+);
 resumesRouter.patch(
   "/resumes/:resumeId/versions/:versionId",
   ...validated({ params: versionParams, body: updateVersionBody }, controller.updateVersion),

@@ -8,9 +8,7 @@ type Schemas = {
   query?: z.ZodType;
 };
 
-type Parsed<S extends Schemas, K extends keyof Schemas> = S[K] extends z.ZodType
-  ? z.infer<S[K]>
-  : Request[K];
+type Parsed<S extends Schemas, K extends keyof Schemas> = S[K] extends z.ZodType ? z.infer<S[K]> : Request[K];
 
 // Request type for a handler behind `validate(schemas)`.
 export type ValidatedRequest<S extends Schemas> = Request<

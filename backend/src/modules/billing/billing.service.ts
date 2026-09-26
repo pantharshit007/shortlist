@@ -44,7 +44,15 @@ export async function createCheckout(userId: string, plan: "season_pass" | "pro"
       razorpayOrderId: order.id,
       amountPaise: prices.season_pass,
     });
-    return { provider: "razorpay" as const, keyId, plan, orderId: order.id, razorpaySubscriptionId: null, amountPaise: prices.season_pass, currency: "INR" as const };
+    return {
+      provider: "razorpay" as const,
+      keyId,
+      plan,
+      orderId: order.id,
+      razorpaySubscriptionId: null,
+      amountPaise: prices.season_pass,
+      currency: "INR" as const,
+    };
   }
 
   if (!env.RAZORPAY_PRO_PLAN_ID) throw new AppError(503, "PAYMENTS_NOT_CONFIGURED", "The Pro plan is not configured");
@@ -62,7 +70,15 @@ export async function createCheckout(userId: string, plan: "season_pass" | "pro"
     notes: { userId, plan },
   });
   await db.insert(subscriptions).values({ userId, plan, status: "created", razorpaySubscriptionId: remote.id });
-  return { provider: "razorpay" as const, keyId, plan, orderId: null, razorpaySubscriptionId: remote.id, amountPaise: prices.pro, currency: "INR" as const };
+  return {
+    provider: "razorpay" as const,
+    keyId,
+    plan,
+    orderId: null,
+    razorpaySubscriptionId: remote.id,
+    amountPaise: prices.pro,
+    currency: "INR" as const,
+  };
 }
 
 export async function getSubscription(userId: string) {

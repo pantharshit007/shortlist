@@ -55,7 +55,8 @@ const date = (value: string | null | undefined) => {
   const v = clean(value)?.toLowerCase();
   return v && yearMonth.test(v) ? v : undefined;
 };
-const endDate = (value: string | null | undefined) => (clean(value)?.toLowerCase() === "present" ? "present" : date(value));
+const endDate = (value: string | null | undefined) =>
+  clean(value)?.toLowerCase() === "present" ? "present" : date(value);
 const url = (value: string | null | undefined) => {
   const v = clean(value);
   if (!v) return undefined;
@@ -67,7 +68,8 @@ const links = (items: { label: string; url: string }[]) =>
     const u = url(item.url);
     return u && clean(item.label) ? [{ label: item.label.trim().slice(0, 40), url: u }] : [];
   });
-const bullets = (items: string[]) => items.filter((b) => b.trim()).map((b) => ({ id: shortId(), text: b.trim().slice(0, 600), hidden: false }));
+const bullets = (items: string[]) =>
+  items.filter((b) => b.trim()).map((b) => ({ id: shortId(), text: b.trim().slice(0, 600), hidden: false }));
 
 function normalizeSection(section: Extraction["sections"][number]): ResumeSection | null {
   const base = { id: shortId(), title: clean(section.title) ?? section.type, hidden: false };
@@ -80,8 +82,14 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
         entries: e
           .filter((x) => clean(x.organization) || clean(x.role))
           .map((x) => ({
-            id: shortId(), hidden: false, organization: clean(x.organization) ?? "", role: clean(x.role) ?? "",
-            location: clean(x.location), start: date(x.start), end: endDate(x.end), bullets: bullets(x.bullets),
+            id: shortId(),
+            hidden: false,
+            organization: clean(x.organization) ?? "",
+            role: clean(x.role) ?? "",
+            location: clean(x.location),
+            start: date(x.start),
+            end: endDate(x.end),
+            bullets: bullets(x.bullets),
           })),
       };
     case "education":
@@ -91,8 +99,15 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
         entries: e
           .filter((x) => clean(x.institution))
           .map((x) => ({
-            id: shortId(), hidden: false, institution: clean(x.institution)!, degree: clean(x.degree), field: clean(x.field),
-            score: clean(x.score)?.slice(0, 20), location: clean(x.location), start: date(x.start), end: endDate(x.end),
+            id: shortId(),
+            hidden: false,
+            institution: clean(x.institution)!,
+            degree: clean(x.degree),
+            field: clean(x.field),
+            score: clean(x.score)?.slice(0, 20),
+            location: clean(x.location),
+            start: date(x.start),
+            end: endDate(x.end),
             bullets: bullets(x.bullets),
           })),
       };
@@ -103,9 +118,18 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
         entries: e
           .filter((x) => clean(x.name))
           .map((x) => ({
-            id: shortId(), hidden: false, name: clean(x.name)!, url: url(x.url), links: links(x.links),
-            technologies: x.technologies.map((t) => t.trim()).filter(Boolean).slice(0, 20),
-            start: date(x.start), end: endDate(x.end), bullets: bullets(x.bullets),
+            id: shortId(),
+            hidden: false,
+            name: clean(x.name)!,
+            url: url(x.url),
+            links: links(x.links),
+            technologies: x.technologies
+              .map((t) => t.trim())
+              .filter(Boolean)
+              .slice(0, 20),
+            start: date(x.start),
+            end: endDate(x.end),
+            bullets: bullets(x.bullets),
           })),
       };
     case "skills":
@@ -125,8 +149,13 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
         entries: e
           .filter((x) => clean(x.title) || clean(x.name))
           .map((x) => ({
-            id: shortId(), hidden: false, title: clean(x.title) ?? clean(x.name)!, subtitle: clean(x.subtitle),
-            date: clean(x.date), url: url(x.url), bullets: bullets(x.bullets),
+            id: shortId(),
+            hidden: false,
+            title: clean(x.title) ?? clean(x.name)!,
+            subtitle: clean(x.subtitle),
+            date: clean(x.date),
+            url: url(x.url),
+            bullets: bullets(x.bullets),
           })),
       };
   }

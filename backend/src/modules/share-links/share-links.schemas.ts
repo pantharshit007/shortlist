@@ -3,7 +3,11 @@ import { USERNAME_PATTERN } from "../users/usernames.js";
 
 export const shareLinkParams = z.object({ shareLinkId: z.uuid() });
 
-const slugSchema = z.string().trim().toLowerCase().regex(USERNAME_PATTERN, "Use 3-30 lowercase letters, digits or hyphens");
+const slugSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(USERNAME_PATTERN, "Use 3-30 lowercase letters, digits or hyphens");
 
 export const createShareLinkBody = z.object({
   slug: slugSchema.optional(),
