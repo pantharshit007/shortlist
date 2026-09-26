@@ -13,12 +13,15 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppJobsRouteImport } from './routes/_app/jobs'
+import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
 import { Route as SitePrivacyRouteImport } from './routes/_site/privacy'
 import { Route as SiteTemplatesRouteImport } from './routes/_site/templates'
 import { Route as SiteTermsRouteImport } from './routes/_site/terms'
+import { Route as AppResumesResumeIdRouteImport } from './routes/_app/resumes/$resumeId'
 import { Route as AppResumesNewRouteImport } from './routes/_app/resumes/new'
 
 const AppRoute = AppRouteImport.update({
@@ -37,6 +40,16 @@ const LoginRoute = LoginRouteImport.update({
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppJobsRoute = AppJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
@@ -69,6 +82,11 @@ const SiteTermsRoute = SiteTermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => SiteRoute,
 } as any)
+const AppResumesResumeIdRoute = AppResumesResumeIdRouteImport.update({
+  id: '/resumes/$resumeId',
+  path: '/resumes/$resumeId',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppResumesNewRoute = AppResumesNewRouteImport.update({
   id: '/resumes/new',
   path: '/resumes/new',
@@ -79,22 +97,28 @@ export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AppDashboardRoute
+  '/jobs': typeof AppJobsRoute
+  '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
   '/pricing': typeof SitePricingRoute
   '/privacy': typeof SitePrivacyRoute
   '/templates': typeof SiteTemplatesRoute
   '/terms': typeof SiteTermsRoute
+  '/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/resumes/new': typeof AppResumesNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AppDashboardRoute
+  '/jobs': typeof AppJobsRoute
+  '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
   '/pricing': typeof SitePricingRoute
   '/privacy': typeof SitePrivacyRoute
   '/templates': typeof SiteTemplatesRoute
   '/terms': typeof SiteTermsRoute
+  '/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/resumes/new': typeof AppResumesNewRoute
 }
 export interface FileRoutesById {
@@ -103,12 +127,15 @@ export interface FileRoutesById {
   '/_site': typeof SiteRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/jobs': typeof AppJobsRoute
+  '/_app/profile': typeof AppProfileRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_site/pricing': typeof SitePricingRoute
   '/_site/privacy': typeof SitePrivacyRoute
   '/_site/templates': typeof SiteTemplatesRoute
   '/_site/terms': typeof SiteTermsRoute
   '/_site/': typeof SiteIndexRoute
+  '/_app/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/_app/resumes/new': typeof AppResumesNewRoute
 }
 export interface FileRouteTypes {
@@ -117,22 +144,28 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/dashboard'
+    | '/jobs'
+    | '/profile'
     | '/settings'
     | '/pricing'
     | '/privacy'
     | '/templates'
     | '/terms'
+    | '/resumes/$resumeId'
     | '/resumes/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/dashboard'
+    | '/jobs'
+    | '/profile'
     | '/settings'
     | '/pricing'
     | '/privacy'
     | '/templates'
     | '/terms'
+    | '/resumes/$resumeId'
     | '/resumes/new'
   id:
     | '__root__'
@@ -140,12 +173,15 @@ export interface FileRouteTypes {
     | '/_site'
     | '/login'
     | '/_app/dashboard'
+    | '/_app/jobs'
+    | '/_app/profile'
     | '/_app/settings'
     | '/_site/pricing'
     | '/_site/privacy'
     | '/_site/templates'
     | '/_site/terms'
     | '/_site/'
+    | '/_app/resumes/$resumeId'
     | '/_app/resumes/new'
   fileRoutesById: FileRoutesById
 }
@@ -183,6 +219,20 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/jobs': {
+      id: '/_app/jobs'
+      path: '/jobs'
+      fullPath: '/jobs'
+      preLoaderRoute: typeof AppJobsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/settings': {
@@ -227,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteTermsRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_app/resumes/$resumeId': {
+      id: '/_app/resumes/$resumeId'
+      path: '/resumes/$resumeId'
+      fullPath: '/resumes/$resumeId'
+      preLoaderRoute: typeof AppResumesResumeIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/resumes/new': {
       id: '/_app/resumes/new'
       path: '/resumes/new'
@@ -239,13 +296,19 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppJobsRoute: typeof AppJobsRoute
+  AppProfileRoute: typeof AppProfileRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppResumesResumeIdRoute: typeof AppResumesResumeIdRoute
   AppResumesNewRoute: typeof AppResumesNewRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppJobsRoute: AppJobsRoute,
+  AppProfileRoute: AppProfileRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppResumesResumeIdRoute: AppResumesResumeIdRoute,
   AppResumesNewRoute: AppResumesNewRoute,
 }
 
