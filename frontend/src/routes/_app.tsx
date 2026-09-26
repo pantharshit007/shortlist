@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 import { AppSidebar } from '@/components/app/app-sidebar'
+import { GuestBanner } from '@/components/app/guest-banner'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { authClient } from '@/lib/auth-client'
 
@@ -25,6 +26,7 @@ function AppLayout() {
         tabIndex={-1}
         className="bg-background outline-none"
       >
+        <GuestBanner />
         <Outlet />
       </SidebarInset>
     </SidebarProvider>

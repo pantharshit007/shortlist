@@ -39,6 +39,7 @@ export interface paths {
                 username: string
                 /** @enum {string} */
                 plan: 'free' | 'season_pass' | 'pro'
+                isAnonymous: boolean
                 createdAt: string
               }
             }
@@ -122,6 +123,7 @@ export interface paths {
                 username: string
                 /** @enum {string} */
                 plan: 'free' | 'season_pass' | 'pro'
+                isAnonymous: boolean
                 createdAt: string
               }
             }

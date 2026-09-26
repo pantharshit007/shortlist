@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
-import { signIn, useSession } from '@/lib/auth-client'
+import { guestLoginEnabled, signIn, useSession } from '@/lib/auth-client'
 import { site } from '@/lib/site'
 
 const searchSchema = z.object({
@@ -44,9 +44,9 @@ function LoginPage() {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [sentTo, setSentTo] = useState<string | null>(null)
-  const [pending, setPending] = useState<'email' | 'google' | 'github' | null>(
-    null,
-  )
+  const [pending, setPending] = useState<
+    'email' | 'google' | 'github' | 'guest' | null
+  >(null)
   const isSignup = mode === 'signup'
   const target = safeRedirect(redirect)
   // Read at click time; window doesn't exist while this page renders on the server.
@@ -70,6 +70,19 @@ function LoginPage() {
           : (error.message ?? 'Could not start sign-in. Try again.'),
       )
     }
+  }
+
+  async function asGuest() {
+    setPending('guest')
+    const { error } = await signIn.anonymous()
+    if (error) {
+      setPending(null)
+      toast.error(
+        error.message ?? 'Could not start a guest session. Try again.',
+      )
+      return
+    }
+    navigate({ to: target })
   }
 
   async function withEmail(event: React.FormEvent) {
@@ -224,6 +237,24 @@ function LoginPage() {
                   {isSignup ? 'Sign in' : 'Create an account'}
                 </Link>
               </p>
+              {guestLoginEnabled && (
+                <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
+                  <Button
+                    variant="ghost"
+                    onClick={asGuest}
+                    disabled={pending !== null}
+                  >
+                    {pending === 'guest' && (
+                      <Spinner data-icon="inline-start" />
+                    )}
+                    Continue as guest
+                  </Button>
+                  <p className="text-center text-xs text-muted-foreground">
+                    Try everything without an account. Guest accounts are
+                    deleted after 7 days.
+                  </p>
+                </div>
+              )}
               <p className="text-xs text-muted-foreground">
                 By continuing you agree to our{' '}
                 <Link to="/terms" className="underline underline-offset-2">
