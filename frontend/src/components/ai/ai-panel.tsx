@@ -47,7 +47,11 @@ const quickRequests = [
   'Bold the key technologies in each bullet',
 ]
 
-function NewJobForm({ onCreated }: { onCreated: (jobId: string) => void }) {
+export function NewJobForm({
+  onCreated,
+}: {
+  onCreated: (jobId: string) => void
+}) {
   const queryClient = useQueryClient()
   const [kind, setKind] = useState<'text' | 'url'>('text')
   const [value, setValue] = useState('')

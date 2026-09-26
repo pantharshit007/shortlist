@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { z } from 'zod'
 import { AiPanel } from '@/components/ai/ai-panel'
 import type { AiPanelMode } from '@/components/ai/ai-panel'
 import { ContentEditor } from '@/components/editor/content-editor'
@@ -42,6 +43,7 @@ import { templateCatalog } from '@/lib/templates'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/resumes/$resumeId')({
+  validateSearch: z.object({ tailor: z.string().optional() }),
   head: () => ({ meta: [{ title: `Editor | ${site.name}` }] }),
   component: EditorRoute,
 })
@@ -95,7 +97,8 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
   const [templateId, setTemplateId] = useState(resume.templateId ?? 'developer')
   const [saveState, setSaveState] = useState<SaveState>('saved')
   const [pane, setPane] = useState<'edit' | 'preview'>('edit')
-  const [aiOpen, setAiOpen] = useState(false)
+  const { tailor } = Route.useSearch()
+  const [aiOpen, setAiOpen] = useState(Boolean(tailor))
   const [historyOpen, setHistoryOpen] = useState(false)
   // Autosaves add versions without remounting the editor, so track the latest one here.
   const [headVersionId, setHeadVersionId] = useState(resume.headVersionId)
@@ -312,7 +315,7 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
         mode={aiMode}
         onModeChange={setAiMode}
         resumeId={resume.id}
-        initialJobId={resume.jobId}
+        initialJobId={tailor ?? resume.jobId}
         content={content}
         texSource={structured ? null : texSource}
         hasUnsavedChanges={saveState !== 'saved'}
