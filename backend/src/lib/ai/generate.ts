@@ -16,6 +16,8 @@ export type GenerateStructuredInput<S extends z.ZodType> = {
   schema: S;
   system: string;
   prompt: string;
+  // Attached documents, e.g. an uploaded PDF resume.
+  files?: { data: Buffer; mediaType: string; filename?: string }[];
   resumeId?: string;
   jobId?: string;
   userKey?: { provider: AiProvider; apiKey: string; modelId?: string };
@@ -36,11 +38,22 @@ export async function generateStructured<S extends z.ZodType>(
   };
 
   try {
+    const content = [
+      { type: "text" as const, text: input.prompt },
+      ...(input.files ?? []).map((file) => ({
+        type: "file" as const,
+        data: file.data,
+        mediaType: file.mediaType,
+        ...(file.filename && { filename: file.filename }),
+      })),
+    ];
     const result = await generateObject({
       model,
       schema: input.schema,
       system: input.system,
-      prompt: input.prompt,
+      messages: [{ role: "user", content }],
+      // Strict mode rejects optional fields, which our schemas use.
+      providerOptions: { openai: { strictJsonSchema: false } },
     });
 
     const usage = {
