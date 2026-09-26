@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { importsRouter } from "./modules/imports/imports.routes.js";
 import { pdfsRouter } from "./modules/pdfs/pdfs.routes.js";
 import { profilesRouter } from "./modules/profiles/profiles.routes.js";
 import { resumesRouter } from "./modules/resumes/resumes.routes.js";
@@ -14,3 +15,4 @@ v1.use(templatesRouter);
 v1.use(resumesRouter);
 v1.use(pdfsRouter);
 v1.use(uploadsRouter);
+v1.use(importsRouter);
