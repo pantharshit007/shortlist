@@ -186,7 +186,7 @@ export function HeroDemo() {
         ) : (
           <p className="flex items-center gap-2 text-muted-foreground">
             <SparklesIcon className="size-4" />
-            Matching your resume to the job
+            Matching your resume to the job…
           </p>
         )}
         {done && !reduceMotion && (

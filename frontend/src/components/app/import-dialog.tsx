@@ -120,7 +120,7 @@ export function ImportDialog({
             disabled={run.isPending || (!file && text.trim().length < 20)}
           >
             {run.isPending && <Spinner data-icon="inline-start" />}
-            {run.isPending ? 'Reading your resume' : 'Import'}
+            {run.isPending ? 'Reading your resume…' : 'Import'}
           </Button>
         </DialogFooter>
       </DialogContent>

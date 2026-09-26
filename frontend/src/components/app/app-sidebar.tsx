@@ -154,7 +154,7 @@ export function AppSidebar() {
               </Avatar>
               <span className="flex min-w-0 flex-1 flex-col text-left">
                 <span className="truncate font-medium">
-                  {me ? me.name || me.username : 'Loading'}
+                  {me ? me.name || me.username : 'Loading…'}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
                   {me ? `@${me.username}` : ''}

@@ -318,8 +318,8 @@ function CreateLinkForm({
             onChange={(e) => setSlug(e.target.value)}
           />
           <FieldDescription>
-            Lowercase letters, numbers and hyphens. We pick one from the resume
-            name if you leave it empty.
+            Lowercase letters, numbers and hyphens. Leave it empty to use the
+            resume name.
           </FieldDescription>
         </Field>
         <SwitchField

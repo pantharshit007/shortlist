@@ -252,7 +252,9 @@ function NewResumePage() {
   function pickFile(next: File | undefined) {
     if (!next) return
     if (next.size > 5 * 1024 * 1024) {
-      toast.error('Files can be at most 5 MB.')
+      toast.error(
+        'That file is over 5 MB. Export a smaller PDF or paste the text instead.',
+      )
       return
     }
     setFile(next)
@@ -466,7 +468,7 @@ function NewResumePage() {
             >
               {create.isPending && <Spinner data-icon="inline-start" />}
               {create.isPending && source === 'upload' && !makesCodeResume
-                ? 'Reading your resume'
+                ? 'Reading your resume…'
                 : 'Create resume'}
             </Button>
             {create.isPending && source === 'upload' && !makesCodeResume && (

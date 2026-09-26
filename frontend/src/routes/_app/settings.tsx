@@ -316,7 +316,7 @@ function BillingTab({
         handler: () => {
           // The plan switches when Razorpay's webhook reaches us, usually within seconds.
           setWaiting(true)
-          toast.success('Payment received. Activating your plan.')
+          toast.success('Payment received. Activating your plan…')
           let tries = 0
           const timer = setInterval(() => {
             refresh()

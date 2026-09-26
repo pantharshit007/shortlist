@@ -39,7 +39,7 @@ export function PdfPreview({
         {loading && (
           <span className="ml-auto flex items-center gap-2 text-muted-foreground">
             <Spinner />
-            Updating
+            Updating…
           </span>
         )}
       </div>

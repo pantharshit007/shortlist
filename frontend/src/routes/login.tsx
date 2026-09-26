@@ -113,7 +113,7 @@ function LoginPage() {
                 Check your email
               </h1>
               <p className="text-muted-foreground">
-                We sent a sign-in link to{' '}
+                A sign-in link is on its way to{' '}
                 <span className="font-medium text-foreground">{sentTo}</span>.
                 It expires in 5 minutes.
               </p>
@@ -202,7 +202,7 @@ function LoginPage() {
                       onChange={(event) => setEmail(event.target.value)}
                     />
                     <FieldDescription>
-                      We will email you a link to sign in.
+                      You'll get a link by email. No password needed.
                     </FieldDescription>
                   </Field>
                   <Button type="submit" size="lg" disabled={pending !== null}>

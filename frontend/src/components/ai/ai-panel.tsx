@@ -119,7 +119,7 @@ export function NewJobForm({
         onClick={() => create.mutate()}
       >
         {create.isPending && <Spinner data-icon="inline-start" />}
-        {create.isPending ? 'Reading the job' : 'Add job'}
+        {create.isPending ? 'Reading the job…' : 'Add job'}
       </Button>
     </div>
   )
@@ -213,10 +213,10 @@ export function AiPanel({
               <Spinner className="size-6" />
               <p>
                 {mode === 'tailor'
-                  ? 'Matching your resume to the job'
+                  ? 'Matching your resume to the job…'
                   : mode === 'fix'
-                    ? 'Fixing the LaTeX'
-                    : 'Working on your request'}
+                    ? 'Fixing the LaTeX…'
+                    : 'Working on your request…'}
               </p>
               <p className="text-sm">This takes 10 to 30 seconds.</p>
             </div>

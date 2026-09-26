@@ -12,7 +12,7 @@ export function SaveStatus({ state }: { state: SaveState }) {
       {state === 'saving' && (
         <>
           <Spinner />
-          Saving
+          Saving…
         </>
       )}
       {state === 'saved' && (

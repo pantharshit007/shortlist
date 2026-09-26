@@ -216,7 +216,7 @@ function JobsPage() {
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-5 py-8 sm:px-8">
       <PageHeader
         title="Jobs"
-        description="Job posts you are applying to. Each one keeps the requirements we found, ready for tailoring."
+        description="Job posts you are applying to. Each one keeps the requirements pulled from the post, ready for tailoring."
         actions={
           <Button onClick={() => setAdding(true)}>
             <PlusIcon data-icon="inline-start" />
@@ -257,7 +257,7 @@ function JobsPage() {
             </EmptyMedia>
             <EmptyTitle>No jobs yet</EmptyTitle>
             <EmptyDescription>
-              Add a job post and we'll pull out the skills it asks for.
+              Add a job post to see the skills it asks for.
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
@@ -298,9 +298,7 @@ function JobsPage() {
             <SheetTitle>
               {selectedJob ? jobTitle(selectedJob) : 'Job'}
             </SheetTitle>
-            <SheetDescription>
-              What this role asks for, as we read it.
-            </SheetDescription>
+            <SheetDescription>What this role asks for.</SheetDescription>
           </SheetHeader>
           {selected && (
             <JobDetail jobId={selected} onClose={() => setSelected(null)} />

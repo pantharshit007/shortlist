@@ -118,7 +118,7 @@ function ProfileEditor({ initial }: { initial: ResumeContent }) {
       <ImportDialog
         open={importOpen}
         onOpenChange={setImportOpen}
-        description="We'll read your resume and fill in your profile. You can review everything afterwards."
+        description="Your resume becomes your profile. You can review and edit everything afterwards."
         onImported={(imported) =>
           hasContent(content)
             ? setPendingImport(imported)
