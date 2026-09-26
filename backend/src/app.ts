@@ -10,6 +10,7 @@ import { logger } from "./lib/logger.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { notFound } from "./middleware/not-found.js";
 import { apiLimiter } from "./middleware/rate-limit.js";
+import { buildOpenApiDocument } from "./openapi.js";
 import { v1 } from "./routes.js";
 
 export const app = express();
@@ -29,6 +30,11 @@ app.use(express.json({ limit: "1mb" }));
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+const openApiDocument = buildOpenApiDocument();
+app.get("/v1/openapi.json", (_req, res) => {
+  res.json(openApiDocument);
 });
 
 app.use("/v1", apiLimiter, v1);

@@ -18,7 +18,8 @@
     "compiler": "tsx watch src/compiler-server.ts",
     "start:compiler": "node dist/compiler-server.js",
     "worker": "tsx watch --env-file-if-exists=.env src/worker.ts",
-    "start:worker": "node --env-file-if-exists=.env dist/worker.js"
+    "start:worker": "node --env-file-if-exists=.env dist/worker.js",
+    "openapi": "tsx --env-file-if-exists=.env src/scripts/write-openapi.ts"
   },
   "devEngines": {
     "packageManager": {
@@ -48,7 +49,8 @@
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
     "rate-limit-redis": "^6.0.1",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "zod-openapi": "^6.0.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
