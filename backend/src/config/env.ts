@@ -29,11 +29,23 @@ const envSchema = z.object({
   ANTHROPIC_API_KEY: optionalString,
   OPENROUTER_API_KEY: optionalString,
 
+  STORAGE_DRIVER: z.enum(["local", "r2"]).default("local"),
+  LOCAL_STORAGE_DIR: z.string().default("./storage"),
+  R2_ACCOUNT_ID: optionalString,
+  R2_ACCESS_KEY_ID: optionalString,
+  R2_SECRET_ACCESS_KEY: optionalString,
+  R2_BUCKET: optionalString,
+
   RESEND_API_KEY: optionalString,
   EMAIL_FROM: z.string().default("Resume Builder <onboarding@resend.dev>"),
 });
 
-const parsed = envSchema.safeParse(process.env);
+const parsed = envSchema
+  .refine(
+    (e) => e.STORAGE_DRIVER !== "r2" || (e.R2_ACCOUNT_ID && e.R2_ACCESS_KEY_ID && e.R2_SECRET_ACCESS_KEY && e.R2_BUCKET),
+    { message: "STORAGE_DRIVER=r2 needs R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and R2_BUCKET" },
+  )
+  .safeParse(process.env);
 
 if (!parsed.success) {
   console.error(`Invalid environment variables:\n${z.prettifyError(parsed.error)}`);
