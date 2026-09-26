@@ -12,7 +12,7 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
 }
 
 // For handlers behind requireAuth.
-export function currentUser(req: Request): AuthUser {
+export function currentUser(req: { user?: AuthUser | undefined }): AuthUser {
   if (!req.user) throw new UnauthorizedError();
   return req.user;
 }

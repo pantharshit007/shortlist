@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 import type { z } from "zod";
 import { ValidationError } from "../lib/errors.js";
 
@@ -50,4 +50,13 @@ export function validate<S extends Schemas>(schemas: S) {
     }
     next();
   };
+}
+
+// Pairs validation with a handler typed from the same schemas. Express's own route types
+// assume string query values, so the typed handler is widened once here instead of in every route.
+export function validated<S extends Schemas>(
+  schemas: S,
+  handler: (req: ValidatedRequest<S>, res: Response) => unknown,
+): RequestHandler[] {
+  return [validate(schemas), handler as unknown as RequestHandler];
 }
