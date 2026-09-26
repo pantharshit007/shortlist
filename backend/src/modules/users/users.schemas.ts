@@ -15,6 +15,7 @@ export const meResponse = z.object({
   image: z.string().nullable(),
   username: z.string(),
   plan: z.enum(["free", "season_pass", "pro"]),
+  isAnonymous: z.boolean(),
   createdAt: z.date(),
 });
 

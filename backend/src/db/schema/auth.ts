@@ -16,6 +16,8 @@ export const users = pgTable(
     username: text().notNull().unique(),
     usernameChangedAt: timestamp({ withTimezone: true }),
     plan: userPlan().notNull().default("free"),
+    // Guest accounts from the "Continue as guest" button; removed after a few days.
+    isAnonymous: boolean().notNull().default(false),
     ...timestamps,
   },
   (t) => [check("users_username_format", sql`${t.username} ~ '^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$'`)],

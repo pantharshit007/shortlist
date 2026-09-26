@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { magicLink } from "better-auth/plugins";
+import { anonymous, magicLink } from "better-auth/plugins";
 import { env } from "../config/env.js";
 import { db } from "../db/index.js";
 import * as schema from "../db/schema/index.js";
@@ -17,6 +17,8 @@ const socialProviders = {
       github: { clientId: env.GITHUB_CLIENT_ID, clientSecret: env.GITHUB_CLIENT_SECRET },
     }),
 };
+
+export const guestLoginEnabled = env.ENABLE_GUEST_LOGIN ?? env.NODE_ENV !== "production";
 
 export const auth = betterAuth({
   appName: "Resume Builder",
@@ -41,6 +43,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    ...(guestLoginEnabled ? [anonymous({ generateName: () => "Guest", emailDomainName: "guest.invalid" })] : []),
     magicLink({
       sendMagicLink: async ({ email, url }) => {
         await sendEmail({

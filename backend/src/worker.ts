@@ -20,6 +20,7 @@ const schedules: Record<MaintenanceTask, string> = {
   "expire-subscriptions": "0 * * * *",
   "purge-deleted-resumes": "30 2 * * *",
   "purge-old-uploads": "45 2 * * *",
+  "purge-guest-users": "0 3 * * *",
 };
 
 for (const [task, pattern] of Object.entries(schedules)) {

@@ -25,6 +25,7 @@ const meColumns = {
   image: users.image,
   username: users.username,
   plan: users.plan,
+  isAnonymous: users.isAnonymous,
   createdAt: users.createdAt,
 };
 
