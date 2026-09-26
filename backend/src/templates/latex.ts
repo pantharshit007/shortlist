@@ -18,6 +18,14 @@ export function tex(value: string | undefined | null): string {
   return (value ?? "").replace(/[\\&%$#_{}~^]/g, (char) => latexSpecials[char]!);
 }
 
+// Escapes text and turns **bold** markers into \textbf{}.
+export function texRich(value: string | undefined | null): string {
+  return (value ?? "")
+    .split(/\*\*(.+?)\*\*/g)
+    .map((part, index) => (index % 2 === 1 ? `\\textbf{${tex(part)}}` : tex(part)))
+    .join("");
+}
+
 export function texUrl(url: string): string {
   return url.replace(/[\\%#{}]/g, (char) => `\\${char}`);
 }
@@ -49,7 +57,7 @@ export function visibleContent(content: ResumeContent): ResumeContent {
     sections: content.sections
       .filter((section) => !section.hidden)
       .map((section) => {
-        if (section.type === "skills") return section;
+        if (section.type === "skills" || section.type === "links") return section;
         const entries = section.entries
           .filter((entry) => !entry.hidden)
           .map((entry) => ({ ...entry, bullets: entry.bullets.filter((bullet) => !bullet.hidden) }));

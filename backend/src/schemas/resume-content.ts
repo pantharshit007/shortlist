@@ -9,6 +9,7 @@ const endDate = z.union([yearMonth, z.literal("present")]);
 
 export const bulletSchema = z.object({
   id,
+  // Supports **bold** for emphasised keywords.
   text: z.string().trim().max(600),
   hidden: z.boolean().default(false),
 });
@@ -49,6 +50,8 @@ const projectEntry = z.object({
   ...entryBase,
   name: shortText,
   url: z.url().optional(),
+  // Extra labelled links shown after the title, e.g. "Live" and "Github".
+  links: z.array(linkSchema).max(5).default([]),
   technologies: z.array(z.string().trim().max(40)).max(20).default([]),
   start: yearMonth.optional(),
   end: endDate.optional(),
@@ -81,6 +84,8 @@ export const sectionSchema = z.discriminatedUnion("type", [
   z.object({ ...sectionBase, type: z.literal("projects"), entries: z.array(projectEntry).max(30) }),
   z.object({ ...sectionBase, type: z.literal("skills"), groups: z.array(skillGroup).max(15) }),
   z.object({ ...sectionBase, type: z.literal("list"), entries: z.array(genericEntry).max(40) }),
+  // Inline list of profile links, e.g. LeetCode, Codeforces.
+  z.object({ ...sectionBase, type: z.literal("links"), links: z.array(linkSchema).max(15) }),
 ]);
 
 export const basicsSchema = z.object({

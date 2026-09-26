@@ -1,5 +1,5 @@
 import type { ResumeSection } from "../schemas/resume-content.js";
-import { dateRange, joinNonEmpty, tex, texUrl } from "./latex.js";
+import { dateRange, joinNonEmpty, tex, texRich, texUrl } from "./latex.js";
 
 // Section bodies shared by the templates. Each template defines these macros in its preamble:
 // \resumeSubheading{title}{right}{subtitle}{right-sub}, \resumeProjectHeading{left}{right},
@@ -9,7 +9,7 @@ function bullets(items: { text: string }[]) {
   if (items.length === 0) return "";
   return [
     "\\resumeItemListStart",
-    ...items.map((item) => `  \\resumeItem{${tex(item.text)}}`),
+    ...items.map((item) => `  \\resumeItem{${texRich(item.text)}}`),
     "\\resumeItemListEnd",
   ].join("\n");
 }
@@ -41,7 +41,8 @@ function renderSectionBody(section: ResumeSection): string {
         .map((e) => {
           const name = e.url ? `\\href{${texUrl(e.url)}}{\\textbf{${tex(e.name)}}}` : `\\textbf{${tex(e.name)}}`;
           const tech = e.technologies.length ? ` $|$ \\emph{${tex(e.technologies.join(", "))}}` : "";
-          return [`\\resumeProjectHeading{${name}${tech}}{${dateRange(e.start, e.end)}}`, bullets(e.bullets)].join("\n");
+          const links = e.links.map((link) => ` $|$ \\href{${texUrl(link.url)}}{\\underline{${tex(link.label)}}}`).join("");
+          return [`\\resumeProjectHeading{${name}${tech}${links}}{${dateRange(e.start, e.end)}}`, bullets(e.bullets)].join("\n");
         })
         .join("\n");
     case "list":
@@ -53,6 +54,7 @@ function renderSectionBody(section: ResumeSection): string {
         })
         .join("\n");
     case "skills":
+    case "links":
       return "";
   }
 }
@@ -66,6 +68,11 @@ export function renderSections(sections: ResumeSection[]) {
           .map((group) => `\\textbf{${tex(group.name)}}{: ${tex(group.items.join(", "))}}`)
           .join(" \\\\\n");
         return `\\section{${tex(section.title)}}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n\\small{\\item{\n${lines}\n}}\n\\end{itemize}`;
+      }
+      if (section.type === "links") {
+        if (section.links.length === 0) return "";
+        const links = section.links.map((link) => `\\href{${texUrl(link.url)}}{\\underline{${tex(link.label)}}}`).join(", ");
+        return `\\section{${tex(section.title)}}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n\\small{\\item{${links}}}\n\\end{itemize}`;
       }
       if (section.entries.length === 0) return "";
       return `\\section{${tex(section.title)}}\n\\resumeSubHeadingListStart\n${renderSectionBody(section)}\n\\resumeSubHeadingListEnd`;
