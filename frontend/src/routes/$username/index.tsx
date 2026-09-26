@@ -3,7 +3,7 @@ import { FileTextIcon, LockIcon } from 'lucide-react'
 import { PublicMessage, PublicShell } from '@/components/public/public-shell'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { fetchPublicProfile } from '@/lib/public-api'
-import { timeAgo } from '@/lib/format'
+import { formatDate } from '@/lib/format'
 
 export const Route = createFileRoute('/$username/')({
   loader: async ({ params }) => {
@@ -85,7 +85,7 @@ function ProfilePage() {
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate font-medium">{resume.title}</span>
                     <span className="text-sm text-muted-foreground">
-                      Updated {timeAgo(resume.updatedAt)}
+                      Updated {formatDate(resume.updatedAt)}
                     </span>
                   </span>
                   {resume.hasPassword && (

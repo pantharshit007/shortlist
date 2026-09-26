@@ -5,7 +5,10 @@ import { site } from '@/lib/site'
 export const Route = createFileRoute('/_site/terms')({
   head: () => ({ meta: [{ title: `Terms | ${site.name}` }] }),
   component: () => (
-    <LegalPage title="Terms of use" updated="27 September 2026">
+    <LegalPage
+      title="Terms of use"
+      updated={new Date('2026-09-27T00:00:00+05:30')}
+    >
       <p>
         By using {site.name} you agree to these terms. They are written to be
         read, so please do.

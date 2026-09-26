@@ -17,21 +17,28 @@ export function timeAgo(value: string | Date) {
   return 'just now'
 }
 
+// A fixed time zone keeps server-rendered dates identical to what the browser renders.
+const dateFormat = new Intl.DateTimeFormat('en-IN', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'Asia/Kolkata',
+})
+
 export function formatDate(value: string | Date) {
-  return new Date(value).toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
+  return dateFormat.format(new Date(value))
 }
 
+const dateTimeFormat = new Intl.DateTimeFormat('en-IN', {
+  day: 'numeric',
+  month: 'short',
+  hour: 'numeric',
+  minute: '2-digit',
+  timeZone: 'Asia/Kolkata',
+})
+
 export function formatDateTime(value: string | Date) {
-  return new Date(value).toLocaleString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
+  return dateTimeFormat.format(new Date(value))
 }
 
 export const planLabels = {

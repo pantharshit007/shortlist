@@ -18,6 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
 import type { PublicResume } from '@/lib/api/types'
 import { apiUrl } from '@/lib/env'
+import { formatDate } from '@/lib/format'
 import { fetchPublicResume } from '@/lib/public-api'
 import { site } from '@/lib/site'
 
@@ -282,12 +283,7 @@ function SharePage() {
           )}
         </div>
         <p className="px-1 text-xs text-muted-foreground">
-          {site.name} resume, updated{' '}
-          {new Date(resume.updatedAt).toLocaleDateString('en-IN', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-          })}
+          {site.name} resume, updated {formatDate(resume.updatedAt)}
         </p>
       </div>
     </PublicShell>

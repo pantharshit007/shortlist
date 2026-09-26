@@ -49,7 +49,8 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="mx-auto max-w-6xl px-5 pb-10 text-xs text-muted-foreground">
-        © {new Date().getFullYear()} {site.name}. Made in India.
+        <span suppressHydrationWarning>© {new Date().getFullYear()}</span>{' '}
+        {site.name}. Made in India.
       </div>
     </footer>
   )

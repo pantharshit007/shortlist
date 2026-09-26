@@ -5,7 +5,10 @@ import { site } from '@/lib/site'
 export const Route = createFileRoute('/_site/privacy')({
   head: () => ({ meta: [{ title: `Privacy | ${site.name}` }] }),
   component: () => (
-    <LegalPage title="Privacy policy" updated="27 September 2026">
+    <LegalPage
+      title="Privacy policy"
+      updated={new Date('2026-09-27T00:00:00+05:30')}
+    >
       <p>
         A resume holds a lot of personal information. This page explains what{' '}
         {site.name} stores, why, and how you stay in control of it.

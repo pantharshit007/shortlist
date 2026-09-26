@@ -2,26 +2,20 @@ import type { ResumeContent, ResumeSection } from '@/lib/api/types'
 
 // An HTML rendering of structured resume content, styled like the typeset PDF.
 
-const months = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-]
+const monthFormat = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+})
 
 function formatMonth(value?: string) {
   if (!value) return ''
   if (value === 'present') return 'Present'
-  const [year, month] = value.split('-')
-  return month ? `${months[Number(month) - 1]} ${year}` : year
+  const [year, month] = value.split('-').map(Number)
+  if (!year) return value
+  return month
+    ? monthFormat.format(new Date(Date.UTC(year, month - 1, 1)))
+    : String(year)
 }
 
 function dateRange(start?: string, end?: string) {
