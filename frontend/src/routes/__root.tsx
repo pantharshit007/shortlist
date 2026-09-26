@@ -1,8 +1,10 @@
 import {
   HeadContent,
+  Link,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { site } from '@/lib/site'
@@ -35,6 +37,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
   shellComponent: RootDocument,
+  notFoundComponent: NotFound,
+  errorComponent: ErrorPage,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -54,5 +58,35 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
+  )
+}
+
+function StatusPage({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="mx-auto flex min-h-svh max-w-md flex-col justify-center gap-4 px-6">
+      <h1 className="text-4xl font-semibold tracking-tight">{title}</h1>
+      <p className="text-muted-foreground">{body}</p>
+      <Button asChild className="self-start">
+        <Link to="/">Go to the home page</Link>
+      </Button>
+    </div>
+  )
+}
+
+function NotFound() {
+  return (
+    <StatusPage
+      title="Page not found"
+      body="The page may have moved, or the link is mistyped."
+    />
+  )
+}
+
+function ErrorPage() {
+  return (
+    <StatusPage
+      title="Something went wrong"
+      body="An unexpected error stopped this page from loading. Try refreshing."
+    />
   )
 }

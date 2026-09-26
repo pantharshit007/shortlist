@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as UsernameIndexRouteImport } from './routes/$username/index'
+import { Route as UsernameSlugRouteImport } from './routes/$username/$slug'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppJobsRouteImport } from './routes/_app/jobs'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
@@ -35,6 +37,16 @@ const SiteRoute = SiteRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsernameIndexRoute = UsernameIndexRouteImport.update({
+  id: '/$username/',
+  path: '/$username/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsernameSlugRoute = UsernameSlugRouteImport.update({
+  id: '/$username/$slug',
+  path: '/$username/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
@@ -96,6 +108,7 @@ const AppResumesNewRoute = AppResumesNewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
+  '/$username/$slug': typeof UsernameSlugRoute
   '/dashboard': typeof AppDashboardRoute
   '/jobs': typeof AppJobsRoute
   '/profile': typeof AppProfileRoute
@@ -104,12 +117,14 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof SitePrivacyRoute
   '/templates': typeof SiteTemplatesRoute
   '/terms': typeof SiteTermsRoute
+  '/$username/': typeof UsernameIndexRoute
   '/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/resumes/new': typeof AppResumesNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
+  '/$username/$slug': typeof UsernameSlugRoute
   '/dashboard': typeof AppDashboardRoute
   '/jobs': typeof AppJobsRoute
   '/profile': typeof AppProfileRoute
@@ -118,6 +133,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof SitePrivacyRoute
   '/templates': typeof SiteTemplatesRoute
   '/terms': typeof SiteTermsRoute
+  '/$username': typeof UsernameIndexRoute
   '/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/resumes/new': typeof AppResumesNewRoute
 }
@@ -126,6 +142,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_site': typeof SiteRouteWithChildren
   '/login': typeof LoginRoute
+  '/$username/$slug': typeof UsernameSlugRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/jobs': typeof AppJobsRoute
   '/_app/profile': typeof AppProfileRoute
@@ -134,6 +151,7 @@ export interface FileRoutesById {
   '/_site/privacy': typeof SitePrivacyRoute
   '/_site/templates': typeof SiteTemplatesRoute
   '/_site/terms': typeof SiteTermsRoute
+  '/$username/': typeof UsernameIndexRoute
   '/_site/': typeof SiteIndexRoute
   '/_app/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/_app/resumes/new': typeof AppResumesNewRoute
@@ -143,6 +161,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/$username/$slug'
     | '/dashboard'
     | '/jobs'
     | '/profile'
@@ -151,12 +170,14 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/templates'
     | '/terms'
+    | '/$username/'
     | '/resumes/$resumeId'
     | '/resumes/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
+    | '/$username/$slug'
     | '/dashboard'
     | '/jobs'
     | '/profile'
@@ -165,6 +186,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/templates'
     | '/terms'
+    | '/$username'
     | '/resumes/$resumeId'
     | '/resumes/new'
   id:
@@ -172,6 +194,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_site'
     | '/login'
+    | '/$username/$slug'
     | '/_app/dashboard'
     | '/_app/jobs'
     | '/_app/profile'
@@ -180,6 +203,7 @@ export interface FileRouteTypes {
     | '/_site/privacy'
     | '/_site/templates'
     | '/_site/terms'
+    | '/$username/'
     | '/_site/'
     | '/_app/resumes/$resumeId'
     | '/_app/resumes/new'
@@ -189,6 +213,8 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   SiteRoute: typeof SiteRouteWithChildren
   LoginRoute: typeof LoginRoute
+  UsernameSlugRoute: typeof UsernameSlugRoute
+  UsernameIndexRoute: typeof UsernameIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +238,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$username/': {
+      id: '/$username/'
+      path: '/$username'
+      fullPath: '/$username/'
+      preLoaderRoute: typeof UsernameIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$username/$slug': {
+      id: '/$username/$slug'
+      path: '/$username/$slug'
+      fullPath: '/$username/$slug'
+      preLoaderRoute: typeof UsernameSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/dashboard': {
@@ -336,6 +376,8 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   SiteRoute: SiteRouteWithChildren,
   LoginRoute: LoginRoute,
+  UsernameSlugRoute: UsernameSlugRoute,
+  UsernameIndexRoute: UsernameIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
