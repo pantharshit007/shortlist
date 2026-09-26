@@ -1,0 +1,103 @@
+import { spawn } from "node:child_process";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+// No imports from config/env here: the standalone compiler process must run without app secrets.
+
+export type CompileError = { line: number | null; message: string; hint?: string };
+export type TectonicOptions = { bin: string; onlyCached: boolean; timeoutMs: number; concurrency: number };
+export type TectonicResult = { ok: true; pdf: Buffer } | { ok: false; errors: CompileError[] };
+
+// pdfTeX-only lines common in Overleaf templates (e.g. Jake's) that break under XeTeX.
+// XeTeX already embeds Unicode maps, so dropping them keeps text extractable.
+const pdftexOnly = [/^\s*\\input\{glyphtounicode\}.*$/gm, /^\s*\\pdfgentounicode\s*=\s*1.*$/gm];
+
+export function makeXetexCompatible(source: string) {
+  return pdftexOnly.reduce((tex, pattern) => tex.replace(pattern, "% removed: pdfTeX-only"), source);
+}
+
+const hints: [RegExp, string][] = [
+  [/Misplaced alignment tab character &/, "Write \\& for a literal ampersand."],
+  [/Missing \$ inserted/, "Characters like _ ^ or $ need a backslash, e.g. \\_ or \\$."],
+  [/Undefined control sequence/, "A command is misspelled or its package is missing."],
+  [/File `(.+)' not found/, "This package or file isn't available. Remove it or use a supported package."],
+  [/File ended while scanning|Emergency stop|end of file/i, "A brace { or environment \\begin{...} is probably not closed."],
+];
+
+export function parseErrors(output: string): CompileError[] {
+  const errors: CompileError[] = [];
+  for (const raw of output.split("\n")) {
+    const match = raw.match(/^error: (?:[^:]*\.tex:(\d+): )?(.+)$/);
+    if (!match) continue;
+    const message = match[2]!.trim().replace(/^!\s*/, "");
+    if (/something bad happened|unrecoverable error|halted on potentially-recoverable/.test(message)) continue;
+    const hint = hints.find(([pattern]) => pattern.test(message))?.[1];
+    errors.push({ line: match[1] ? Number(match[1]) : null, message, ...(hint && { hint }) });
+  }
+  return errors.length > 0 ? errors : [{ line: null, message: "LaTeX compilation failed" }];
+}
+
+export function createTectonic(options: TectonicOptions) {
+  let running = 0;
+  const waiting: (() => void)[] = [];
+
+  // Keeps concurrent compiles bounded so one busy user can't starve the CPU.
+  async function withSlot<T>(task: () => Promise<T>): Promise<T> {
+    if (running >= options.concurrency) await new Promise<void>((resolve) => waiting.push(resolve));
+    running++;
+    try {
+      return await task();
+    } finally {
+      running--;
+      waiting.shift()?.();
+    }
+  }
+
+  function run(cwd: string): Promise<{ code: number | null; output: string; timedOut: boolean }> {
+    const args = ["--untrusted", "--chatter", "minimal", ...(options.onlyCached ? ["--only-cached"] : []), "main.tex"];
+    return new Promise((resolve, reject) => {
+      const child = spawn(options.bin, args, {
+        cwd,
+        env: { PATH: process.env.PATH ?? "", HOME: process.env.HOME ?? cwd, XDG_CACHE_HOME: process.env.XDG_CACHE_HOME ?? "" },
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      let output = "";
+      child.stdout.on("data", (chunk) => (output += chunk));
+      child.stderr.on("data", (chunk) => (output += chunk));
+      let timedOut = false;
+      const timer = setTimeout(() => {
+        timedOut = true;
+        child.kill("SIGKILL");
+      }, options.timeoutMs);
+      child.on("error", (err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+      child.on("close", (code) => {
+        clearTimeout(timer);
+        resolve({ code, output, timedOut });
+      });
+    });
+  }
+
+  return async function compile(source: string): Promise<TectonicResult> {
+    return withSlot(async () => {
+      const dir = await mkdtemp(join(tmpdir(), "rb-tex-"));
+      try {
+        await writeFile(join(dir, "main.tex"), makeXetexCompatible(source));
+        const { code, output, timedOut } = await run(dir);
+        if (timedOut) {
+          return {
+            ok: false,
+            errors: [{ line: null, message: "Compilation took too long and was stopped", hint: "Check for loops or very large content." }],
+          };
+        }
+        if (code !== 0) return { ok: false, errors: parseErrors(output) };
+        return { ok: true, pdf: await readFile(join(dir, "main.pdf")) };
+      } finally {
+        await rm(dir, { recursive: true, force: true });
+      }
+    });
+  };
+}

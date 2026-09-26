@@ -14,7 +14,9 @@
     "db:studio": "drizzle-kit studio",
     "services:up": "docker compose up -d --wait",
     "services:down": "docker compose down",
-    "db:seed": "tsx --env-file-if-exists=.env src/db/seed.ts"
+    "db:seed": "tsx --env-file-if-exists=.env src/db/seed.ts",
+    "compiler": "tsx watch src/compiler-server.ts",
+    "start:compiler": "node dist/compiler-server.js"
   },
   "devEngines": {
     "packageManager": {
@@ -35,6 +37,7 @@
     "drizzle-orm": "^0.45.3",
     "express": "^5.2.1",
     "helmet": "^8.3.0",
+    "pdf-lib": "^1.17.1",
     "pg": "^8.23.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",

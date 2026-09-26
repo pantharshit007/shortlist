@@ -36,6 +36,14 @@ const envSchema = z.object({
   R2_SECRET_ACCESS_KEY: optionalString,
   R2_BUCKET: optionalString,
 
+  // URL of the separate compiler service. Required in production; unset in development compiles in-process.
+  COMPILER_URL: optionalString,
+  TECTONIC_BIN: z.string().default("tectonic"),
+  // true in production images where the TeX bundle is pre-downloaded; compiles then never touch the network.
+  TECTONIC_ONLY_CACHED: z.stringbool().default(false),
+  COMPILE_TIMEOUT_MS: z.coerce.number().int().positive().default(20_000),
+  COMPILE_CONCURRENCY: z.coerce.number().int().positive().default(2),
+
   RESEND_API_KEY: optionalString,
   EMAIL_FROM: z.string().default("Resume Builder <onboarding@resend.dev>"),
 });
@@ -45,6 +53,9 @@ const parsed = envSchema
     (e) => e.STORAGE_DRIVER !== "r2" || (e.R2_ACCOUNT_ID && e.R2_ACCESS_KEY_ID && e.R2_SECRET_ACCESS_KEY && e.R2_BUCKET),
     { message: "STORAGE_DRIVER=r2 needs R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and R2_BUCKET" },
   )
+  .refine((e) => e.NODE_ENV !== "production" || e.COMPILER_URL, {
+    message: "COMPILER_URL is required in production so untrusted LaTeX never runs next to app secrets",
+  })
   .safeParse(process.env);
 
 if (!parsed.success) {
