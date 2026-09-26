@@ -44,6 +44,9 @@ const envSchema = z.object({
   COMPILE_TIMEOUT_MS: z.coerce.number().int().positive().default(20_000),
   COMPILE_CONCURRENCY: z.coerce.number().int().positive().default(2),
 
+  // Optional; raises Jina Reader's rate limit when fetching job posts from URLs.
+  JINA_API_KEY: optionalString,
+
   RESEND_API_KEY: optionalString,
   EMAIL_FROM: z.string().default("Resume Builder <onboarding@resend.dev>"),
 });
