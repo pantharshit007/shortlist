@@ -1,6 +1,3 @@
-// Tables used by Better Auth. Field names follow Better Auth's core schema so
-// its Drizzle adapter can use them directly (with `usePlural: true`).
-// Re-check against `npx @better-auth/cli generate` when Better Auth is added.
 import { boolean, index, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { timestamps } from "./columns.js";
 
