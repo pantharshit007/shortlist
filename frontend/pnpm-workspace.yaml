@@ -1,3 +1,4 @@
 allowBuilds:
-  sharp: false
+  esbuild: true
+  lightningcss: true
   unrs-resolver: false
