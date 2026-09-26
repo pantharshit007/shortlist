@@ -1,0 +1,54 @@
+import { and, inArray, isNotNull, lt } from "drizzle-orm";
+import { db } from "../db/index.js";
+import { resumes, subscriptions, uploads } from "../db/schema/index.js";
+import { logger } from "../lib/logger.js";
+import { storage } from "../lib/storage.js";
+import { recomputePlan } from "../modules/billing/billing.service.js";
+
+const DAY = 24 * 60 * 60 * 1000;
+
+// Season Passes and cancelled Pro plans end when their period ends. Also covers missed webhooks.
+export async function expireSubscriptions() {
+  const lapsed = await db
+    .update(subscriptions)
+    .set({ status: "expired" })
+    .where(
+      and(
+        inArray(subscriptions.status, ["active", "cancelled", "past_due"]),
+        isNotNull(subscriptions.currentPeriodEnd),
+        lt(subscriptions.currentPeriodEnd, new Date()),
+      ),
+    )
+    .returning({ userId: subscriptions.userId });
+
+  const userIds = [...new Set(lapsed.map((row) => row.userId))];
+  for (const userId of userIds) await recomputePlan(userId);
+  logger.info({ expired: lapsed.length, users: userIds.length }, "Expired subscriptions");
+}
+
+// Deleted resumes can be recovered for 30 days; after that they're removed for good.
+export async function purgeDeletedResumes() {
+  const purged = await db
+    .delete(resumes)
+    .where(and(isNotNull(resumes.deletedAt), lt(resumes.deletedAt, new Date(Date.now() - 30 * DAY))))
+    .returning({ id: resumes.id });
+  logger.info({ purged: purged.length }, "Purged deleted resumes");
+}
+
+// Uploads only matter during import; the extracted content lives in resumes.
+export async function purgeOldUploads() {
+  const old = await db
+    .delete(uploads)
+    .where(lt(uploads.createdAt, new Date(Date.now() - 30 * DAY)))
+    .returning({ storageKey: uploads.storageKey });
+  for (const { storageKey } of old) await storage.deletePrefix(storageKey);
+  logger.info({ purged: old.length }, "Purged old uploads");
+}
+
+export const maintenanceTasks = {
+  "expire-subscriptions": expireSubscriptions,
+  "purge-deleted-resumes": purgeDeletedResumes,
+  "purge-old-uploads": purgeOldUploads,
+} as const;
+
+export type MaintenanceTask = keyof typeof maintenanceTasks;

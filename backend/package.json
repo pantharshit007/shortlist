@@ -16,7 +16,9 @@
     "services:down": "docker compose down",
     "db:seed": "tsx --env-file-if-exists=.env src/db/seed.ts",
     "compiler": "tsx watch src/compiler-server.ts",
-    "start:compiler": "node dist/compiler-server.js"
+    "start:compiler": "node dist/compiler-server.js",
+    "worker": "tsx watch --env-file-if-exists=.env src/worker.ts",
+    "start:worker": "node --env-file-if-exists=.env dist/worker.js"
   },
   "devEngines": {
     "packageManager": {
@@ -33,6 +35,7 @@
     "@openrouter/ai-sdk-provider": "^3.1.0",
     "ai": "^7.0.114",
     "better-auth": "^1.7.6",
+    "bullmq": "^6.3.8",
     "cors": "^2.8.6",
     "drizzle-orm": "^0.45.3",
     "express": "^5.2.1",
