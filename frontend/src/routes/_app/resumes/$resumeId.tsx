@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ContentEditor } from '@/components/editor/content-editor'
 import { DownloadMenu } from '@/components/editor/download-menu'
+import { LatexEditor } from '@/components/editor/latex-editor'
+import type { LatexEditorHandle } from '@/components/editor/latex-editor'
 import { PdfPreview } from '@/components/editor/pdf-preview'
 import type { SaveState } from '@/components/editor/save-status'
 import { SaveStatus } from '@/components/editor/save-status'
@@ -21,7 +23,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSidebar } from '@/components/ui/sidebar'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Textarea } from '@/components/ui/textarea'
 import { useDebouncedEffect } from '@/hooks/use-debounced-effect'
 import { usePdfPreview } from '@/hooks/use-pdf-preview'
 import { api, errorMessage, unwrap } from '@/lib/api/client'
@@ -85,6 +86,7 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
   const [templateId, setTemplateId] = useState(resume.templateId ?? 'developer')
   const [saveState, setSaveState] = useState<SaveState>('saved')
   const [pane, setPane] = useState<'edit' | 'preview'>('edit')
+  const latexEditor = useRef<LatexEditorHandle>(null)
   const lastSaved = useRef(
     JSON.stringify(structured ? resume.head?.content : resume.head?.texSource),
   )
@@ -230,12 +232,11 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
               <ContentEditor value={content} onChange={setContent} />
             </div>
           ) : (
-            <Textarea
-              aria-label="LaTeX source"
-              spellCheck={false}
+            <LatexEditor
+              ref={latexEditor}
               value={texSource}
-              onChange={(event) => setTexSource(event.target.value)}
-              className="size-full resize-none rounded-none border-0 font-mono text-sm"
+              onChange={setTexSource}
+              errors={preview.errors}
             />
           )}
         </div>
@@ -245,7 +246,15 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
             pane === 'edit' && 'hidden lg:block',
           )}
         >
-          <PdfPreview {...preview} pageLimit={resume.pageLimit} />
+          <PdfPreview
+            {...preview}
+            pageLimit={resume.pageLimit}
+            onErrorClick={
+              structured
+                ? undefined
+                : (line) => latexEditor.current?.goToLine(line)
+            }
+          />
         </div>
       </div>
     </div>
