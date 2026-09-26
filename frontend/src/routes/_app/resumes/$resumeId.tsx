@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ArrowLeftIcon } from 'lucide-react'
+import { ArrowLeftIcon, SparklesIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { AiPanel } from '@/components/ai/ai-panel'
+import type { AiPanelMode } from '@/components/ai/ai-panel'
 import { ContentEditor } from '@/components/editor/content-editor'
 import { DownloadMenu } from '@/components/editor/download-menu'
 import { LatexEditor } from '@/components/editor/latex-editor'
@@ -86,6 +88,12 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
   const [templateId, setTemplateId] = useState(resume.templateId ?? 'developer')
   const [saveState, setSaveState] = useState<SaveState>('saved')
   const [pane, setPane] = useState<'edit' | 'preview'>('edit')
+  const [aiOpen, setAiOpen] = useState(false)
+  const [aiMode, setAiMode] = useState<AiPanelMode>('tailor')
+  const openAi = (mode: AiPanelMode) => {
+    setAiMode(mode)
+    setAiOpen(true)
+  }
   const latexEditor = useRef<LatexEditorHandle>(null)
   const lastSaved = useRef(
     JSON.stringify(structured ? resume.head?.content : resume.head?.texSource),
@@ -205,6 +213,10 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
             title={title}
             structured={structured}
           />
+          <Button onClick={() => openAi('tailor')}>
+            <SparklesIcon data-icon="inline-start" />
+            <span className="hidden sm:inline">Improve with AI</span>
+          </Button>
         </div>
       </header>
 
@@ -254,9 +266,21 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
                 ? undefined
                 : (line) => latexEditor.current?.goToLine(line)
             }
+            onFix={structured ? undefined : () => openAi('fix')}
           />
         </div>
       </div>
+      <AiPanel
+        open={aiOpen}
+        onOpenChange={setAiOpen}
+        mode={aiMode}
+        onModeChange={setAiMode}
+        resumeId={resume.id}
+        initialJobId={resume.jobId}
+        content={content}
+        texSource={structured ? null : texSource}
+        hasUnsavedChanges={saveState !== 'saved'}
+      />
     </div>
   )
 }

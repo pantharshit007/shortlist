@@ -4,12 +4,12 @@ import {
   syntaxHighlighting,
 } from '@codemirror/language'
 import { stex } from '@codemirror/legacy-modes/mode/stex'
-import {  linter, lintGutter } from '@codemirror/lint'
-import type {Diagnostic} from '@codemirror/lint';
+import { linter, lintGutter } from '@codemirror/lint'
+import type { Diagnostic } from '@codemirror/lint'
 import { EditorView } from '@codemirror/view'
 import { tags } from '@lezer/highlight'
 import CodeMirror from '@uiw/react-codemirror'
-import type {ReactCodeMirrorRef} from '@uiw/react-codemirror';
+import type { ReactCodeMirrorRef } from '@uiw/react-codemirror'
 import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react'
 import type { CompileError } from '@/hooks/use-pdf-preview'
 
