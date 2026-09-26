@@ -84,12 +84,14 @@ export function SuggestionReview({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex flex-col gap-2 pb-4">
-        <p className="flex items-start gap-2 text-sm">
-          <SparklesIcon className="mt-0.5 size-4 shrink-0 text-primary" />
-          {suggestion.summary}
-        </p>
-      </div>
+      {suggestion.summary && (
+        <div className="flex flex-col gap-2 pb-4">
+          <p className="flex items-start gap-2 text-sm">
+            <SparklesIcon className="mt-0.5 size-4 shrink-0 text-primary" />
+            {suggestion.summary}
+          </p>
+        </div>
+      )}
 
       <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
         {suggestion.operations.map((op) => {

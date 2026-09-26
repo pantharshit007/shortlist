@@ -10,6 +10,7 @@ import {
   XIcon,
 } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -323,9 +324,16 @@ function EntriesEditor({
                   <DropdownMenuGroup>
                     <DropdownMenuItem
                       variant="destructive"
-                      onSelect={() =>
+                      onSelect={() => {
+                        const previous = entries
                         setEntries(entries.filter((_, i) => i !== index))
-                      }
+                        toast(`Removed ${entryLabel(section, entry)}`, {
+                          action: {
+                            label: 'Undo',
+                            onClick: () => setEntries(previous),
+                          },
+                        })
+                      }}
                     >
                       <Trash2Icon />
                       Remove

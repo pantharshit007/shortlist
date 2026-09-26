@@ -24,7 +24,7 @@ export function DownloadMenu({
     try {
       await downloadFile(
         `/v1/resumes/${resumeId}/${path}`,
-        `${title}.${extension}`,
+        `${title.trim() || 'resume'}.${extension}`,
       )
     } catch (error) {
       toast.error(errorMessage(error))

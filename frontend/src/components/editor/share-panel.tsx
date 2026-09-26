@@ -11,12 +11,14 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { ConfirmDialog } from '@/components/app/confirm-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Field,
   FieldContent,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
@@ -129,6 +131,7 @@ function LinkStats({ link }: { link: ShareLink }) {
 
 function LinkCard({ link, resumeId }: { link: ShareLink; resumeId: string }) {
   const queryClient = useQueryClient()
+  const [confirmOff, setConfirmOff] = useState(false)
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.shareLinks(resumeId) })
   const update = useMutation({
@@ -225,11 +228,20 @@ function LinkCard({ link, resumeId }: { link: ShareLink; resumeId: string }) {
         variant="ghost"
         size="sm"
         className="self-start text-destructive"
-        onClick={() => remove.mutate()}
+        onClick={() => setConfirmOff(true)}
       >
         <Trash2Icon data-icon="inline-start" />
         Turn off this link
       </Button>
+      <ConfirmDialog
+        open={confirmOff}
+        onOpenChange={setConfirmOff}
+        title="Turn off this link?"
+        description="Anyone who opens it will see a not found page. You can create a new link anytime."
+        confirmLabel="Turn off link"
+        destructive
+        onConfirm={() => remove.mutate()}
+      />
     </li>
   )
 }
@@ -332,15 +344,19 @@ function CreateLinkForm({
           onChange={setPin}
         />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field>
+          <Field data-invalid={password.length > 0 && password.length < 4}>
             <FieldLabel htmlFor="link-password">Password (optional)</FieldLabel>
             <Input
               id="link-password"
               type="password"
               autoComplete="new-password"
               value={password}
+              aria-invalid={password.length > 0 && password.length < 4}
               onChange={(e) => setPassword(e.target.value)}
             />
+            {password.length > 0 && password.length < 4 && (
+              <FieldError>Use at least 4 characters.</FieldError>
+            )}
           </Field>
           <Field>
             <FieldLabel htmlFor="link-expiry">Expires on (optional)</FieldLabel>

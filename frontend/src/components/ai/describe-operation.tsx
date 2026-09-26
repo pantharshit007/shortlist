@@ -177,6 +177,11 @@ export function OperationBody({
               </div>
             )),
         )}
+        {changes.length > 40 && (
+          <div className="pt-1 text-muted-foreground">
+            {changes.length - 40} more changes not shown
+          </div>
+        )}
       </pre>
     )
   }

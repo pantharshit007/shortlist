@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { ConfirmDialog } from '@/components/app/confirm-dialog'
 import { NewJobForm } from '@/components/ai/ai-panel'
 import { PageHeader } from '@/components/app/page-header'
 import { Badge } from '@/components/ui/badge'
@@ -87,6 +88,7 @@ function JobDetail({ jobId, onClose }: { jobId: string; onClose: () => void }) {
   const { data: job } = useQuery(jobQuery(jobId))
   const { data: resumes } = useQuery(resumesQuery())
   const [resumeId, setResumeId] = useState<string>()
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const remove = useMutation({
     mutationFn: () =>
@@ -106,36 +108,42 @@ function JobDetail({ jobId, onClose }: { jobId: string; onClose: () => void }) {
     <div className="flex flex-col gap-6 p-4">
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-4">
         <p className="text-sm font-medium">Tailor a resume to this job</p>
-        <div className="flex gap-2">
-          <Select value={resumeId} onValueChange={setResumeId}>
-            <SelectTrigger className="flex-1" aria-label="Resume">
-              <SelectValue placeholder="Choose a resume" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {resumes?.map((resume) => (
-                  <SelectItem key={resume.id} value={resume.id}>
-                    {resume.title}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Button
-            disabled={!resumeId}
-            onClick={() =>
-              resumeId &&
-              navigate({
-                to: '/resumes/$resumeId',
-                params: { resumeId },
-                search: { tailor: job.id },
-              })
-            }
-          >
-            <SparklesIcon data-icon="inline-start" />
-            Tailor
-          </Button>
-        </div>
+        {resumes && resumes.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Create a resume first, then come back to tailor it.
+          </p>
+        ) : (
+          <div className="flex gap-2">
+            <Select value={resumeId} onValueChange={setResumeId}>
+              <SelectTrigger className="flex-1" aria-label="Resume">
+                <SelectValue placeholder="Choose a resume" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {resumes?.map((resume) => (
+                    <SelectItem key={resume.id} value={resume.id}>
+                      {resume.title}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <Button
+              disabled={!resumeId}
+              onClick={() =>
+                resumeId &&
+                navigate({
+                  to: '/resumes/$resumeId',
+                  params: { resumeId },
+                  search: { tailor: job.id },
+                })
+              }
+            >
+              <SparklesIcon data-icon="inline-start" />
+              Tailor
+            </Button>
+          </div>
+        )}
       </div>
 
       {parsed && (
@@ -155,6 +163,16 @@ function JobDetail({ jobId, onClose }: { jobId: string; onClose: () => void }) {
           )}
         </>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Delete this job?"
+        description="Resumes you tailored to it stay as they are."
+        confirmLabel="Delete job"
+        destructive
+        onConfirm={() => remove.mutate()}
+      />
 
       <details className="rounded-lg border p-3 text-sm">
         <summary className="cursor-pointer font-medium">
@@ -178,7 +196,7 @@ function JobDetail({ jobId, onClose }: { jobId: string; onClose: () => void }) {
           variant="ghost"
           size="sm"
           className="text-destructive"
-          onClick={() => remove.mutate()}
+          onClick={() => setConfirmDelete(true)}
         >
           <Trash2Icon data-icon="inline-start" />
           Delete job

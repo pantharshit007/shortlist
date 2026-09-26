@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { CheckIcon, CopyIcon, DownloadIcon, XIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { ConfirmDialog } from '@/components/app/confirm-dialog'
 import { z } from 'zod'
 import { PageHeader } from '@/components/app/page-header'
 import {
@@ -289,6 +290,7 @@ function BillingTab({
   const { data: usage } = useQuery(usageQuery)
   const { data: subscription } = useQuery(subscriptionQuery)
   const [waiting, setWaiting] = useState(false)
+  const [confirmCancel, setConfirmCancel] = useState(false)
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: queryKeys.subscription })
@@ -391,7 +393,7 @@ function BillingTab({
           <CardFooter>
             <Button
               variant="outline"
-              onClick={() => cancel.mutate()}
+              onClick={() => setConfirmCancel(true)}
               disabled={cancel.isPending}
             >
               {cancel.isPending && <Spinner data-icon="inline-start" />}
@@ -399,6 +401,16 @@ function BillingTab({
             </Button>
           </CardFooter>
         )}
+        <ConfirmDialog
+          open={confirmCancel}
+          onOpenChange={setConfirmCancel}
+          title="Cancel Pro?"
+          description="You keep Pro until the end of the period you've paid for, then move to the Free plan. Nothing is deleted."
+          confirmLabel="Cancel Pro"
+          cancelLabel="Keep Pro"
+          destructive
+          onConfirm={() => cancel.mutate()}
+        />
       </Card>
 
       {me.plan === 'free' && (

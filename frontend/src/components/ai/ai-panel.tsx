@@ -88,13 +88,18 @@ export function NewJobForm({
         <ToggleGroupItem value="url">Job link</ToggleGroupItem>
       </ToggleGroup>
       {kind === 'text' ? (
-        <Textarea
-          aria-label="Job description"
-          rows={6}
-          placeholder="Paste the full job description"
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-        />
+        <div className="flex flex-col gap-1.5">
+          <Textarea
+            aria-label="Job description"
+            rows={6}
+            placeholder="Paste the full job description"
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">
+            Paste the full description, not just the title.
+          </p>
+        </div>
       ) : (
         <Input
           aria-label="Job link"
@@ -171,13 +176,6 @@ export function AiPanel({
     // Only when the panel opens in fix mode.
   }, [open, mode])
 
-  useEffect(() => {
-    if (!open) {
-      setSuggestion(null)
-      suggest.reset()
-    }
-  }, [open])
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex w-full flex-col gap-0 sm:max-w-lg">
@@ -206,7 +204,8 @@ export function AiPanel({
             </Alert>
           )}
 
-          {suggest.isPending ? (
+          {suggest.isPending ||
+          (mode === 'fix' && !suggestion && !suggest.isError) ? (
             <div
               className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-muted-foreground"
               aria-live="polite"
@@ -227,7 +226,10 @@ export function AiPanel({
               suggestion={suggestion}
               content={content}
               texSource={texSource}
-              onApplied={() => onOpenChange(false)}
+              onApplied={() => {
+                setSuggestion(null)
+                onOpenChange(false)
+              }}
               onDiscard={() => setSuggestion(null)}
             />
           ) : mode === 'fix' ? (

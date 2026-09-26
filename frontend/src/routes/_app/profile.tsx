@@ -4,6 +4,7 @@ import { FileUpIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ImportDialog } from '@/components/app/import-dialog'
+import { UnsavedChangesGuard } from '@/components/app/unsaved-changes-guard'
 import { PageHeader } from '@/components/app/page-header'
 import { ContentEditor } from '@/components/editor/content-editor'
 import type { SaveState } from '@/components/editor/save-status'
@@ -111,6 +112,9 @@ function ProfileEditor({ initial }: { initial: ResumeContent }) {
         }
       />
       <ContentEditor value={content} onChange={setContent} />
+      <UnsavedChangesGuard
+        when={saveState === 'unsaved' || saveState === 'saving'}
+      />
       <ImportDialog
         open={importOpen}
         onOpenChange={setImportOpen}

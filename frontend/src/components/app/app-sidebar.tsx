@@ -11,6 +11,7 @@ import {
   SunIcon,
   UserRoundIcon,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Logo } from '@/components/brand/logo'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -104,7 +105,11 @@ export function AppSidebar() {
   const pathname = useLocation({ select: (location) => location.pathname })
 
   async function handleSignOut() {
-    await signOut()
+    const { error } = await signOut()
+    if (error) {
+      toast.error('Could not sign out. Check your connection and try again.')
+      return
+    }
     navigate({ to: '/' })
   }
 

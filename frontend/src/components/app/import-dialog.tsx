@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Field, FieldLabel } from '@/components/ui/field'
+import { Field, FieldDescription, FieldLabel } from '@/components/ui/field'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { ApiError, api, unwrap } from '@/lib/api/client'
@@ -108,6 +108,9 @@ export function ImportDialog({
                 value={text}
                 onChange={(event) => setText(event.target.value)}
               />
+              <FieldDescription>
+                Paste the whole resume. Import needs at least a few lines.
+              </FieldDescription>
             </Field>
           )}
         </div>

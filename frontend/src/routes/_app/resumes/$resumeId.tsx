@@ -15,6 +15,7 @@ import { ContentEditor } from '@/components/editor/content-editor'
 import { DownloadMenu } from '@/components/editor/download-menu'
 import { HistoryPanel } from '@/components/editor/history-panel'
 import { SharePanel } from '@/components/editor/share-panel'
+import { UnsavedChangesGuard } from '@/components/app/unsaved-changes-guard'
 import { LatexEditor } from '@/components/editor/latex-editor'
 import type { LatexEditorHandle } from '@/components/editor/latex-editor'
 import { PdfPreview } from '@/components/editor/pdf-preview'
@@ -155,14 +156,6 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
     1500,
   )
 
-  useEffect(() => {
-    const warn = (event: BeforeUnloadEvent) => {
-      if (draft !== lastSaved.current) event.preventDefault()
-    }
-    window.addEventListener('beforeunload', warn)
-    return () => window.removeEventListener('beforeunload', warn)
-  }, [draft])
-
   const update = useMutation({
     mutationFn: (body: { title?: string; templateId?: string }) =>
       unwrap(
@@ -187,11 +180,11 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
           aria-label="Resume name"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          onBlur={() =>
-            title.trim() &&
-            title !== resume.title &&
-            update.mutate({ title: title.trim() })
-          }
+          onBlur={() => {
+            const next = title.trim()
+            if (!next) setTitle(resume.title)
+            else if (next !== resume.title) update.mutate({ title: next })
+          }}
           className="h-9 max-w-xs border-transparent bg-transparent px-2 font-medium shadow-none hover:border-input focus-visible:border-input"
         />
         <div className="hidden sm:block">
@@ -301,6 +294,9 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
           />
         </div>
       </div>
+      <UnsavedChangesGuard
+        when={saveState === 'unsaved' || saveState === 'saving'}
+      />
       <HistoryPanel
         open={historyOpen}
         onOpenChange={setHistoryOpen}

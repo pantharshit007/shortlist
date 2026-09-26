@@ -1,4 +1,5 @@
 import { PlusIcon } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -96,9 +97,13 @@ export function ContentEditor({
           onChange={(next) =>
             setSections(value.sections.map((s, i) => (i === index ? next : s)))
           }
-          onRemove={() =>
+          onRemove={() => {
+            const previous = value.sections
             setSections(value.sections.filter((_, i) => i !== index))
-          }
+            toast(`Removed ${section.title || 'section'}`, {
+              action: { label: 'Undo', onClick: () => setSections(previous) },
+            })
+          }}
           onMove={(delta) => setSections(move(value.sections, index, delta))}
         />
       ))}

@@ -50,7 +50,7 @@ export function CoverageReport({
   resumeId: string
   jobId: string
 }) {
-  const { data, isPending } = useQuery({
+  const { data, isPending, refetch } = useQuery({
     queryKey: ['resume', resumeId, 'coverage', jobId],
     queryFn: () =>
       unwrap(
@@ -60,13 +60,26 @@ export function CoverageReport({
       ),
   })
   if (isPending) return <Skeleton className="h-24" />
-  if (!data) return null
+  if (!data) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Couldn't compare your resume with this job.{' '}
+        <button
+          type="button"
+          className="font-medium text-foreground underline underline-offset-2 hover:text-primary"
+          onClick={() => refetch()}
+        >
+          Try again
+        </button>
+      </p>
+    )
+  }
 
   const all = [...data.mustHave, ...data.niceToHave]
   return (
     <div className="flex flex-col gap-3 rounded-lg border bg-muted/40 p-3">
       <p className="text-sm">
-        <span className="font-semibold">
+        <span className="font-semibold tabular-nums">
           {data.covered} of {data.total}
         </span>{' '}
         requirements already covered

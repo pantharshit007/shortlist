@@ -90,18 +90,31 @@ function PdfView({
   password?: string
 }) {
   const [url, setUrl] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
   useEffect(() => {
     let objectUrl: string | null = null
+    setFailed(false)
     fetchPdf(username, slug, password)
       .then((blob) => {
         objectUrl = URL.createObjectURL(blob)
         setUrl(objectUrl)
       })
-      .catch(() => toast.error('Could not load this resume. Try refreshing.'))
+      .catch(() => setFailed(true))
     return () => {
       if (objectUrl) URL.revokeObjectURL(objectUrl)
     }
-  }, [username, slug, password])
+  }, [username, slug, password, attempt])
+  if (failed) {
+    return (
+      <div className="flex flex-col items-start gap-3 bg-card p-8">
+        <p>This resume couldn't be loaded.</p>
+        <Button variant="outline" onClick={() => setAttempt((n) => n + 1)}>
+          Try again
+        </Button>
+      </div>
+    )
+  }
   return url ? (
     <PdfPages url={url} />
   ) : (
@@ -133,8 +146,13 @@ function PasswordForm({
         onSubmit={async (event) => {
           event.preventDefault()
           setPending(true)
-          await onSubmit(password)
-          setPending(false)
+          try {
+            await onSubmit(password)
+          } catch {
+            toast.error('Could not check the password. Try again.')
+          } finally {
+            setPending(false)
+          }
         }}
       >
         <FieldGroup>
