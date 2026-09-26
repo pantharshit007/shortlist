@@ -1,0 +1,47 @@
+import { createTectonic } from "../lib/latex/tectonic.js";
+import { templates } from "../templates/index.js";
+import { sampleResume } from "../templates/sample.js";
+
+// Run at image build time: compiles every template plus the packages common in pasted
+// Overleaf resumes, so the TeX cache is complete and runtime compiles never need the network.
+
+const commonPackages = String.raw`\documentclass[letterpaper,10pt]{article}
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{xcolor}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\usepackage{fontawesome}
+\usepackage{multicol}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{setspace}
+\usepackage{fontspec}
+\begin{document}
+\faGithub\ \faLinkedin\ \Letter\ Warm-up $x^2$ \textsc{Small Caps} \textbf{\textit{bold italic}}
+\end{document}
+`;
+
+const compile = createTectonic({ bin: process.env.TECTONIC_BIN ?? "tectonic", onlyCached: false, timeoutMs: 600_000, concurrency: 1 });
+
+const documents = [...templates.map((t) => ({ name: t.id, tex: t.render(sampleResume) })), { name: "common-packages", tex: commonPackages }];
+
+let failed = false;
+for (const doc of documents) {
+  const result = await compile(doc.tex);
+  console.log(`${doc.name}: ${result.ok ? "ok" : JSON.stringify(result.errors)}`);
+  if (!result.ok) failed = true;
+}
+process.exit(failed ? 1 : 0);
