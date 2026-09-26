@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createDocument, type ZodOpenApiOperationObject, type ZodOpenApiPathsObject } from "zod-openapi";
+import { coverageQuery, coverageResponse } from "./modules/coverage/coverage.routes.js";
 import { checkoutResponse, createCheckoutBody, subscriptionResponse } from "./modules/billing/billing.schemas.js";
 import { createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
 import { createJobBody, jobListResponse, jobParams, jobResponse } from "./modules/jobs/jobs.schemas.js";
@@ -291,6 +292,15 @@ const paths: ZodOpenApiPathsObject = {
     }),
   },
 
+  "/v1/resumes/{resumeId}/coverage": {
+    get: op({
+      summary: "Which job requirements the resume covers",
+      tag: "Suggestions",
+      params: resumeParams,
+      query: coverageQuery,
+      response: coverageResponse,
+    }),
+  },
   "/v1/resumes/{resumeId}/share-links": {
     get: op({ summary: "List share links", tag: "Sharing", params: resumeParams, response: shareLinkListResponse }),
     post: op({

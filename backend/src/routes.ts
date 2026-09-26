@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { billingRouter } from "./modules/billing/billing.routes.js";
+import { coverageRouter } from "./modules/coverage/coverage.routes.js";
 import { importsRouter } from "./modules/imports/imports.routes.js";
 import { jobsRouter } from "./modules/jobs/jobs.routes.js";
 import { pdfsRouter } from "./modules/pdfs/pdfs.routes.js";
@@ -24,6 +25,7 @@ v1.use(uploadsRouter);
 v1.use(importsRouter);
 v1.use(jobsRouter);
 v1.use(suggestionsRouter);
+v1.use(coverageRouter);
 v1.use(shareLinksRouter);
 v1.use(publicRouter);
 v1.use(usageRouter);
