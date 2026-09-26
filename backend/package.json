@@ -13,7 +13,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "services:up": "docker compose up -d --wait",
-    "services:down": "docker compose down"
+    "services:down": "docker compose down",
+    "db:seed": "tsx --env-file-if-exists=.env src/db/seed.ts"
   },
   "devEngines": {
     "packageManager": {
