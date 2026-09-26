@@ -1,0 +1,6 @@
+# Replace api.example.com with your API domain. Caddy obtains and renews HTTPS certificates automatically.
+{$API_DOMAIN:api.example.com} {
+	encode zstd gzip
+	reverse_proxy api:4000
+	header -Server
+}

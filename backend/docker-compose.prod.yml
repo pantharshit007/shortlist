@@ -1,0 +1,122 @@
+# Production stack for the VPS: docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+name: resumebuilder
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      API_DOMAIN: ${API_DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks: [edge]
+    depends_on: [api]
+
+  api:
+    build: { context: ., target: api }
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/resumebuilder
+      REDIS_URL: redis://redis:6379
+      COMPILER_URL: http://compiler:4100
+    networks: [edge, backend, compile]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      compiler: { condition: service_started }
+
+  worker:
+    build: { context: ., target: api }
+    restart: unless-stopped
+    command: ["node", "dist/worker.js"]
+    env_file: .env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/resumebuilder
+      REDIS_URL: redis://redis:6379
+      COMPILER_URL: http://compiler:4100
+    # edge gives outbound internet access (R2); backend reaches Postgres and Redis.
+    networks: [edge, backend]
+    depends_on: [api]
+
+  # Untrusted LaTeX runs here: no secrets, no internet (internal network only), read-only filesystem, capped resources.
+  compiler:
+    build: { context: ., target: compiler }
+    restart: unless-stopped
+    environment:
+      COMPILE_TIMEOUT_MS: "20000"
+      COMPILE_CONCURRENCY: "2"
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 1g
+    cpus: 1.5
+    pids_limit: 128
+    networks: [compile]
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: resumebuilder
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d resumebuilder"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [backend]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [backend]
+
+  backup:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    entrypoint: ["sh", "/backup.sh"]
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
+      R2_BUCKET: ${R2_BUCKET}
+      BACKUP_ENCRYPTION_KEY: ${BACKUP_ENCRYPTION_KEY}
+    volumes:
+      - ./deploy/backup.sh:/backup.sh:ro
+    networks: [edge, backend]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+networks:
+  edge: {}
+  backend: { internal: true }
+  compile: { internal: true }
+
+volumes:
+  caddy-data:
+  caddy-config:
+  postgres-data:
+  redis-data:
