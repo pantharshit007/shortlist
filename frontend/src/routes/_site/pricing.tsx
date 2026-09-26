@@ -129,7 +129,7 @@ function PricingPage() {
                 {featured && <Badge>Most popular</Badge>}
               </div>
               <p className="mt-4 flex items-baseline gap-2">
-                <span className="font-serif text-5xl font-semibold tracking-tight">
+                <span className="font-serif text-5xl font-semibold tracking-tight tabular-nums">
                   {plan.price}
                 </span>
                 <span className="text-muted-foreground">{plan.period}</span>

@@ -77,7 +77,7 @@ export function ImportDialog({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col items-center gap-3 rounded-lg border-2 border-dashed px-4 py-6 text-center">
             <UploadCloudIcon className="size-6 text-muted-foreground" />
-            <p className="text-sm">
+            <p className="text-sm break-all">
               {file ? file.name : 'PDF, .tex or .txt, up to 5 MB'}
             </p>
             <Button

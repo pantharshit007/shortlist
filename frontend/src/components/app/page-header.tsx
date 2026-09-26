@@ -14,7 +14,9 @@ export function PageHeader({
       <SidebarTrigger className="-ml-1 md:hidden" />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-        {description && <p className="text-muted-foreground">{description}</p>}
+        {description && (
+          <p className="text-muted-foreground tabular-nums">{description}</p>
+        )}
       </div>
       {actions && (
         <div className="flex flex-wrap items-center gap-2">{actions}</div>

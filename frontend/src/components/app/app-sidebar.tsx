@@ -82,7 +82,7 @@ function UsageCard() {
   const percent = Math.min(100, (usage.tailor.used / usage.tailor.limit) * 100)
   return (
     <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 text-sm">
-      <p className="font-medium">
+      <p className="font-medium tabular-nums">
         {usage.tailor.used} of {usage.tailor.limit} tailored this month
       </p>
       <Progress

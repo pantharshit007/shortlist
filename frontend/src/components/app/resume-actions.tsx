@@ -156,7 +156,9 @@ export function ResumeActions({ resume }: { resume: ResumeSummary }) {
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete “{resume.title}”?</AlertDialogTitle>
+            <AlertDialogTitle className="break-words">
+              Delete “{resume.title}”?
+            </AlertDialogTitle>
             <AlertDialogDescription>
               The resume, its versions and its share links stop working right
               away.

@@ -247,6 +247,8 @@ function LoginPage() {
         <img
           src="/templates/developer.png"
           alt=""
+          width={1020}
+          height={1320}
           className="absolute top-16 left-16 w-[125%] max-w-none rotate-[-4deg] rounded-sm shadow-2xl ring-1 ring-black/5"
         />
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-muted via-muted/90 to-transparent px-16 pt-32 pb-14">

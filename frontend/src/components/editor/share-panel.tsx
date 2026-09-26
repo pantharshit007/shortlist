@@ -115,7 +115,7 @@ function LinkStats({ link }: { link: ShareLink }) {
       {data.topReferrers.length > 0 && (
         <div className="col-span-3">
           <dt className="text-muted-foreground">From</dt>
-          <dd>
+          <dd className="break-words">
             {data.topReferrers
               .map(
                 (r) =>

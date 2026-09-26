@@ -61,7 +61,7 @@ function ProfilePage() {
             <AvatarFallback className="text-lg">{initials}</AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">
+            <h1 className="text-3xl font-semibold tracking-tight break-words">
               {displayName}
             </h1>
             <p className="text-muted-foreground">@{profile.username}</p>

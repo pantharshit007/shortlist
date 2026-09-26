@@ -50,7 +50,7 @@ export function PdfPreview({
             <AlertTriangleIcon />
             <AlertTitle>The LaTeX doesn't compile</AlertTitle>
             <AlertDescription>
-              <ul className="flex flex-col gap-1.5">
+              <ul className="flex flex-col gap-1.5 break-words">
                 {errors.slice(0, 4).map((error, index) => (
                   <li key={index}>
                     {error.line !== null && onErrorClick ? (

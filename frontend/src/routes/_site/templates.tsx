@@ -30,7 +30,7 @@ function TemplatesPage() {
         </p>
       </div>
       <ul className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2">
-        {templateCatalog.map((template) => (
+        {templateCatalog.map((template, index) => (
           <li
             key={template.id}
             id={template.id}
@@ -41,7 +41,7 @@ function TemplatesPage() {
               alt={`${template.name} template with a sample resume`}
               width={1020}
               height={1320}
-              loading="lazy"
+              loading={index < 2 ? 'eager' : 'lazy'}
               className="w-full rounded-sm bg-sheet shadow-sm ring-1 ring-black/5"
             />
             <div className="flex flex-wrap items-start justify-between gap-3">

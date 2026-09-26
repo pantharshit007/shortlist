@@ -85,6 +85,7 @@ function Section({ section }: { section: ResumeSection }) {
   )
   switch (section.type) {
     case 'skills':
+      if (section.groups.every((g) => g.items.length === 0)) return null
       return (
         <section className="flex flex-col gap-2">
           {title}
@@ -100,6 +101,7 @@ function Section({ section }: { section: ResumeSection }) {
         </section>
       )
     case 'links':
+      if (section.links.length === 0) return null
       return (
         <section className="flex flex-col gap-2">
           {title}
@@ -109,11 +111,11 @@ function Section({ section }: { section: ResumeSection }) {
                 {index > 0 && ', '}
                 <a
                   href={link.url}
-                  className="underline underline-offset-2"
+                  className="underline underline-offset-2 hover:text-neutral-600"
                   rel="noreferrer"
                   target="_blank"
                 >
-                  {link.label}
+                  {link.label || link.url}
                 </a>
               </span>
             ))}
@@ -178,11 +180,11 @@ function Section({ section }: { section: ResumeSection }) {
                             {' | '}
                             <a
                               href={link.url}
-                              className="underline underline-offset-2"
+                              className="underline underline-offset-2 hover:text-neutral-600"
                               rel="noreferrer"
                               target="_blank"
                             >
-                              {link.label}
+                              {link.label || link.url}
                             </a>
                           </span>
                         ))}
@@ -199,7 +201,7 @@ function Section({ section }: { section: ResumeSection }) {
                         {e.url ? (
                           <a
                             href={e.url}
-                            className="underline underline-offset-2"
+                            className="underline underline-offset-2 hover:text-neutral-600"
                             rel="noreferrer"
                             target="_blank"
                           >
@@ -239,7 +241,7 @@ export function ResumeDocument({ content }: { content: ResumeContent }) {
       <a
         key="email"
         href={`mailto:${basics.email}`}
-        className="underline underline-offset-2"
+        className="underline underline-offset-2 hover:text-neutral-600"
       >
         {basics.email}
       </a>
@@ -249,11 +251,11 @@ export function ResumeDocument({ content }: { content: ResumeContent }) {
       <a
         key={link.url}
         href={link.url}
-        className="underline underline-offset-2"
+        className="underline underline-offset-2 hover:text-neutral-600"
         rel="noreferrer"
         target="_blank"
       >
-        {link.label}
+        {link.label || link.url}
       </a>
     )),
   ].filter(Boolean)
@@ -261,12 +263,14 @@ export function ResumeDocument({ content }: { content: ResumeContent }) {
   return (
     <article className="bg-sheet px-6 py-8 font-serif leading-snug text-sheet-foreground sm:px-12 sm:py-12">
       <header className="text-center">
-        <h1 className="text-4xl font-normal [font-variant-caps:small-caps]">
-          {basics.name}
-        </h1>
+        {basics.name && (
+          <h1 className="text-4xl font-normal break-words [font-variant-caps:small-caps]">
+            {basics.name}
+          </h1>
+        )}
         {basics.headline && <p className="mt-1">{basics.headline}</p>}
         {contacts.length > 0 && (
-          <p className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm">
+          <p className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm break-all">
             {contacts.map((item, index) => (
               <span key={index} className="flex items-center gap-3">
                 {index > 0 && <span aria-hidden="true">|</span>}

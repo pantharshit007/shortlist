@@ -340,7 +340,7 @@ function NewResumePage() {
                 <UploadCloudIcon className="size-8 text-muted-foreground" />
                 {file ? (
                   <p>
-                    <span className="font-medium">{file.name}</span>{' '}
+                    <span className="font-medium break-all">{file.name}</span>{' '}
                     <span className="text-muted-foreground">
                       ({Math.ceil(file.size / 1024)} KB)
                     </span>

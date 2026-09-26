@@ -178,7 +178,7 @@ function JobDetail({ jobId, onClose }: { jobId: string; onClose: () => void }) {
         <summary className="cursor-pointer font-medium">
           Original job description
         </summary>
-        <p className="mt-3 whitespace-pre-wrap text-muted-foreground">
+        <p className="mt-3 break-words whitespace-pre-wrap text-muted-foreground">
           {job.rawText}
         </p>
       </details>
