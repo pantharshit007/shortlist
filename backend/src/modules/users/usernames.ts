@@ -1,0 +1,59 @@
+import { randomInt } from "node:crypto";
+import { eq } from "drizzle-orm";
+import { db } from "../../db/index.js";
+import { usernameRedirects, users } from "../../db/schema/index.js";
+
+// Must match the users_username_format check constraint.
+export const USERNAME_PATTERN = /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/;
+
+// Names that would clash with app routes on the frontend domain.
+const RESERVED = new Set([
+  "about", "account", "admin", "api", "app", "assets", "auth", "billing", "blog", "dashboard",
+  "docs", "edit", "help", "home", "login", "logout", "me", "new", "pricing", "privacy",
+  "profile", "public", "register", "resume", "resumes", "settings", "share", "signin", "signup",
+  "static", "status", "support", "terms", "u", "user", "users", "www",
+]);
+
+export function isReservedUsername(username: string) {
+  return RESERVED.has(username);
+}
+
+export function slugify(value: string, maxLength = 24) {
+  return value
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, maxLength)
+    .replace(/-+$/g, "");
+}
+
+export async function isUsernameTaken(username: string) {
+  const [user] = await db.select({ id: users.id }).from(users).where(eq(users.username, username)).limit(1);
+  if (user) return true;
+  const [redirect] = await db
+    .select({ oldUsername: usernameRedirects.oldUsername })
+    .from(usernameRedirects)
+    .where(eq(usernameRedirects.oldUsername, username))
+    .limit(1);
+  return Boolean(redirect);
+}
+
+export async function isUsernameAvailable(username: string) {
+  return USERNAME_PATTERN.test(username) && !isReservedUsername(username) && !(await isUsernameTaken(username));
+}
+
+// "Saurav Jha" -> "saurav-jha", then "saurav-jha-4821" if taken; falls back to the email's local part.
+export async function generateUsername(name: string | null | undefined, email: string) {
+  let base = slugify(name ?? "");
+  if (base.length < 3) base = slugify(email.split("@")[0] ?? "");
+  if (base.length < 3) base = "user";
+
+  if (await isUsernameAvailable(base)) return base;
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const candidate = `${base}-${randomInt(1000, 10000)}`;
+    if (await isUsernameAvailable(candidate)) return candidate;
+  }
+  return `user-${randomInt(10 ** 7, 10 ** 8)}`;
+}
