@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 @import '@fontsource-variable/source-serif-4';
 @import '@fontsource-variable/hanken-grotesk';
 @import '@fontsource-variable/jetbrains-mono';
