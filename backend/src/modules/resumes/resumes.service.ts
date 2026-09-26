@@ -13,7 +13,7 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 type VersionKind = (typeof resumeVersions.$inferInsert)["kind"];
 type VersionPayload = { content: ResumeContent; texSource?: never } | { texSource: string; content?: never };
 
-const DEFAULT_TEMPLATE = "jake";
+const DEFAULT_TEMPLATE = "developer";
 
 const versionSummaryColumns = {
   id: resumeVersions.id,

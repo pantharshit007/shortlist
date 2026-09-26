@@ -8,6 +8,6 @@ export const resumePdfQuery = z.object({
 });
 
 export const createPreviewBody = z.union([
-  z.object({ templateId: z.string().default("jake"), content: resumeContentSchema }),
+  z.object({ templateId: z.string().default("developer"), content: resumeContentSchema }),
   z.object({ texSource: texSourceSchema }),
 ]);

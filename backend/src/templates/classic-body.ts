@@ -14,24 +14,35 @@ function bullets(items: { text: string }[]) {
   ].join("\n");
 }
 
-function renderSectionBody(section: ResumeSection): string {
+export type SectionOptions = {
+  // Company on the first line and role below it, instead of role first.
+  organizationFirst?: boolean;
+  // Education dates on the first line and location below, instead of the reverse.
+  educationDatesFirst?: boolean;
+};
+
+function renderSectionBody(section: ResumeSection, options: SectionOptions): string {
   switch (section.type) {
     case "experience":
       return section.entries
-        .map((e) =>
-          [
-            `\\resumeSubheading{${tex(e.role)}}{${dateRange(e.start, e.end)}}{${tex(e.organization)}}{${tex(e.location)}}`,
+        .map((e) => {
+          const [top, bottom] = options.organizationFirst ? [e.organization, e.role] : [e.role, e.organization];
+          return [
+            `\\resumeSubheading{${tex(top)}}{${dateRange(e.start, e.end)}}{${tex(bottom)}}{${tex(e.location)}}`,
             bullets(e.bullets),
-          ].join("\n"),
-        )
+          ].join("\n");
+        })
         .join("\n");
     case "education":
       return section.entries
         .map((e) => {
           const degree = joinNonEmpty([e.degree, e.field], ", ");
           const subtitle = joinNonEmpty([tex(degree), e.score ? `${tex(e.score)}` : undefined], " \\textbar{} ");
+          const [topRight, bottomRight] = options.educationDatesFirst
+            ? [dateRange(e.start, e.end), tex(e.location)]
+            : [tex(e.location), dateRange(e.start, e.end)];
           return [
-            `\\resumeSubheading{${tex(e.institution)}}{${tex(e.location)}}{${subtitle}}{${dateRange(e.start, e.end)}}`,
+            `\\resumeSubheading{${tex(e.institution)}}{${topRight}}{${subtitle}}{${bottomRight}}`,
             bullets(e.bullets),
           ].join("\n");
         })
@@ -59,7 +70,7 @@ function renderSectionBody(section: ResumeSection): string {
   }
 }
 
-export function renderSections(sections: ResumeSection[]) {
+export function renderSections(sections: ResumeSection[], options: SectionOptions = {}) {
   return sections
     .map((section) => {
       if (section.type === "skills") {
@@ -75,7 +86,7 @@ export function renderSections(sections: ResumeSection[]) {
         return `\\section{${tex(section.title)}}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n\\small{\\item{${links}}}\n\\end{itemize}`;
       }
       if (section.entries.length === 0) return "";
-      return `\\section{${tex(section.title)}}\n\\resumeSubHeadingListStart\n${renderSectionBody(section)}\n\\resumeSubHeadingListEnd`;
+      return `\\section{${tex(section.title)}}\n\\resumeSubHeadingListStart\n${renderSectionBody(section, options)}\n\\resumeSubHeadingListEnd`;
     })
     .filter(Boolean)
     .join("\n\n");

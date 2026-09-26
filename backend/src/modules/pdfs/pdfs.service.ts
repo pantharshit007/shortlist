@@ -6,7 +6,7 @@ import { findTemplate } from "../../templates/index.js";
 import { slugify } from "../users/usernames.js";
 
 export function renderStructured(templateId: string | null, content: ResumeContent) {
-  const template = findTemplate(templateId ?? "jake");
+  const template = findTemplate(templateId ?? "developer");
   if (!template) throw new NotFoundError("Template");
   return template.render(content);
 }

@@ -1,4 +1,5 @@
 import type { ResumeContent } from "../schemas/resume-content.js";
+import { renderDeveloper } from "./developer.js";
 import { renderJake } from "./jake.js";
 import { renderModern } from "./modern.js";
 import { renderSb2nov } from "./sb2nov.js";
@@ -13,6 +14,14 @@ export type TemplateDefinition = {
 };
 
 export const templates: TemplateDefinition[] = [
+  {
+    id: "developer",
+    name: "Developer",
+    description: "The Jake's Resume variant most developers use: icon header, dense layout, company above role.",
+    atsSafe: true,
+    version: 1,
+    render: renderDeveloper,
+  },
   {
     id: "jake",
     name: "Jake's Resume",
