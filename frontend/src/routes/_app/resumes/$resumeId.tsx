@@ -1,12 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ArrowLeftIcon, SparklesIcon } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  HistoryIcon,
+  Share2Icon,
+  SparklesIcon,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { AiPanel } from '@/components/ai/ai-panel'
 import type { AiPanelMode } from '@/components/ai/ai-panel'
 import { ContentEditor } from '@/components/editor/content-editor'
 import { DownloadMenu } from '@/components/editor/download-menu'
+import { HistoryPanel } from '@/components/editor/history-panel'
+import { SharePanel } from '@/components/editor/share-panel'
 import { LatexEditor } from '@/components/editor/latex-editor'
 import type { LatexEditorHandle } from '@/components/editor/latex-editor'
 import { PdfPreview } from '@/components/editor/pdf-preview'
@@ -89,6 +96,10 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
   const [saveState, setSaveState] = useState<SaveState>('saved')
   const [pane, setPane] = useState<'edit' | 'preview'>('edit')
   const [aiOpen, setAiOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  // Autosaves add versions without remounting the editor, so track the latest one here.
+  const [headVersionId, setHeadVersionId] = useState(resume.headVersionId)
+  const [shareOpen, setShareOpen] = useState(false)
   const [aiMode, setAiMode] = useState<AiPanelMode>('tailor')
   const openAi = (mode: AiPanelMode) => {
     setAiMode(mode)
@@ -116,6 +127,7 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
     onMutate: () => setSaveState('saving'),
     onSuccess: (version, payload) => {
       lastSaved.current = payload
+      setHeadVersionId(version.id)
       setSaveState((state) => (state === 'saving' ? 'saved' : state))
       // Keep the cached head in sync without remounting the editor.
       queryClient.setQueryData(
@@ -208,6 +220,18 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
               </SelectContent>
             </Select>
           )}
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="History"
+            onClick={() => setHistoryOpen(true)}
+          >
+            <HistoryIcon />
+          </Button>
+          <Button variant="outline" onClick={() => setShareOpen(true)}>
+            <Share2Icon data-icon="inline-start" />
+            <span className="hidden sm:inline">Share</span>
+          </Button>
           <DownloadMenu
             resumeId={resume.id}
             title={title}
@@ -270,6 +294,18 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
           />
         </div>
       </div>
+      <HistoryPanel
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        resumeId={resume.id}
+        headVersionId={headVersionId}
+      />
+      <SharePanel
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        resumeId={resume.id}
+        headVersionId={headVersionId}
+      />
       <AiPanel
         open={aiOpen}
         onOpenChange={setAiOpen}
