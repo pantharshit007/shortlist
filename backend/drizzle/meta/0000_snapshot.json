@@ -1,5 +1,5 @@
 {
-  "id": "ff68166a-ec2b-4ad5-be52-4f8dd0735377",
+  "id": "12b1752b-71c7-482a-b9e8-9a24eb0c2018",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -230,6 +230,52 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.username_redirects": {
+      "name": "username_redirects",
+      "schema": "",
+      "columns": {
+        "old_username": {
+          "name": "old_username",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "username_redirects_user_id_users_id_fk": {
+          "name": "username_redirects_user_id_users_id_fk",
+          "tableFrom": "username_redirects",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.users": {
       "name": "users",
       "schema": "",
@@ -269,6 +315,12 @@
         "username": {
           "name": "username",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "username_changed_at": {
+          "name": "username_changed_at",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         },
@@ -315,7 +367,12 @@
         }
       },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "users_username_format": {
+          "name": "users_username_format",
+          "value": "\"users\".\"username\" ~ '^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$'"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.verifications": {

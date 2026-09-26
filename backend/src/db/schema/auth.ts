@@ -1,18 +1,34 @@
-import { boolean, index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { timestamps } from "./columns.js";
+import { sql } from "drizzle-orm";
+import { boolean, check, index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { createdAt, timestamps } from "./columns.js";
 
 export const userPlan = pgEnum("user_plan", ["free", "season_pass", "pro"]);
 
-export const users = pgTable("users", {
-  id: uuid().primaryKey().defaultRandom(),
-  name: text().notNull(),
-  email: text().notNull().unique(),
-  emailVerified: boolean().notNull().default(false),
-  image: text(),
-  // Our own fields. Username is null until the user picks one in onboarding.
-  username: text().unique(),
-  plan: userPlan().notNull().default("free"),
-  ...timestamps,
+export const users = pgTable(
+  "users",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    name: text().notNull(),
+    email: text().notNull().unique(),
+    emailVerified: boolean().notNull().default(false),
+    image: text(),
+    // Generated at signup from the name or email; the user can change it later.
+    username: text().notNull().unique(),
+    usernameChangedAt: timestamp({ withTimezone: true }),
+    plan: userPlan().notNull().default("free"),
+    ...timestamps,
+  },
+  (t) => [check("users_username_format", sql`${t.username} ~ '^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$'`)],
+);
+
+// Old usernames keep redirecting to their owner so shared links don't break,
+// and stay reserved so nobody else can take them.
+export const usernameRedirects = pgTable("username_redirects", {
+  oldUsername: text().primaryKey(),
+  userId: uuid()
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: createdAt(),
 });
 
 export const sessions = pgTable(
