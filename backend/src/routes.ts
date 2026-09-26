@@ -3,6 +3,7 @@ import { pdfsRouter } from "./modules/pdfs/pdfs.routes.js";
 import { profilesRouter } from "./modules/profiles/profiles.routes.js";
 import { resumesRouter } from "./modules/resumes/resumes.routes.js";
 import { templatesRouter } from "./modules/templates/templates.routes.js";
+import { uploadsRouter } from "./modules/uploads/uploads.routes.js";
 import { usersRouter } from "./modules/users/users.routes.js";
 
 export const v1 = Router();
@@ -12,3 +13,4 @@ v1.use(profilesRouter);
 v1.use(templatesRouter);
 v1.use(resumesRouter);
 v1.use(pdfsRouter);
+v1.use(uploadsRouter);
