@@ -50,6 +50,8 @@ export const createVersionBody = z.discriminatedUnion("kind", [
     semver: z.string().regex(/^\d+\.\d+\.\d+$/).optional(),
   }),
   z.object({ kind: z.literal("restore"), fromVersionId: idParam }),
+  // Applies the accepted operations of an AI suggestion.
+  z.object({ kind: z.literal("ai"), suggestionId: idParam, acceptedOperationIds: z.array(z.string()).min(1) }),
 ]);
 
 export const updateVersionBody = z

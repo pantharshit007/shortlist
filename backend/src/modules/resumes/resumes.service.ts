@@ -238,6 +238,10 @@ export async function createVersion(userId: string, resumeId: string, input: z.i
   return db.transaction(async (tx) => {
     const resume = await getOwnedResume(userId, resumeId, tx);
 
+    if (input.kind === "ai") {
+      throw new Error("AI versions are created by suggestions.applySuggestion");
+    }
+
     if (input.kind === "restore") {
       const from = await getVersionRow(resume.id, input.fromVersionId, tx);
       const payload: VersionPayload = from.content

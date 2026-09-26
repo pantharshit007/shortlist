@@ -17,6 +17,7 @@ import {
   versionListResponse,
   type versionParams,
 } from "./resumes.schemas.js";
+import { applySuggestion } from "../suggestions/suggestions.service.js";
 import * as service from "./resumes.service.js";
 
 export async function listResumes(req: ValidatedRequest<{ query: typeof listResumesQuery }>, res: Response) {
@@ -55,7 +56,15 @@ export async function createVersion(
   req: ValidatedRequest<{ params: typeof resumeParams; body: typeof createVersionBody }>,
   res: Response,
 ) {
-  sendData(res, versionDetail, await service.createVersion(currentUser(req).id, req.params.resumeId, req.body), 201);
+  const userId = currentUser(req).id;
+  const { resumeId } = req.params;
+  if (req.body.kind === "ai") {
+    await applySuggestion(userId, resumeId, req.body.suggestionId, req.body.acceptedOperationIds);
+    const resume = await service.getResume(userId, resumeId);
+    sendData(res, versionDetail, resume.head!, 201);
+    return;
+  }
+  sendData(res, versionDetail, await service.createVersion(userId, resumeId, req.body), 201);
 }
 
 export async function getVersion(req: ValidatedRequest<{ params: typeof versionParams }>, res: Response) {
