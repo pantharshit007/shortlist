@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   CheckIcon,
   CodeIcon,
@@ -12,6 +12,11 @@ import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { PageHeader } from '@/components/app/page-header'
+import {
+  BlankPageSheet,
+  LatexSheet,
+  ResumeSheet,
+} from '@/components/app/paper-sheets'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -28,16 +33,17 @@ import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ApiError, api, errorMessage, unwrap } from '@/lib/api/client'
-import { profileQuery } from '@/lib/api/queries'
+import { customTemplatesQuery, profileQuery } from '@/lib/api/queries'
 import type { CreateResumeBody, ResumeContent } from '@/lib/api/types'
 import { apiUrl } from '@/lib/env'
 import { site } from '@/lib/site'
-import { templateCatalog } from '@/lib/templates'
+import { blankLatex, templateCatalog } from '@/lib/templates'
 import type { TemplateId } from '@/lib/templates'
 import { cn } from '@/lib/utils'
 
 const searchSchema = z.object({
   template: z.string().optional(),
+  customTemplate: z.string().optional(),
   source: z.enum(['blank', 'profile', 'upload', 'tex']).optional(),
 })
 
@@ -72,64 +78,97 @@ const sources = [
     id: 'blank',
     icon: FilePlusIcon,
     title: 'Start blank',
-    body: 'Fill in a form from scratch',
+    body: 'A layout, a blank page or your own template',
   },
 ] as const
+
+type PickerOption = {
+  value: string
+  name: string
+  note?: string
+  preview: React.ReactNode
+}
+
+function layoutOptions(): PickerOption[] {
+  return templateCatalog.map((template) => ({
+    value: template.id,
+    name: template.name,
+    preview: (
+      <img
+        src={`/templates/${template.id}.png`}
+        alt=""
+        width={1020}
+        height={1320}
+        loading="lazy"
+        className="aspect-[17/22] w-full rounded-sm bg-sheet object-cover object-top"
+      />
+    ),
+  }))
+}
 
 function TemplatePicker({
   value,
   onChange,
+  options,
+  description,
+  footer,
 }: {
-  value: TemplateId
-  onChange: (id: TemplateId) => void
+  value: string
+  onChange: (value: string) => void
+  options: PickerOption[]
+  description: string
+  footer?: React.ReactNode
 }) {
   return (
     <FieldSet>
       <FieldLegend>Template</FieldLegend>
-      <FieldDescription>You can switch templates anytime.</FieldDescription>
+      <FieldDescription>{description}</FieldDescription>
       <ToggleGroup
         type="single"
         value={value}
-        onValueChange={(next) => next && onChange(next as TemplateId)}
+        onValueChange={(next) => next && onChange(next)}
         aria-label="Template"
         className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4"
       >
-        {templateCatalog.map((template) => {
-          const selected = template.id === value
+        {options.map((option) => {
+          const selected = option.value === value
           return (
             <ToggleGroupItem
-              key={template.id}
-              value={template.id}
-              aria-label={template.name}
-              className="group flex h-auto flex-col items-stretch gap-2 rounded-lg p-1.5 text-left data-[state=on]:bg-primary/10"
+              key={option.value}
+              value={option.value}
+              aria-label={option.name}
+              className="group flex h-auto flex-col items-stretch justify-start gap-2 rounded-lg p-1.5 text-left whitespace-normal data-[state=on]:bg-primary/10"
             >
-              <span className="relative block">
-                <img
-                  src={`/templates/${template.id}.png`}
-                  alt=""
-                  width={1020}
-                  height={1320}
-                  loading="lazy"
-                  className={cn(
-                    'aspect-[17/22] w-full rounded-sm bg-sheet object-cover object-top ring-1 ring-black/10 transition-shadow',
-                    selected
-                      ? 'ring-2 ring-primary'
-                      : 'group-hover:ring-foreground/30',
-                  )}
-                />
+              <span
+                className={cn(
+                  'relative block overflow-hidden rounded-sm ring-1 ring-black/10 transition-shadow',
+                  selected
+                    ? 'ring-2 ring-primary'
+                    : 'group-hover:ring-foreground/30',
+                )}
+              >
+                {option.preview}
                 {selected && (
                   <span className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
                     <CheckIcon className="size-4" />
                   </span>
                 )}
               </span>
-              <span className="px-0.5 text-sm font-medium">
-                {template.name}
+              <span className="flex flex-col px-0.5">
+                <span className="truncate text-sm font-medium">
+                  {option.name}
+                </span>
+                {option.note && (
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {option.note}
+                  </span>
+                )}
               </span>
             </ToggleGroupItem>
           )
         })}
       </ToggleGroup>
+      {footer}
     </FieldSet>
   )
 }
@@ -141,9 +180,18 @@ function NewResumePage() {
   const { data: profile } = useQuery(profileQuery)
   const hasProfile = Boolean(profile?.updatedAt)
 
+  const { data: customTemplates } = useQuery(customTemplatesQuery)
   const initialTemplate = templateCatalog.some((t) => t.id === search.template)
     ? (search.template as TemplateId)
     : 'developer'
+  // What a blank start begins from: a layout, the blank LaTeX page, or one of the user's templates.
+  const [blankStart, setBlankStart] = useState(
+    search.customTemplate
+      ? `custom:${search.customTemplate}`
+      : search.template === 'blank'
+        ? 'blank-page'
+        : initialTemplate,
+  )
   const [source, setSource] = useState<Source>(
     search.source ?? (hasProfile ? 'profile' : 'upload'),
   )
@@ -158,6 +206,10 @@ function NewResumePage() {
   const fileInput = useRef<HTMLInputElement>(null)
 
   const isTexFile = file ? /\.tex$/i.test(file.name) : false
+  const customTemplate =
+    source === 'blank' && blankStart.startsWith('custom:')
+      ? customTemplates?.find((t) => `custom:${t.id}` === blankStart)
+      : undefined
   const makesCodeResume =
     source === 'tex' ||
     (source === 'upload' && isTexFile && texChoice === 'code')
@@ -214,11 +266,29 @@ function NewResumePage() {
           templateId,
           source: { type: 'content', content },
         }
+      } else if (source === 'blank' && blankStart === 'blank-page') {
+        body = {
+          title: name,
+          mode: 'code',
+          source: { type: 'tex', texSource: blankLatex },
+        }
+      } else if (customTemplate) {
+        body = {
+          title: name,
+          mode: customTemplate.mode,
+          ...(customTemplate.templateId && {
+            templateId: customTemplate.templateId,
+          }),
+          source: {
+            type: 'customTemplate',
+            customTemplateId: customTemplate.id,
+          },
+        }
       } else {
         body = {
           title: name,
           mode: 'structured',
-          templateId,
+          templateId: source === 'blank' ? blankStart : templateId,
           source: { type: source },
         }
       }
@@ -227,7 +297,11 @@ function NewResumePage() {
     onSuccess: (resume) => {
       queryClient.invalidateQueries({ queryKey: ['resumes'] })
       queryClient.invalidateQueries({ queryKey: ['usage'] })
-      navigate({ to: '/resumes/$resumeId', params: { resumeId: resume.id } })
+      navigate({
+        to: '/resumes/$resumeId',
+        params: { resumeId: resume.id },
+        search: { created: true },
+      })
     },
     onError: (error) => {
       if (error instanceof ApiError && error.code === 'AI_NOT_CONFIGURED') {
@@ -247,7 +321,7 @@ function NewResumePage() {
         ? Boolean(file) || pastedText.trim().length >= 20
         : source === 'profile'
           ? hasProfile
-          : true
+          : !blankStart.startsWith('custom:') || Boolean(customTemplate)
 
   function pickFile(next: File | undefined) {
     if (!next) return
@@ -456,8 +530,56 @@ function NewResumePage() {
             </Alert>
           )}
 
-          {!makesCodeResume && (
-            <TemplatePicker value={templateId} onChange={setTemplateId} />
+          {source === 'blank' ? (
+            <TemplatePicker
+              value={blankStart}
+              onChange={setBlankStart}
+              description="Fill in a layout as a form, write LaTeX on a blank page, or reuse one of your templates."
+              options={[
+                {
+                  value: 'blank-page',
+                  name: 'Blank page',
+                  note: 'LaTeX from scratch',
+                  preview: <BlankPageSheet className="aspect-[17/22]" />,
+                },
+                ...layoutOptions(),
+                ...(customTemplates ?? []).map((template) => ({
+                  value: `custom:${template.id}`,
+                  name: template.name,
+                  note: 'Your template',
+                  preview:
+                    template.mode === 'code' ? (
+                      <LatexSheet className="aspect-[17/22]" />
+                    ) : (
+                      <ResumeSheet
+                        title={template.name}
+                        tailored={false}
+                        className="aspect-[17/22]"
+                      />
+                    ),
+                })),
+              ]}
+              footer={
+                <p className="text-sm text-muted-foreground">
+                  Want your own layout?{' '}
+                  <Link
+                    to="/my-templates/new"
+                    className="font-medium text-foreground underline underline-offset-4"
+                  >
+                    Create a template
+                  </Link>
+                </p>
+              }
+            />
+          ) : (
+            !makesCodeResume && (
+              <TemplatePicker
+                value={templateId}
+                onChange={(value) => setTemplateId(value as TemplateId)}
+                description="You can switch templates anytime."
+                options={layoutOptions()}
+              />
+            )
           )}
 
           <div className="flex flex-wrap items-center gap-3 border-t pt-6">
