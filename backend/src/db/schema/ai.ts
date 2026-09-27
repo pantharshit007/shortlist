@@ -1,6 +1,6 @@
-import { index, integer, jsonb, pgEnum, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { users } from "./auth.js";
-import { createdAt } from "./columns.js";
+import { createdAt, timestamps } from "./columns.js";
 import { jobs, resumes, resumeVersions } from "./resumes.js";
 
 export const aiStep = pgEnum("ai_step", [
@@ -42,7 +42,26 @@ export const aiRuns = pgTable(
     patchOps: jsonb(),
     acceptedOpIds: jsonb().$type<string[]>(),
     error: text(),
+    // Run on the user's own API key; doesn't count toward plan limits.
+    byok: boolean().notNull().default(false),
     createdAt: createdAt(),
   },
   (t) => [index().on(t.userId, t.createdAt), index().on(t.resumeId)],
 );
+
+export const aiProvider = pgEnum("ai_provider", ["openai", "anthropic", "openrouter"]);
+
+// A user's own AI provider key (bring your own key). Encrypted at rest; only the last
+// four characters are ever shown back.
+export const userAiKeys = pgTable("user_ai_keys", {
+  userId: uuid()
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  provider: aiProvider().notNull(),
+  // Used for every AI step when set; otherwise the provider's default models.
+  modelId: text(),
+  encryptedKey: text().notNull(),
+  keyHint: text().notNull(),
+  verifiedAt: timestamp({ withTimezone: true }).notNull(),
+  ...timestamps,
+});
