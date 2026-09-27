@@ -52,8 +52,9 @@ export async function generateStructured<S extends z.ZodType>(
       schema: input.schema,
       system: input.system,
       messages: [{ role: "user", content }],
-      // Strict mode rejects optional fields, which our schemas use.
-      providerOptions: { openai: { strictJsonSchema: false } },
+      // Strict mode makes OpenAI return every field, so output always matches the schema.
+      // AI output schemas must therefore use nullable fields, never optional ones.
+      providerOptions: { openai: { strictJsonSchema: true } },
     });
 
     const usage = {

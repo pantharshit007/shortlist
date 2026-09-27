@@ -61,7 +61,8 @@ const url = (value: string | null | undefined) => {
   const v = clean(value);
   if (!v) return undefined;
   const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v}`;
-  return z.url().safeParse(withScheme).success ? withScheme : undefined;
+  // PDFs often give only a link's words ("Live", "GitHub"); keep it only if it has a real domain.
+  return z.url().safeParse(withScheme).success && new URL(withScheme).hostname.includes(".") ? withScheme : undefined;
 };
 const links = (items: { label: string; url: string }[]) =>
   items.flatMap((item) => {
