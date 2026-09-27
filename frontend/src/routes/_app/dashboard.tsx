@@ -1,15 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import {
-  CodeIcon,
-  FilePlusIcon,
-  FileTextIcon,
-  FileUpIcon,
-  PlusIcon,
-  UserRoundIcon,
-} from 'lucide-react'
+import { PlusIcon, UserRoundIcon } from 'lucide-react'
 import { useState } from 'react'
 import { PageHeader } from '@/components/app/page-header'
+import {
+  BlankSheet,
+  ImportSheet,
+  LatexSheet,
+  ResumeSheet,
+} from '@/components/app/paper-sheets'
 import { ResumeActions } from '@/components/app/resume-actions'
 import {
   Alert,
@@ -17,16 +16,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { profileQuery, resumesQuery, usageQuery } from '@/lib/api/queries'
@@ -42,21 +32,21 @@ export const Route = createFileRoute('/_app/dashboard')({
 const startOptions = [
   {
     source: 'upload',
-    icon: FileUpIcon,
+    sheet: ImportSheet,
     title: 'Import a resume',
-    body: 'Upload a PDF or text file',
+    body: 'Upload a PDF or text file and we fill in the form for you.',
   },
   {
     source: 'tex',
-    icon: CodeIcon,
+    sheet: LatexSheet,
     title: 'Paste LaTeX',
-    body: 'Bring your Overleaf file',
+    body: 'Bring your Overleaf .tex file. It compiles as it is.',
   },
   {
     source: 'blank',
-    icon: FilePlusIcon,
+    sheet: BlankSheet,
     title: 'Start blank',
-    body: 'Fill in a form',
+    body: 'Fill in a simple form. The layout takes care of itself.',
   },
 ] as const
 
@@ -105,105 +95,123 @@ function DashboardPage() {
         </Alert>
       )}
 
-      <div className="flex items-center justify-between gap-4">
-        <ToggleGroup
-          type="single"
-          variant="outline"
-          value={view}
-          onValueChange={(value) => value && setView(value as typeof view)}
-          aria-label="Show resumes"
-        >
-          <ToggleGroupItem value="active">Active</ToggleGroupItem>
-          <ToggleGroupItem value="archived">Archived</ToggleGroupItem>
-        </ToggleGroup>
-      </div>
+      {(view === 'archived' || !!resumes.data?.length) && (
+        <div className="flex items-center justify-between gap-4 border-b pb-3">
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={view}
+            onValueChange={(value) => value && setView(value as typeof view)}
+            aria-label="Show resumes"
+          >
+            <ToggleGroupItem value="active">Active</ToggleGroupItem>
+            <ToggleGroupItem value="archived">Archived</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      )}
 
       {resumes.isPending ? (
-        <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-18 w-full" />
+            <div key={i} className="flex flex-col gap-3">
+              <Skeleton className="aspect-[17/13] w-full" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
           ))}
         </div>
-      ) : resumes.data && resumes.data.length > 0 ? (
-        <ul className="flex flex-col divide-y rounded-xl border bg-card">
-          {resumes.data.map((resume) => (
-            <li
-              key={resume.id}
-              className="group relative flex items-center gap-4 px-4 py-3.5 focus-within:bg-accent/40 focus-within:ring-2 focus-within:ring-ring focus-within:ring-inset sm:px-5 first:rounded-t-xl last:rounded-b-xl"
+      ) : resumes.isError ? (
+        <Alert variant="destructive">
+          <AlertTitle>Couldn't load your resumes</AlertTitle>
+          <AlertDescription>
+            Check your connection, then try again.
+          </AlertDescription>
+          <AlertAction>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => resumes.refetch()}
             >
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                {resume.mode === 'code' ? (
-                  <CodeIcon className="size-5" />
-                ) : (
-                  <FileTextIcon className="size-5" />
-                )}
-              </span>
-              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <Link
-                  to="/resumes/$resumeId"
-                  params={{ resumeId: resume.id }}
-                  className="truncate font-medium after:absolute after:inset-0 focus-visible:outline-none"
-                >
-                  {resume.title}
-                </Link>
-                <p className="truncate text-sm text-muted-foreground">
-                  {resume.mode === 'code'
-                    ? 'LaTeX'
-                    : (templateName(resume.templateId) ?? 'Form')}
-                  , edited {timeAgo(resume.updatedAt)}
-                </p>
-              </div>
-              {resume.jobId && (
-                <Badge variant="secondary" className="hidden sm:inline-flex">
-                  Tailored
-                </Badge>
-              )}
-              <div className="relative z-10">
-                <ResumeActions resume={resume} />
+              Try again
+            </Button>
+          </AlertAction>
+        </Alert>
+      ) : resumes.data.length > 0 ? (
+        <ul className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+          {resumes.data.map((resume) => (
+            <li key={resume.id} className="group relative flex flex-col gap-3">
+              <ResumeSheet title={resume.title} tailored={!!resume.jobId} />
+              <div className="flex items-start gap-1">
+                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <Link
+                    to="/resumes/$resumeId"
+                    params={{ resumeId: resume.id }}
+                    className="truncate font-medium after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-offset-4 focus-visible:after:ring-offset-background"
+                  >
+                    {resume.title}
+                  </Link>
+                  <p className="truncate text-sm text-muted-foreground">
+                    {resume.mode === 'code'
+                      ? 'LaTeX'
+                      : (templateName(resume.templateId) ?? 'Form')}
+                    , edited {timeAgo(resume.updatedAt)}
+                  </p>
+                </div>
+                <div className="relative z-10 -mr-2">
+                  <ResumeActions resume={resume} />
+                </div>
               </div>
             </li>
           ))}
+          {view === 'active' && (
+            <li className="group relative flex flex-col gap-3">
+              <div className="flex aspect-[17/13] w-full items-center justify-center rounded-[3px] border border-dashed border-foreground/20 text-muted-foreground transition-colors group-hover:border-primary/60 group-hover:text-primary">
+                <PlusIcon className="size-6" />
+              </div>
+              <Link
+                to="/resumes/new"
+                className="font-medium after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-offset-4 focus-visible:after:ring-offset-background"
+              >
+                New resume
+              </Link>
+            </li>
+          )}
         </ul>
       ) : view === 'archived' ? (
-        <Empty className="border">
-          <EmptyHeader>
-            <EmptyTitle>No archived resumes</EmptyTitle>
-            <EmptyDescription>
-              Resumes you archive from the menu show up here.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+        <p className="py-16 text-center text-muted-foreground">
+          Nothing archived. Resumes you archive from their menu move here.
+        </p>
       ) : (
-        <Empty className="border bg-card">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <FileTextIcon />
-            </EmptyMedia>
-            <EmptyTitle>Create your first resume</EmptyTitle>
-            <EmptyDescription>
-              Start from what you already have. You can tailor it to a job right
-              after.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent className="max-w-2xl">
-            <div className="grid w-full gap-3 sm:grid-cols-3">
-              {startOptions.map((option) => (
-                <Link
-                  key={option.source}
-                  to="/resumes/new"
-                  search={{ source: option.source }}
-                  className="flex flex-col items-start gap-2 rounded-lg border bg-background p-4 text-left transition-colors hover:border-primary/50 hover:bg-accent"
-                >
-                  <option.icon className="size-5 text-primary" />
-                  <span className="font-medium">{option.title}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {option.body}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </EmptyContent>
-        </Empty>
+        <section aria-labelledby="start" className="flex flex-col gap-8 pt-2">
+          <div className="flex max-w-xl flex-col gap-2">
+            <h2 id="start" className="text-2xl font-semibold tracking-tight">
+              Start your first resume
+            </h2>
+            <p className="text-muted-foreground">
+              Begin with what you already have. Once it's in, you can tailor a
+              copy to any job.
+            </p>
+          </div>
+          <ul className="grid max-w-4xl gap-x-6 gap-y-8 sm:grid-cols-3">
+            {startOptions.map((option) => (
+              <li
+                key={option.source}
+                className="group relative flex flex-col gap-3"
+              >
+                <option.sheet />
+                <div className="flex flex-col gap-0.5">
+                  <Link
+                    to="/resumes/new"
+                    search={{ source: option.source }}
+                    className="font-medium after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-offset-4 focus-visible:after:ring-offset-background"
+                  >
+                    {option.title}
+                  </Link>
+                  <p className="text-sm text-muted-foreground">{option.body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </div>
   )
