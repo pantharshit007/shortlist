@@ -911,6 +911,103 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/v1/analytics': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Views across all your share links */
+    get: {
+      parameters: {
+        query?: {
+          days?: '7' | '30' | '90'
+          timeZone?: string
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                days: number
+                totals: {
+                  views: number
+                  uniqueVisitors: number
+                  previousViews: number
+                  previousUniqueVisitors: number
+                }
+                viewsByDay: {
+                  day: string
+                  views: number
+                }[]
+                links: {
+                  /** Format: uuid */
+                  id: string
+                  slug: string
+                  /** Format: uuid */
+                  resumeId: string
+                  resumeTitle: string
+                  views: number
+                  totalViews: number
+                  lastViewedAt: string | null
+                }[]
+                referrers: {
+                  label: string
+                  views: number
+                }[]
+                countries: {
+                  label: string
+                  views: number
+                }[]
+                devices: {
+                  label: string
+                  views: number
+                }[]
+                recentViews: {
+                  /** Format: uuid */
+                  id: string
+                  viewedAt: string
+                  /** Format: uuid */
+                  shareLinkId: string
+                  slug: string
+                  resumeTitle: string
+                  referrer: string | null
+                  country: string | null
+                  device: string | null
+                }[]
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/v1/custom-templates': {
     parameters: {
       query?: never

@@ -14,6 +14,7 @@ import { Route as SiteRouteImport } from './routes/_site'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as UsernameIndexRouteImport } from './routes/$username/index'
 import { Route as UsernameSlugRouteImport } from './routes/$username/$slug'
+import { Route as AppAnalyticsRouteImport } from './routes/_app/analytics'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppJobsRouteImport } from './routes/_app/jobs'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
@@ -51,6 +52,11 @@ const UsernameSlugRoute = UsernameSlugRouteImport.update({
   id: '/$username/$slug',
   path: '/$username/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppAnalyticsRoute = AppAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
   '/$username/$slug': typeof UsernameSlugRoute
+  '/analytics': typeof AppAnalyticsRoute
   '/dashboard': typeof AppDashboardRoute
   '/jobs': typeof AppJobsRoute
   '/profile': typeof AppProfileRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
   '/$username/$slug': typeof UsernameSlugRoute
+  '/analytics': typeof AppAnalyticsRoute
   '/dashboard': typeof AppDashboardRoute
   '/jobs': typeof AppJobsRoute
   '/profile': typeof AppProfileRoute
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/_site': typeof SiteRouteWithChildren
   '/login': typeof LoginRoute
   '/$username/$slug': typeof UsernameSlugRoute
+  '/_app/analytics': typeof AppAnalyticsRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/jobs': typeof AppJobsRoute
   '/_app/profile': typeof AppProfileRoute
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/$username/$slug'
+    | '/analytics'
     | '/dashboard'
     | '/jobs'
     | '/profile'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/$username/$slug'
+    | '/analytics'
     | '/dashboard'
     | '/jobs'
     | '/profile'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/_site'
     | '/login'
     | '/$username/$slug'
+    | '/_app/analytics'
     | '/_app/dashboard'
     | '/_app/jobs'
     | '/_app/profile'
@@ -290,6 +302,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$username/$slug'
       preLoaderRoute: typeof UsernameSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/analytics': {
+      id: '/_app/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AppAnalyticsRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
       id: '/_app/dashboard'
@@ -393,6 +412,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAnalyticsRoute: typeof AppAnalyticsRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppJobsRoute: typeof AppJobsRoute
   AppProfileRoute: typeof AppProfileRoute
@@ -405,6 +425,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAnalyticsRoute: AppAnalyticsRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppJobsRoute: AppJobsRoute,
   AppProfileRoute: AppProfileRoute,

@@ -17,6 +17,7 @@ export const queryKeys = {
   jobs: ['jobs'] as const,
   job: (id: string) => ['job', id] as const,
   subscription: ['subscription'] as const,
+  analytics: (days: number) => ['analytics', days] as const,
 }
 
 export const meQuery = queryOptions({
@@ -136,3 +137,19 @@ export const subscriptionQuery = queryOptions({
   queryKey: queryKeys.subscription,
   queryFn: () => unwrap(api.GET('/v1/subscription')),
 })
+
+export const analyticsQuery = (days: 7 | 30 | 90) =>
+  queryOptions({
+    queryKey: queryKeys.analytics(days),
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/analytics', {
+          params: {
+            query: {
+              days: String(days) as '7' | '30' | '90',
+              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
+          },
+        }),
+      ),
+  })
