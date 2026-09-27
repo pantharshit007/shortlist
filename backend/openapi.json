@@ -378,6 +378,9 @@
                             "pro"
                           ]
                         },
+                        "ownAiKey": {
+                          "type": "boolean"
+                        },
                         "periodStart": {
                           "type": "string"
                         },
@@ -467,6 +470,7 @@
                       },
                       "required": [
                         "plan",
+                        "ownAiKey",
                         "periodStart",
                         "periodEnd",
                         "resumes",
@@ -2663,7 +2667,7 @@
       "get": {
         "summary": "Your own AI key, without the secret",
         "tags": [
-          "Users"
+          "Account"
         ],
         "security": [
           {
@@ -2741,7 +2745,7 @@
       "put": {
         "summary": "Test and save your own AI key",
         "tags": [
-          "Users"
+          "Account"
         ],
         "security": [
           {
@@ -2859,7 +2863,7 @@
       "delete": {
         "summary": "Remove your own AI key",
         "tags": [
-          "Users"
+          "Account"
         ],
         "security": [
           {

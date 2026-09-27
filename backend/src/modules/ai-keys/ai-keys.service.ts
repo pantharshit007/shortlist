@@ -51,7 +51,7 @@ async function verify(provider: AiProvider, apiKey: string, modelId: string | un
         abortSignal: AbortSignal.timeout(20_000),
       });
     } catch (err) {
-      throw userKeyError(provider, err);
+      throw userKeyError(provider, err, "saving");
     }
   }
 }

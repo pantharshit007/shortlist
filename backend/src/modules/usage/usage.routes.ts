@@ -5,7 +5,7 @@ import { currentUser, requireAuth } from "../../middleware/require-auth.js";
 import { getUsage } from "./quotas.js";
 
 const counter = z.object({ used: z.number().int(), limit: z.number().int() });
-const usageResponse = z.object({
+export const usageResponse = z.object({
   plan: z.enum(["free", "season_pass", "pro"]),
   // AI requests run on the user's own key, so the AI limits below don't apply.
   ownAiKey: z.boolean(),

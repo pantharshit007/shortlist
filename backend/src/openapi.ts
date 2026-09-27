@@ -3,6 +3,7 @@ import { createDocument, type ZodOpenApiOperationObject, type ZodOpenApiPathsObj
 import { coverageQuery, coverageResponse } from "./modules/coverage/coverage.routes.js";
 import { checkoutResponse, createCheckoutBody, subscriptionResponse } from "./modules/billing/billing.schemas.js";
 import { createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
+import { usageResponse } from "./modules/usage/usage.routes.js";
 import { aiKeyResponse, putAiKeyBody } from "./modules/ai-keys/ai-keys.schemas.js";
 import { analyticsQuery, analyticsResponse } from "./modules/analytics/analytics.schemas.js";
 import {
@@ -59,17 +60,6 @@ const errorResponse = z
     error: z.object({ code: z.string(), message: z.string(), details: z.unknown().optional() }),
   })
   .meta({ id: "Error" });
-
-const usageCounter = z.object({ used: z.number().int(), limit: z.number().int() });
-const usageResponse = z.object({
-  plan: z.enum(["free", "season_pass", "pro"]),
-  periodStart: z.date(),
-  periodEnd: z.date(),
-  resumes: usageCounter,
-  tailor: usageCounter,
-  edit: usageCounter,
-  import: usageCounter,
-});
 
 type OperationInput = {
   summary: string;
@@ -152,9 +142,9 @@ const paths: ZodOpenApiPathsObject = {
   },
 
   "/v1/me/ai-key": {
-    get: op({ summary: "Your own AI key, without the secret", tag: "Users", response: aiKeyResponse }),
-    put: op({ summary: "Test and save your own AI key", tag: "Users", body: putAiKeyBody, response: aiKeyResponse }),
-    delete: op({ summary: "Remove your own AI key", tag: "Users", noContent: true }),
+    get: op({ summary: "Your own AI key, without the secret", tag: "Account", response: aiKeyResponse }),
+    put: op({ summary: "Test and save your own AI key", tag: "Account", body: putAiKeyBody, response: aiKeyResponse }),
+    delete: op({ summary: "Remove your own AI key", tag: "Account", noContent: true }),
   },
   "/v1/analytics": {
     get: op({
