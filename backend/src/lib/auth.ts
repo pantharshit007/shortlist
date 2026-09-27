@@ -1,11 +1,10 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { anonymous, magicLink } from "better-auth/plugins";
+import { anonymous, genericOAuth } from "better-auth/plugins";
 import { env } from "../config/env.js";
 import { db } from "../db/index.js";
 import * as schema from "../db/schema/index.js";
 import { generateUsername } from "../modules/users/usernames.js";
-import { sendEmail } from "./email.js";
 
 const socialProviders = {
   ...(env.GOOGLE_CLIENT_ID &&
@@ -17,6 +16,21 @@ const socialProviders = {
       github: { clientId: env.GITHUB_CLIENT_ID, clientSecret: env.GITHUB_CLIENT_SECRET },
     }),
 };
+
+// "Sign in with ChatGPT" is a standard OpenID Connect provider, so it goes through generic OAuth.
+const chatgptProvider =
+  env.CHATGPT_CLIENT_ID && env.CHATGPT_CLIENT_SECRET
+    ? [
+        {
+          providerId: "chatgpt",
+          clientId: env.CHATGPT_CLIENT_ID,
+          clientSecret: env.CHATGPT_CLIENT_SECRET,
+          discoveryUrl: env.CHATGPT_DISCOVERY_URL,
+          scopes: ["openid", "profile", "email"],
+          pkce: true,
+        },
+      ]
+    : [];
 
 export const guestLoginEnabled = env.ENABLE_GUEST_LOGIN ?? env.NODE_ENV !== "production";
 
@@ -44,16 +58,7 @@ export const auth = betterAuth({
   },
   plugins: [
     ...(guestLoginEnabled ? [anonymous({ generateName: () => "Guest", emailDomainName: "guest.invalid" })] : []),
-    magicLink({
-      sendMagicLink: async ({ email, url }) => {
-        await sendEmail({
-          to: email,
-          subject: "Your sign-in link",
-          text: `Sign in to Resume Builder: ${url}\n\nThis link expires in 5 minutes.`,
-          html: `<p>Sign in to Resume Builder:</p><p><a href="${url}">Sign in</a></p><p>This link expires in 5 minutes.</p>`,
-        });
-      },
-    }),
+    genericOAuth({ config: chatgptProvider }),
   ],
   advanced: {
     database: { generateId: "uuid" },

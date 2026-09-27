@@ -16,7 +16,7 @@ pnpm dev                          # API on http://localhost:4000
 pnpm worker                       # optional: scheduled maintenance jobs
 ```
 
-Without `RESEND_API_KEY`, magic-link emails are printed to the log so you can click them from the terminal.
+Before OAuth apps are set up, use "Continue as guest" on the sign-in page (on by default in development).
 Without an AI key, AI endpoints return `AI_NOT_CONFIGURED`; everything else works.
 
 ## Scripts
@@ -83,7 +83,7 @@ Every variable is listed in `.env.example`. Where to get them:
 | `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `OPENROUTER_API_KEY` | Provider dashboard; set `AI_PROVIDER` to match                                                                      |
 | `GOOGLE_CLIENT_ID/SECRET`                                     | Google Cloud Console, OAuth client, redirect `<BETTER_AUTH_URL>/api/auth/callback/google`                           |
 | `GITHUB_CLIENT_ID/SECRET`                                     | GitHub Developer Settings, OAuth App, callback `<BETTER_AUTH_URL>/api/auth/callback/github`                         |
-| `RESEND_API_KEY`, `EMAIL_FROM`                                | resend.com, with a verified sending domain                                                                          |
+| `CHATGPT_CLIENT_ID/SECRET`                                    | OpenAI platform console, Sign in with ChatGPT (beta), redirect `<BETTER_AUTH_URL>/api/auth/oauth2/callback/chatgpt` |
 | `R2_*`                                                        | Cloudflare dashboard, R2, bucket + API token with read/write on it                                                  |
 | `RAZORPAY_KEY_ID/SECRET`                                      | Razorpay dashboard, API keys                                                                                        |
 | `RAZORPAY_PRO_PLAN_ID`                                        | Razorpay dashboard, Subscriptions, create a monthly plan (₹129)                                                     |

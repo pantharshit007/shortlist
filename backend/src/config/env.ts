@@ -22,6 +22,12 @@ const envSchema = z.object({
   GOOGLE_CLIENT_SECRET: optionalString,
   GITHUB_CLIENT_ID: optionalString,
   GITHUB_CLIENT_SECRET: optionalString,
+  CHATGPT_CLIENT_ID: optionalString,
+  CHATGPT_CLIENT_SECRET: optionalString,
+  CHATGPT_DISCOVERY_URL: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.url().default("https://auth.openai.com/.well-known/openid-configuration"),
+  ),
 
   AI_PROVIDER: z.enum(["openai", "anthropic", "openrouter"]).default("openai"),
   AI_MODEL_FAST: optionalString,
@@ -53,9 +59,6 @@ const envSchema = z.object({
   RAZORPAY_WEBHOOK_SECRET: optionalString,
   // Monthly plan created in the Razorpay dashboard for Pro.
   RAZORPAY_PRO_PLAN_ID: optionalString,
-
-  RESEND_API_KEY: optionalString,
-  EMAIL_FROM: z.string().default("Resume Builder <onboarding@resend.dev>"),
 });
 
 const parsed = envSchema
