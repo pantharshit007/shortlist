@@ -36,6 +36,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCollapsedSidebar } from '@/hooks/use-collapsed-sidebar'
 import { useDebouncedEffect } from '@/hooks/use-debounced-effect'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import { usePdfPreview } from '@/hooks/use-pdf-preview'
 import { api, errorMessage, unwrap } from '@/lib/api/client'
 import { queryKeys, resumeQuery } from '@/lib/api/queries'
@@ -56,6 +57,9 @@ export const Route = createFileRoute('/_app/resumes/$resumeId')({
 function EditorRoute() {
   const { resumeId } = Route.useParams()
   const { data: resume, isPending, error } = useQuery(resumeQuery(resumeId))
+  const { tailor } = Route.useSearch()
+  // Lives above the editor so the AI panel stays open when applied changes remount it.
+  const [aiOpen, setAiOpen] = useState(Boolean(tailor))
 
   if (isPending) {
     return (
@@ -77,12 +81,26 @@ function EditorRoute() {
   }
   // Remount when the head version changes from outside (restore, AI changes) so the draft resets.
   return (
-    <ResumeEditor key={resume.headVersionId ?? resume.id} resume={resume} />
+    <ResumeEditor
+      key={resume.headVersionId ?? resume.id}
+      resume={resume}
+      aiOpen={aiOpen}
+      onAiOpenChange={setAiOpen}
+    />
   )
 }
 
-function ResumeEditor({ resume }: { resume: ResumeDetail }) {
+function ResumeEditor({
+  resume,
+  aiOpen,
+  onAiOpenChange,
+}: {
+  resume: ResumeDetail
+  aiOpen: boolean
+  onAiOpenChange: (open: boolean) => void
+}) {
   useCollapsedSidebar()
+  const docked = useMediaQuery('(min-width: 1280px)')
   const queryClient = useQueryClient()
   const structured = resume.mode === 'structured'
   const [content, setContent] = useState<ResumeContent | null>(
@@ -98,7 +116,6 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
   // A resume made in this visit offers "save as template" on the way out, once it has edits.
   const [editedSinceCreate, setEditedSinceCreate] = useState(false)
   const [offerTemplate, setOfferTemplate] = useState(false)
-  const [aiOpen, setAiOpen] = useState(Boolean(tailor))
   const [historyOpen, setHistoryOpen] = useState(false)
   // Autosaves add versions without remounting the editor, so track the latest one here.
   const [headVersionId, setHeadVersionId] = useState(resume.headVersionId)
@@ -106,7 +123,7 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
   const [aiMode, setAiMode] = useState<AiPanelMode>('tailor')
   const openAi = (mode: AiPanelMode) => {
     setAiMode(mode)
-    setAiOpen(true)
+    onAiOpenChange(true)
   }
   const latexEditor = useRef<LatexEditorHandle>(null)
   const lastSaved = useRef(
@@ -246,7 +263,13 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
             title={title}
             structured={structured}
           />
-          <Button aria-label="Improve with AI" onClick={() => openAi('tailor')}>
+          <Button
+            aria-label="Improve with AI"
+            aria-pressed={docked ? aiOpen : undefined}
+            onClick={() =>
+              docked && aiOpen ? onAiOpenChange(false) : openAi('tailor')
+            }
+          >
             <SparklesIcon data-icon="inline-start" />
             <span className="hidden sm:inline">Improve with AI</span>
           </Button>
@@ -265,10 +288,17 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
         </Tabs>
       </div>
 
-      <div className="grid min-h-0 flex-1 lg:grid-cols-2">
+      <div
+        className={cn(
+          'grid min-h-0 flex-1 lg:grid-cols-2',
+          docked &&
+            aiOpen &&
+            'xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_380px]',
+        )}
+      >
         <div
           className={cn(
-            'min-h-0 overflow-y-auto',
+            'min-h-0 min-w-0 overflow-y-auto',
             pane === 'preview' && 'hidden lg:block',
           )}
         >
@@ -287,7 +317,7 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
         </div>
         <div
           className={cn(
-            'min-h-0 border-l',
+            'min-h-0 min-w-0 border-l',
             pane === 'edit' && 'hidden lg:block',
           )}
         >
@@ -302,6 +332,17 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
             onFix={structured ? undefined : () => openAi('fix')}
           />
         </div>
+        <AiPanel
+          open={aiOpen}
+          onOpenChange={onAiOpenChange}
+          docked={docked}
+          mode={aiMode}
+          resumeId={resume.id}
+          initialJobId={tailor ?? resume.jobId}
+          content={content}
+          texSource={structured ? null : texSource}
+          hasUnsavedChanges={saveState !== 'saved'}
+        />
       </div>
       <UnsavedChangesGuard
         when={saveState === 'unsaved' || saveState === 'saving'}
@@ -327,17 +368,6 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
         onOpenChange={setShareOpen}
         resumeId={resume.id}
         headVersionId={headVersionId}
-      />
-      <AiPanel
-        open={aiOpen}
-        onOpenChange={setAiOpen}
-        mode={aiMode}
-        onModeChange={setAiMode}
-        resumeId={resume.id}
-        initialJobId={tailor ?? resume.jobId}
-        content={content}
-        texSource={structured ? null : texSource}
-        hasUnsavedChanges={saveState !== 'saved'}
       />
     </div>
   )

@@ -96,7 +96,7 @@ export function TemplateEditor<TResult>({
       <div className="grid min-h-0 flex-1 lg:grid-cols-2">
         <div
           className={cn(
-            'min-h-0 overflow-y-auto',
+            'min-h-0 min-w-0 overflow-y-auto',
             pane === 'preview' && 'hidden lg:block',
           )}
         >
@@ -109,7 +109,7 @@ export function TemplateEditor<TResult>({
         </div>
         <div
           className={cn(
-            'min-h-0 border-l',
+            'min-h-0 min-w-0 border-l',
             pane === 'edit' && 'hidden lg:block',
           )}
         >
