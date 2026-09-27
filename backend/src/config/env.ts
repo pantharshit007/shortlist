@@ -35,6 +35,8 @@ const envSchema = z.object({
   OPENAI_API_KEY: optionalString,
   ANTHROPIC_API_KEY: optionalString,
   OPENROUTER_API_KEY: optionalString,
+  // Encrypts users' own AI keys. Falls back to a key derived from BETTER_AUTH_SECRET.
+  AI_KEY_ENCRYPTION_SECRET: optionalString,
 
   STORAGE_DRIVER: z.enum(["local", "r2"]).default("local"),
   LOCAL_STORAGE_DIR: z.string().default("./storage"),
