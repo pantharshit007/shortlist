@@ -2659,6 +2659,230 @@
         }
       }
     },
+    "/v1/me/ai-key": {
+      "get": {
+        "summary": "Your own AI key, without the secret",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "provider": {
+                              "type": "string",
+                              "enum": [
+                                "openai",
+                                "anthropic",
+                                "openrouter"
+                              ]
+                            },
+                            "modelId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "keyHint": {
+                              "type": "string"
+                            },
+                            "verifiedAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "provider",
+                            "modelId",
+                            "keyHint",
+                            "verifiedAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Test and save your own AI key",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "openai",
+                      "anthropic",
+                      "openrouter"
+                    ]
+                  },
+                  "apiKey": {
+                    "type": "string",
+                    "minLength": 10,
+                    "maxLength": 300
+                  },
+                  "modelId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 100,
+                        "pattern": "^[\\w.:/-]+$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "provider",
+                  "apiKey"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "provider": {
+                              "type": "string",
+                              "enum": [
+                                "openai",
+                                "anthropic",
+                                "openrouter"
+                              ]
+                            },
+                            "modelId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "keyHint": {
+                              "type": "string"
+                            },
+                            "verifiedAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "provider",
+                            "modelId",
+                            "keyHint",
+                            "verifiedAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove your own AI key",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/analytics": {
       "get": {
         "summary": "Views across all your share links",

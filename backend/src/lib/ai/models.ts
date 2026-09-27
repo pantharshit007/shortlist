@@ -10,7 +10,7 @@ export type AiProvider = "openai" | "anthropic" | "openrouter";
 // fast: extraction, JD parsing, inline edits. smart: tailoring plan and rewrite.
 export type ModelTier = "fast" | "smart";
 
-const defaultModels: Record<AiProvider, Record<ModelTier, string>> = {
+export const defaultModels: Record<AiProvider, Record<ModelTier, string>> = {
   openai: { fast: "gpt-5.4-mini", smart: "gpt-5.5" },
   anthropic: { fast: "claude-haiku-4-5", smart: "claude-sonnet-5" },
   openrouter: { fast: "openai/gpt-5.4-mini", smart: "anthropic/claude-sonnet-5" },

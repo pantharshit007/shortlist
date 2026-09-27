@@ -3,6 +3,7 @@ import { createDocument, type ZodOpenApiOperationObject, type ZodOpenApiPathsObj
 import { coverageQuery, coverageResponse } from "./modules/coverage/coverage.routes.js";
 import { checkoutResponse, createCheckoutBody, subscriptionResponse } from "./modules/billing/billing.schemas.js";
 import { createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
+import { aiKeyResponse, putAiKeyBody } from "./modules/ai-keys/ai-keys.schemas.js";
 import { analyticsQuery, analyticsResponse } from "./modules/analytics/analytics.schemas.js";
 import {
   createCustomTemplateBody,
@@ -150,6 +151,11 @@ const paths: ZodOpenApiPathsObject = {
     get: op({ summary: "List templates", tag: "Templates", auth: false, response: templateListResponse }),
   },
 
+  "/v1/me/ai-key": {
+    get: op({ summary: "Your own AI key, without the secret", tag: "Users", response: aiKeyResponse }),
+    put: op({ summary: "Test and save your own AI key", tag: "Users", body: putAiKeyBody, response: aiKeyResponse }),
+    delete: op({ summary: "Remove your own AI key", tag: "Users", noContent: true }),
+  },
   "/v1/analytics": {
     get: op({
       summary: "Views across all your share links",

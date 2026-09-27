@@ -2,6 +2,7 @@ import { and, count, eq, gte, inArray, isNull } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { aiRuns, resumes, users } from "../../db/schema/index.js";
 import { AppError, NotFoundError } from "../../lib/errors.js";
+import { hasUserAiKey } from "../ai-keys/ai-keys.service.js";
 
 export type Plan = (typeof users.$inferSelect)["plan"];
 export type QuotaKind = "tailor" | "edit" | "import";
@@ -42,6 +43,7 @@ async function usedThisPeriod(userId: string, kind: QuotaKind) {
       and(
         eq(aiRuns.userId, userId),
         eq(aiRuns.status, "succeeded"),
+        eq(aiRuns.byok, false),
         inArray(aiRuns.step, stepsFor[kind]),
         gte(aiRuns.createdAt, periodStart()),
       ),
@@ -62,6 +64,8 @@ function quotaError(message: string, limit: number, used: number, resetsAt?: Dat
 }
 
 export async function assertAiQuota(userId: string, kind: QuotaKind) {
+  // Requests on the user's own key cost us nothing, so plan limits don't apply.
+  if (await hasUserAiKey(userId)) return;
   const limit = planLimits[await planOf(userId)][kind];
   const used = await usedThisPeriod(userId, kind);
   if (used >= limit) {
@@ -78,14 +82,16 @@ export async function assertResumeQuota(userId: string) {
 export async function getUsage(userId: string) {
   const plan = await planOf(userId);
   const limits = planLimits[plan];
-  const [tailor, edit, importCount, resumeCount] = await Promise.all([
+  const [tailor, edit, importCount, resumeCount, ownAiKey] = await Promise.all([
     usedThisPeriod(userId, "tailor"),
     usedThisPeriod(userId, "edit"),
     usedThisPeriod(userId, "import"),
     activeResumes(userId),
+    hasUserAiKey(userId),
   ]);
   return {
     plan,
+    ownAiKey,
     periodStart: periodStart(),
     periodEnd: periodEnd(),
     resumes: { used: resumeCount, limit: limits.resumes },

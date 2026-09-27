@@ -1,8 +1,10 @@
-import { generateObject } from "ai";
+import { APICallError, generateObject } from "ai";
 import type { z } from "zod";
 import { db } from "../../db/index.js";
 import { aiRuns } from "../../db/schema/index.js";
+import { loadUserAiKey } from "../../modules/ai-keys/ai-keys.service.js";
 import { AppError } from "../errors.js";
+import { userKeyError } from "./key-errors.js";
 import { logger } from "../logger.js";
 import { type AiProvider, type ModelTier, resolveModel } from "./models.js";
 import { costUsdMicros } from "./pricing.js";
@@ -27,9 +29,12 @@ export type GenerateStructuredInput<S extends z.ZodType> = {
 export async function generateStructured<S extends z.ZodType>(
   input: GenerateStructuredInput<S>,
 ): Promise<{ data: z.infer<S>; runId: string }> {
-  const { model, provider, modelId } = resolveModel(input.tier, input.userKey);
+  // The user's own key, when they've added one in Settings, is used instead of ours.
+  const userKey = input.userKey ?? (await loadUserAiKey(input.userId));
+  const { model, provider, modelId } = resolveModel(input.tier, userKey);
   const started = Date.now();
   const base = {
+    byok: Boolean(userKey),
     userId: input.userId,
     step: input.step,
     model: `${provider}:${modelId}`,
@@ -76,13 +81,22 @@ export async function generateStructured<S extends z.ZodType>(
 
     return { data: result.object as z.infer<S>, runId: run!.id };
   } catch (err) {
-    logger.error({ err, step: input.step, model: base.model }, "AI generation failed");
+    // Errors from a user's key are logged by status only: provider messages can echo parts of the key.
+    if (userKey) {
+      logger.warn(
+        { step: input.step, model: base.model, status: APICallError.isInstance(err) ? err.statusCode : undefined },
+        "AI generation failed on user key",
+      );
+    } else {
+      logger.error({ err, step: input.step, model: base.model }, "AI generation failed");
+    }
     await db.insert(aiRuns).values({
       ...base,
       status: "failed",
       latencyMs: Date.now() - started,
-      error: err instanceof Error ? err.message : String(err),
+      error: userKey ? "user key request failed" : err instanceof Error ? err.message : String(err),
     });
+    if (userKey) throw userKeyError(provider, err);
     throw new AppError(502, "AI_FAILED", "The AI model could not complete this request. Try again.");
   }
 }
