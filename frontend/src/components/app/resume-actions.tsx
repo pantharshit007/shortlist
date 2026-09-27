@@ -5,6 +5,7 @@ import {
   ArchiveRestoreIcon,
   CopyIcon,
   DownloadIcon,
+  LayoutTemplateIcon,
   MoreHorizontalIcon,
   Trash2Icon,
 } from 'lucide-react'
@@ -20,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { SaveTemplateDialog } from '@/components/templates/save-template-dialog'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -37,6 +39,7 @@ export function ResumeActions({ resume }: { resume: ResumeSummary }) {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [savingTemplate, setSavingTemplate] = useState(false)
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['resumes'] })
 
   const archive = useMutation({
@@ -134,6 +137,10 @@ export function ResumeActions({ resume }: { resume: ResumeSummary }) {
               <CopyIcon />
               Make a copy
             </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setSavingTemplate(true)}>
+              <LayoutTemplateIcon />
+              Save as template
+            </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={() => archive.mutate(!resume.archivedAt)}
             >
@@ -153,6 +160,12 @@ export function ResumeActions({ resume }: { resume: ResumeSummary }) {
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      <SaveTemplateDialog
+        open={savingTemplate}
+        onOpenChange={setSavingTemplate}
+        resumeId={resume.id}
+        defaultName={resume.title}
+      />
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>

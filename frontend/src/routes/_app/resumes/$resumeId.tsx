@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   ArrowLeftIcon,
   HistoryIcon,
@@ -16,6 +16,7 @@ import { DownloadMenu } from '@/components/editor/download-menu'
 import { HistoryPanel } from '@/components/editor/history-panel'
 import { SharePanel } from '@/components/editor/share-panel'
 import { UnsavedChangesGuard } from '@/components/app/unsaved-changes-guard'
+import { SaveTemplateDialog } from '@/components/templates/save-template-dialog'
 import { LatexEditor } from '@/components/editor/latex-editor'
 import type { LatexEditorHandle } from '@/components/editor/latex-editor'
 import { PdfPreview } from '@/components/editor/pdf-preview'
@@ -32,8 +33,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useSidebar } from '@/components/ui/sidebar'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useCollapsedSidebar } from '@/hooks/use-collapsed-sidebar'
 import { useDebouncedEffect } from '@/hooks/use-debounced-effect'
 import { usePdfPreview } from '@/hooks/use-pdf-preview'
 import { api, errorMessage, unwrap } from '@/lib/api/client'
@@ -44,7 +45,10 @@ import { templateCatalog } from '@/lib/templates'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/resumes/$resumeId')({
-  validateSearch: z.object({ tailor: z.string().optional() }),
+  validateSearch: z.object({
+    tailor: z.string().optional(),
+    created: z.boolean().optional(),
+  }),
   head: () => ({ meta: [{ title: `Editor | ${site.name}` }] }),
   component: EditorRoute,
 })
@@ -77,15 +81,6 @@ function EditorRoute() {
   )
 }
 
-// The editor needs the full width; collapse the app sidebar while it's open.
-function useCollapsedSidebar() {
-  const { setOpen } = useSidebar()
-  useEffect(() => {
-    setOpen(false)
-    return () => setOpen(true)
-  }, [setOpen])
-}
-
 function ResumeEditor({ resume }: { resume: ResumeDetail }) {
   useCollapsedSidebar()
   const queryClient = useQueryClient()
@@ -98,7 +93,11 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
   const [templateId, setTemplateId] = useState(resume.templateId ?? 'developer')
   const [saveState, setSaveState] = useState<SaveState>('saved')
   const [pane, setPane] = useState<'edit' | 'preview'>('edit')
-  const { tailor } = Route.useSearch()
+  const { tailor, created } = Route.useSearch()
+  const navigate = useNavigate()
+  // A resume made in this visit offers "save as template" on the way out, once it has edits.
+  const [editedSinceCreate, setEditedSinceCreate] = useState(false)
+  const [offerTemplate, setOfferTemplate] = useState(false)
   const [aiOpen, setAiOpen] = useState(Boolean(tailor))
   const [historyOpen, setHistoryOpen] = useState(false)
   // Autosaves add versions without remounting the editor, so track the latest one here.
@@ -131,6 +130,7 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
     onMutate: () => setSaveState('saving'),
     onSuccess: (version, payload) => {
       lastSaved.current = payload
+      if (created) setEditedSinceCreate(true)
       setHeadVersionId(version.id)
       setSaveState((state) => (state === 'saving' ? 'saved' : state))
       // Keep the cached head in sync without remounting the editor.
@@ -172,7 +172,16 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
     <div className="flex h-svh flex-col">
       <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/dashboard" aria-label="Back to resumes">
+          <Link
+            to="/dashboard"
+            aria-label="Back to resumes"
+            onClick={(event) => {
+              if (editedSinceCreate && saveState === 'saved') {
+                event.preventDefault()
+                setOfferTemplate(true)
+              }
+            }}
+          >
             <ArrowLeftIcon />
           </Link>
         </Button>
@@ -296,6 +305,16 @@ function ResumeEditor({ resume }: { resume: ResumeDetail }) {
       </div>
       <UnsavedChangesGuard
         when={saveState === 'unsaved' || saveState === 'saving'}
+      />
+      <SaveTemplateDialog
+        open={offerTemplate}
+        onOpenChange={setOfferTemplate}
+        resumeId={resume.id}
+        defaultName={title}
+        title="Also save it as a template?"
+        description="Your resume is saved. Keep a copy as a template to start future resumes from it."
+        cancelLabel="Not now"
+        onDone={() => navigate({ to: '/dashboard' })}
       />
       <HistoryPanel
         open={historyOpen}
