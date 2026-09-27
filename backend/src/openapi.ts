@@ -3,6 +3,7 @@ import { createDocument, type ZodOpenApiOperationObject, type ZodOpenApiPathsObj
 import { coverageQuery, coverageResponse } from "./modules/coverage/coverage.routes.js";
 import { checkoutResponse, createCheckoutBody, subscriptionResponse } from "./modules/billing/billing.schemas.js";
 import { createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
+import { analyticsQuery, analyticsResponse } from "./modules/analytics/analytics.schemas.js";
 import {
   createCustomTemplateBody,
   customTemplateDetail,
@@ -149,6 +150,14 @@ const paths: ZodOpenApiPathsObject = {
     get: op({ summary: "List templates", tag: "Templates", auth: false, response: templateListResponse }),
   },
 
+  "/v1/analytics": {
+    get: op({
+      summary: "Views across all your share links",
+      tag: "Share links",
+      query: analyticsQuery,
+      response: analyticsResponse,
+    }),
+  },
   "/v1/custom-templates": {
     get: op({ summary: "List your templates", tag: "Templates", response: customTemplateListResponse }),
     post: op({
