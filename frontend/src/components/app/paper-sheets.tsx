@@ -57,12 +57,14 @@ export function ResumeLines() {
 export function ResumeSheet({
   title,
   tailored,
+  className,
 }: {
   title: string
   tailored: boolean
+  className?: string
 }) {
   return (
-    <Sheet>
+    <Sheet className={className}>
       <p className="mb-[6%] truncate text-center font-serif text-[15px] leading-tight font-semibold">
         {title}
       </p>
@@ -87,9 +89,9 @@ export function ImportSheet() {
   )
 }
 
-export function LatexSheet() {
+export function LatexSheet({ className }: { className?: string }) {
   return (
-    <Sheet className="font-mono text-[10.5px] leading-[1.7]">
+    <Sheet className={cn('font-mono text-[10.5px] leading-[1.7]', className)}>
       <p className="whitespace-nowrap">
         <span className="text-primary">\section</span>
         {'{Experience}'}
@@ -132,6 +134,18 @@ export function BlankSheet() {
           </div>
         ))}
       </div>
+    </Sheet>
+  )
+}
+
+export function BlankPageSheet({ className }: { className?: string }) {
+  return (
+    <Sheet className={cn('font-mono text-[10.5px] leading-[1.7]', className)}>
+      <p className="whitespace-nowrap">
+        <span className="text-primary">\begin</span>
+        {'{document}'}
+      </p>
+      <span className="mt-1 block h-3.5 w-px animate-pulse bg-primary motion-reduce:animate-none" />
     </Sheet>
   )
 }

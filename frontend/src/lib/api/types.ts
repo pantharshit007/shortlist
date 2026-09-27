@@ -31,6 +31,14 @@ export type Profile = ResponseData<'/v1/profile', 'get'>
 export type ResumeContent = Profile['content']
 export type ResumeSection = ResumeContent['sections'][number]
 export type Template = ResponseData<'/v1/templates', 'get'>[number]
+export type CustomTemplateSummary = ResponseData<
+  '/v1/custom-templates',
+  'get'
+>[number]
+export type CustomTemplate = ResponseData<
+  '/v1/custom-templates/{customTemplateId}',
+  'get'
+>
 export type ResumeSummary = ResponseData<'/v1/resumes', 'get'>[number]
 export type ResumeDetail = ResponseData<'/v1/resumes/{resumeId}', 'get'>
 export type VersionSummary = ResponseData<

@@ -23,6 +23,9 @@ import { Route as SitePricingRouteImport } from './routes/_site/pricing'
 import { Route as SitePrivacyRouteImport } from './routes/_site/privacy'
 import { Route as SiteTemplatesRouteImport } from './routes/_site/templates'
 import { Route as SiteTermsRouteImport } from './routes/_site/terms'
+import { Route as AppMyTemplatesIndexRouteImport } from './routes/_app/my-templates/index'
+import { Route as AppMyTemplatesCustomTemplateIdRouteImport } from './routes/_app/my-templates/$customTemplateId'
+import { Route as AppMyTemplatesNewRouteImport } from './routes/_app/my-templates/new'
 import { Route as AppResumesResumeIdRouteImport } from './routes/_app/resumes/$resumeId'
 import { Route as AppResumesNewRouteImport } from './routes/_app/resumes/new'
 
@@ -94,6 +97,22 @@ const SiteTermsRoute = SiteTermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => SiteRoute,
 } as any)
+const AppMyTemplatesIndexRoute = AppMyTemplatesIndexRouteImport.update({
+  id: '/my-templates/',
+  path: '/my-templates/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyTemplatesCustomTemplateIdRoute =
+  AppMyTemplatesCustomTemplateIdRouteImport.update({
+    id: '/my-templates/$customTemplateId',
+    path: '/my-templates/$customTemplateId',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppMyTemplatesNewRoute = AppMyTemplatesNewRouteImport.update({
+  id: '/my-templates/new',
+  path: '/my-templates/new',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppResumesResumeIdRoute = AppResumesResumeIdRouteImport.update({
   id: '/resumes/$resumeId',
   path: '/resumes/$resumeId',
@@ -118,8 +137,11 @@ export interface FileRoutesByFullPath {
   '/templates': typeof SiteTemplatesRoute
   '/terms': typeof SiteTermsRoute
   '/$username/': typeof UsernameIndexRoute
+  '/my-templates/$customTemplateId': typeof AppMyTemplatesCustomTemplateIdRoute
+  '/my-templates/new': typeof AppMyTemplatesNewRoute
   '/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/resumes/new': typeof AppResumesNewRoute
+  '/my-templates/': typeof AppMyTemplatesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof SiteIndexRoute
@@ -134,8 +156,11 @@ export interface FileRoutesByTo {
   '/templates': typeof SiteTemplatesRoute
   '/terms': typeof SiteTermsRoute
   '/$username': typeof UsernameIndexRoute
+  '/my-templates/$customTemplateId': typeof AppMyTemplatesCustomTemplateIdRoute
+  '/my-templates/new': typeof AppMyTemplatesNewRoute
   '/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/resumes/new': typeof AppResumesNewRoute
+  '/my-templates': typeof AppMyTemplatesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -153,8 +178,11 @@ export interface FileRoutesById {
   '/_site/terms': typeof SiteTermsRoute
   '/$username/': typeof UsernameIndexRoute
   '/_site/': typeof SiteIndexRoute
+  '/_app/my-templates/$customTemplateId': typeof AppMyTemplatesCustomTemplateIdRoute
+  '/_app/my-templates/new': typeof AppMyTemplatesNewRoute
   '/_app/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/_app/resumes/new': typeof AppResumesNewRoute
+  '/_app/my-templates/': typeof AppMyTemplatesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,8 +199,11 @@ export interface FileRouteTypes {
     | '/templates'
     | '/terms'
     | '/$username/'
+    | '/my-templates/$customTemplateId'
+    | '/my-templates/new'
     | '/resumes/$resumeId'
     | '/resumes/new'
+    | '/my-templates/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -187,8 +218,11 @@ export interface FileRouteTypes {
     | '/templates'
     | '/terms'
     | '/$username'
+    | '/my-templates/$customTemplateId'
+    | '/my-templates/new'
     | '/resumes/$resumeId'
     | '/resumes/new'
+    | '/my-templates'
   id:
     | '__root__'
     | '/_app'
@@ -205,8 +239,11 @@ export interface FileRouteTypes {
     | '/_site/terms'
     | '/$username/'
     | '/_site/'
+    | '/_app/my-templates/$customTemplateId'
+    | '/_app/my-templates/new'
     | '/_app/resumes/$resumeId'
     | '/_app/resumes/new'
+    | '/_app/my-templates/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -317,6 +354,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteTermsRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_app/my-templates/': {
+      id: '/_app/my-templates/'
+      path: '/my-templates'
+      fullPath: '/my-templates/'
+      preLoaderRoute: typeof AppMyTemplatesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-templates/$customTemplateId': {
+      id: '/_app/my-templates/$customTemplateId'
+      path: '/my-templates/$customTemplateId'
+      fullPath: '/my-templates/$customTemplateId'
+      preLoaderRoute: typeof AppMyTemplatesCustomTemplateIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-templates/new': {
+      id: '/_app/my-templates/new'
+      path: '/my-templates/new'
+      fullPath: '/my-templates/new'
+      preLoaderRoute: typeof AppMyTemplatesNewRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/resumes/$resumeId': {
       id: '/_app/resumes/$resumeId'
       path: '/resumes/$resumeId'
@@ -339,8 +397,11 @@ interface AppRouteChildren {
   AppJobsRoute: typeof AppJobsRoute
   AppProfileRoute: typeof AppProfileRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppMyTemplatesCustomTemplateIdRoute: typeof AppMyTemplatesCustomTemplateIdRoute
+  AppMyTemplatesNewRoute: typeof AppMyTemplatesNewRoute
   AppResumesResumeIdRoute: typeof AppResumesResumeIdRoute
   AppResumesNewRoute: typeof AppResumesNewRoute
+  AppMyTemplatesIndexRoute: typeof AppMyTemplatesIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -348,8 +409,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppJobsRoute: AppJobsRoute,
   AppProfileRoute: AppProfileRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppMyTemplatesCustomTemplateIdRoute: AppMyTemplatesCustomTemplateIdRoute,
+  AppMyTemplatesNewRoute: AppMyTemplatesNewRoute,
   AppResumesResumeIdRoute: AppResumesResumeIdRoute,
   AppResumesNewRoute: AppResumesNewRoute,
+  AppMyTemplatesIndexRoute: AppMyTemplatesIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

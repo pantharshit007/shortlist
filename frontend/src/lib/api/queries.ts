@@ -6,6 +6,8 @@ export const queryKeys = {
   usage: ['usage'] as const,
   profile: ['profile'] as const,
   templates: ['templates'] as const,
+  customTemplates: ['custom-templates'] as const,
+  customTemplate: (id: string) => ['custom-templates', id] as const,
   resumes: (archived = false) => ['resumes', { archived }] as const,
   resume: (id: string) => ['resume', id] as const,
   versions: (id: string) => ['resume', id, 'versions'] as const,
@@ -37,6 +39,22 @@ export const templatesQuery = queryOptions({
   queryFn: () => unwrap(api.GET('/v1/templates')),
   staleTime: Infinity,
 })
+
+export const customTemplatesQuery = queryOptions({
+  queryKey: queryKeys.customTemplates,
+  queryFn: () => unwrap(api.GET('/v1/custom-templates')),
+})
+
+export const customTemplateQuery = (customTemplateId: string) =>
+  queryOptions({
+    queryKey: queryKeys.customTemplate(customTemplateId),
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/custom-templates/{customTemplateId}', {
+          params: { path: { customTemplateId } },
+        }),
+      ),
+  })
 
 export const resumesQuery = (archived = false) =>
   queryOptions({

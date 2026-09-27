@@ -4,6 +4,7 @@ import {
   BriefcaseBusinessIcon,
   ChevronsUpDownIcon,
   FileTextIcon,
+  LayoutTemplateIcon,
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
@@ -51,6 +52,12 @@ const nav = [
     label: 'Resumes',
     icon: FileTextIcon,
     match: ['/dashboard', '/resumes'],
+  },
+  {
+    to: '/my-templates',
+    label: 'Templates',
+    icon: LayoutTemplateIcon,
+    match: ['/my-templates'],
   },
   {
     to: '/profile',

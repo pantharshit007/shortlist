@@ -911,6 +911,720 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/v1/custom-templates': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** List your templates */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                /** Format: uuid */
+                id: string
+                name: string
+                /** @enum {string} */
+                mode: 'structured' | 'code'
+                templateId: string | null
+                createdAt: string
+                updatedAt: string
+              }[]
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    /** Save a template from a resume or LaTeX */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: {
+        content: {
+          'application/json':
+            | {
+                /** @constant */
+                type: 'resume'
+                name: string
+                /** Format: uuid */
+                resumeId: string
+              }
+            | {
+                /** @constant */
+                type: 'tex'
+                name: string
+                texSource: string
+              }
+        }
+      }
+      responses: {
+        /** @description OK */
+        201: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                /** Format: uuid */
+                id: string
+                name: string
+                /** @enum {string} */
+                mode: 'structured' | 'code'
+                templateId: string | null
+                createdAt: string
+                updatedAt: string
+                content: {
+                  basics: {
+                    name: string
+                    headline?: string
+                    /** Format: email */
+                    email?: string
+                    phone?: string
+                    location?: string
+                    /** @default [] */
+                    links: {
+                      label: string
+                      /** Format: uri */
+                      url: string
+                    }[]
+                  }
+                  sections: (
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'experience'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          organization: string
+                          role: string
+                          location?: string
+                          start?: string
+                          end?: string | 'present'
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'education'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          institution: string
+                          degree?: string
+                          field?: string
+                          location?: string
+                          start?: string
+                          end?: string | 'present'
+                          score?: string
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'projects'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          name: string
+                          /** Format: uri */
+                          url?: string
+                          /** @default [] */
+                          links: {
+                            label: string
+                            /** Format: uri */
+                            url: string
+                          }[]
+                          /** @default [] */
+                          technologies: string[]
+                          start?: string
+                          end?: string | 'present'
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'skills'
+                        groups: {
+                          id: string
+                          name: string
+                          items: string[]
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'list'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          title: string
+                          subtitle?: string
+                          date?: string
+                          /** Format: uri */
+                          url?: string
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'links'
+                        links: {
+                          label: string
+                          /** Format: uri */
+                          url: string
+                        }[]
+                      }
+                  )[]
+                } | null
+                texSource: string | null
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/custom-templates/{customTemplateId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get one of your templates */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          customTemplateId: string
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                /** Format: uuid */
+                id: string
+                name: string
+                /** @enum {string} */
+                mode: 'structured' | 'code'
+                templateId: string | null
+                createdAt: string
+                updatedAt: string
+                content: {
+                  basics: {
+                    name: string
+                    headline?: string
+                    /** Format: email */
+                    email?: string
+                    phone?: string
+                    location?: string
+                    /** @default [] */
+                    links: {
+                      label: string
+                      /** Format: uri */
+                      url: string
+                    }[]
+                  }
+                  sections: (
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'experience'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          organization: string
+                          role: string
+                          location?: string
+                          start?: string
+                          end?: string | 'present'
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'education'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          institution: string
+                          degree?: string
+                          field?: string
+                          location?: string
+                          start?: string
+                          end?: string | 'present'
+                          score?: string
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'projects'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          name: string
+                          /** Format: uri */
+                          url?: string
+                          /** @default [] */
+                          links: {
+                            label: string
+                            /** Format: uri */
+                            url: string
+                          }[]
+                          /** @default [] */
+                          technologies: string[]
+                          start?: string
+                          end?: string | 'present'
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'skills'
+                        groups: {
+                          id: string
+                          name: string
+                          items: string[]
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'list'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          title: string
+                          subtitle?: string
+                          date?: string
+                          /** Format: uri */
+                          url?: string
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'links'
+                        links: {
+                          label: string
+                          /** Format: uri */
+                          url: string
+                        }[]
+                      }
+                  )[]
+                } | null
+                texSource: string | null
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    /** Delete one of your templates */
+    delete: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          customTemplateId: string
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description No content */
+        204: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    options?: never
+    head?: never
+    /** Rename a template or edit its LaTeX */
+    patch: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          customTemplateId: string
+        }
+        cookie?: never
+      }
+      requestBody?: {
+        content: {
+          'application/json': {
+            name?: string
+            texSource?: string
+          }
+        }
+      }
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                /** Format: uuid */
+                id: string
+                name: string
+                /** @enum {string} */
+                mode: 'structured' | 'code'
+                templateId: string | null
+                createdAt: string
+                updatedAt: string
+                content: {
+                  basics: {
+                    name: string
+                    headline?: string
+                    /** Format: email */
+                    email?: string
+                    phone?: string
+                    location?: string
+                    /** @default [] */
+                    links: {
+                      label: string
+                      /** Format: uri */
+                      url: string
+                    }[]
+                  }
+                  sections: (
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'experience'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          organization: string
+                          role: string
+                          location?: string
+                          start?: string
+                          end?: string | 'present'
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'education'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          institution: string
+                          degree?: string
+                          field?: string
+                          location?: string
+                          start?: string
+                          end?: string | 'present'
+                          score?: string
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'projects'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          name: string
+                          /** Format: uri */
+                          url?: string
+                          /** @default [] */
+                          links: {
+                            label: string
+                            /** Format: uri */
+                            url: string
+                          }[]
+                          /** @default [] */
+                          technologies: string[]
+                          start?: string
+                          end?: string | 'present'
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'skills'
+                        groups: {
+                          id: string
+                          name: string
+                          items: string[]
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'list'
+                        entries: {
+                          id: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @default [] */
+                          bullets: {
+                            id: string
+                            text: string
+                            /** @default false */
+                            hidden: boolean
+                          }[]
+                          title: string
+                          subtitle?: string
+                          date?: string
+                          /** Format: uri */
+                          url?: string
+                        }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'links'
+                        links: {
+                          label: string
+                          /** Format: uri */
+                          url: string
+                        }[]
+                      }
+                  )[]
+                } | null
+                texSource: string | null
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    trace?: never
+  }
   '/v1/resumes': {
     parameters: {
       query?: never
@@ -1173,6 +1887,12 @@ export interface paths {
                   resumeId: string
                   /** Format: uuid */
                   versionId?: string
+                }
+              | {
+                  /** @constant */
+                  type: 'customTemplate'
+                  /** Format: uuid */
+                  customTemplateId: string
                 }
           }
         }
