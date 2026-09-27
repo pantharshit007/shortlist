@@ -92,7 +92,7 @@ function initials(name: string) {
 
 function UsageCard() {
   const { data: usage } = useQuery(usageQuery)
-  if (!usage || usage.plan !== 'free') return null
+  if (!usage || usage.plan !== 'free' || usage.ownAiKey) return null
   const percent = Math.min(100, (usage.tailor.used / usage.tailor.limit) * 100)
   return (
     <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 text-sm">

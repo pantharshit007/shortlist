@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/app/confirm-dialog'
 import { z } from 'zod'
 import { PageHeader } from '@/components/app/page-header'
+import { AiKeyTab } from '@/components/settings/ai-key-tab'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,7 +62,7 @@ import { site } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 const searchSchema = z.object({
-  tab: z.enum(['account', 'billing', 'data']).optional(),
+  tab: z.enum(['account', 'billing', 'ai', 'data']).optional(),
   plan: z.enum(['season_pass', 'pro']).optional(),
 })
 
@@ -369,21 +370,30 @@ function BillingTab({
                 used={usage.resumes.used}
                 limit={usage.resumes.limit}
               />
-              <UsageRow
-                label="Tailored versions this month"
-                used={usage.tailor.used}
-                limit={usage.tailor.limit}
-              />
-              <UsageRow
-                label="AI edits this month"
-                used={usage.edit.used}
-                limit={usage.edit.limit}
-              />
-              <UsageRow
-                label="Imports this month"
-                used={usage.import.used}
-                limit={usage.import.limit}
-              />
+              {usage.ownAiKey ? (
+                <p className="text-sm text-muted-foreground">
+                  AI requests run on your own key, so tailoring, edits and
+                  imports aren't limited.
+                </p>
+              ) : (
+                <>
+                  <UsageRow
+                    label="Tailored versions this month"
+                    used={usage.tailor.used}
+                    limit={usage.tailor.limit}
+                  />
+                  <UsageRow
+                    label="AI edits this month"
+                    used={usage.edit.used}
+                    limit={usage.edit.limit}
+                  />
+                  <UsageRow
+                    label="Imports this month"
+                    used={usage.import.used}
+                    limit={usage.import.limit}
+                  />
+                </>
+              )}
             </div>
           ) : (
             <Skeleton className="h-32" />
@@ -571,6 +581,7 @@ function SettingsPage() {
         <TabsList>
           <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="billing">Plan and billing</TabsTrigger>
+          <TabsTrigger value="ai">AI provider</TabsTrigger>
           <TabsTrigger value="data">Your data</TabsTrigger>
         </TabsList>
         {!me ? (
@@ -582,6 +593,9 @@ function SettingsPage() {
             </TabsContent>
             <TabsContent value="billing">
               <BillingTab me={me} highlight={plan} />
+            </TabsContent>
+            <TabsContent value="ai">
+              <AiKeyTab />
             </TabsContent>
             <TabsContent value="data">
               <DataTab me={me} />
