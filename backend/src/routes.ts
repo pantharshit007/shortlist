@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { billingRouter } from "./modules/billing/billing.routes.js";
+import { customTemplatesRouter } from "./modules/custom-templates/custom-templates.routes.js";
 import { coverageRouter } from "./modules/coverage/coverage.routes.js";
 import { importsRouter } from "./modules/imports/imports.routes.js";
 import { jobsRouter } from "./modules/jobs/jobs.routes.js";
@@ -19,6 +20,7 @@ export const v1 = Router();
 v1.use(usersRouter);
 v1.use(profilesRouter);
 v1.use(templatesRouter);
+v1.use(customTemplatesRouter);
 v1.use(resumesRouter);
 v1.use(pdfsRouter);
 v1.use(uploadsRouter);

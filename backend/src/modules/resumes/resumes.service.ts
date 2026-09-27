@@ -1,6 +1,6 @@
 import { and, desc, eq, isNotNull, isNull, lt } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { jobs, resumes, resumeVersions } from "../../db/schema/index.js";
+import { customTemplates, jobs, resumes, resumeVersions } from "../../db/schema/index.js";
 import { AppError, NotFoundError, ValidationError } from "../../lib/errors.js";
 import { emptyResumeContent, type ResumeContent, resumeContentSchema } from "../../schemas/resume-content.js";
 import { findTemplate } from "../../templates/index.js";
@@ -151,7 +151,24 @@ async function resolveSource(
       }
       return { payload: { texSource: version.texSource! }, kind: "manual", sourceResumeId: original.id };
     }
+    case "customTemplate": {
+      const [template] = await db
+        .select()
+        .from(customTemplates)
+        .where(and(eq(customTemplates.id, source.customTemplateId), eq(customTemplates.userId, userId)))
+        .limit(1);
+      if (!template) throw new NotFoundError("Template");
+      if (template.mode === "code") {
+        if (input.mode !== "code") throw modeMismatch("A LaTeX template creates a code-mode resume");
+        return { payload: { texSource: template.texSource! }, kind: "manual", sourceResumeId: null };
+      }
+      return { payload: asMode(resumeContentSchema.parse(template.content)), kind: "manual", sourceResumeId: null };
+    }
   }
+}
+
+function modeMismatch(message: string) {
+  return new ValidationError([{ location: "body", path: "mode", message }]);
 }
 
 export async function createResume(userId: string, input: z.infer<typeof createResumeBody>) {

@@ -15,6 +15,8 @@ const resumeSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("tex"), texSource: texSourceSchema }),
   // Duplicates another resume. With mode "code" on a structured source this ejects it to LaTeX.
   z.object({ type: z.literal("resume"), resumeId: idParam, versionId: idParam.optional() }),
+  // Starts from one of the user's saved templates; the resume takes the template's mode.
+  z.object({ type: z.literal("customTemplate"), customTemplateId: idParam }),
 ]);
 
 export const createResumeBody = z.object({

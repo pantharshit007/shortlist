@@ -3,6 +3,13 @@ import { createDocument, type ZodOpenApiOperationObject, type ZodOpenApiPathsObj
 import { coverageQuery, coverageResponse } from "./modules/coverage/coverage.routes.js";
 import { checkoutResponse, createCheckoutBody, subscriptionResponse } from "./modules/billing/billing.schemas.js";
 import { createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
+import {
+  createCustomTemplateBody,
+  customTemplateDetail,
+  customTemplateListResponse,
+  customTemplateParams,
+  updateCustomTemplateBody,
+} from "./modules/custom-templates/custom-templates.schemas.js";
 import { createJobBody, jobListResponse, jobParams, jobResponse } from "./modules/jobs/jobs.schemas.js";
 import { createPreviewBody, resumeExportQuery, resumePdfQuery } from "./modules/pdfs/pdfs.schemas.js";
 import { profileResponse, putProfileBody } from "./modules/profiles/profiles.schemas.js";
@@ -142,6 +149,37 @@ const paths: ZodOpenApiPathsObject = {
     get: op({ summary: "List templates", tag: "Templates", auth: false, response: templateListResponse }),
   },
 
+  "/v1/custom-templates": {
+    get: op({ summary: "List your templates", tag: "Templates", response: customTemplateListResponse }),
+    post: op({
+      summary: "Save a template from a resume or LaTeX",
+      tag: "Templates",
+      body: createCustomTemplateBody,
+      response: customTemplateDetail,
+      status: 201,
+    }),
+  },
+  "/v1/custom-templates/{customTemplateId}": {
+    get: op({
+      summary: "Get one of your templates",
+      tag: "Templates",
+      params: customTemplateParams,
+      response: customTemplateDetail,
+    }),
+    patch: op({
+      summary: "Rename a template or edit its LaTeX",
+      tag: "Templates",
+      params: customTemplateParams,
+      body: updateCustomTemplateBody,
+      response: customTemplateDetail,
+    }),
+    delete: op({
+      summary: "Delete one of your templates",
+      tag: "Templates",
+      params: customTemplateParams,
+      noContent: true,
+    }),
+  },
   "/v1/resumes": {
     get: op({ summary: "List resumes", tag: "Resumes", query: listResumesQuery, response: resumeListResponse }),
     post: op({
