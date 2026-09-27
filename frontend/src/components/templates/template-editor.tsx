@@ -2,16 +2,24 @@ import { Link } from '@tanstack/react-router'
 import { ArrowLeftIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
+import { useDefaultLayout } from 'react-resizable-panels'
 import { UnsavedChangesGuard } from '@/components/app/unsaved-changes-guard'
 import { LatexEditor } from '@/components/editor/latex-editor'
 import type { LatexEditorHandle } from '@/components/editor/latex-editor'
 import { PdfPreview } from '@/components/editor/pdf-preview'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCollapsedSidebar } from '@/hooks/use-collapsed-sidebar'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import { usePdfPreview } from '@/hooks/use-pdf-preview'
+import { panelStorage } from '@/lib/panel-storage'
 import { cn } from '@/lib/utils'
 
 export function TemplateEditor<TResult>({
@@ -32,6 +40,11 @@ export function TemplateEditor<TResult>({
   isNew?: boolean
 }) {
   useCollapsedSidebar()
+  const wide = useMediaQuery('(min-width: 1024px)')
+  const layout = useDefaultLayout({
+    id: 'template-editor',
+    storage: panelStorage,
+  })
   const [name, setName] = useState(initialName)
   const [texSource, setTexSource] = useState(initialTex)
   const [saved, setSaved] = useState({
@@ -55,6 +68,22 @@ export function TemplateEditor<TResult>({
     })
     onSaved?.(result)
   }
+
+  const editorPane = (
+    <LatexEditor
+      ref={latexEditor}
+      value={texSource}
+      onChange={setTexSource}
+      errors={preview.errors}
+    />
+  )
+  const previewPane = (
+    <PdfPreview
+      {...preview}
+      pageLimit={2}
+      onErrorClick={(line) => latexEditor.current?.goToLine(line)}
+    />
+  )
 
   return (
     <div className="flex h-svh flex-col">
@@ -93,33 +122,31 @@ export function TemplateEditor<TResult>({
         </Tabs>
       </div>
 
-      <div className="grid min-h-0 flex-1 lg:grid-cols-2">
-        <div
-          className={cn(
-            'min-h-0 min-w-0 overflow-y-auto',
-            pane === 'preview' && 'hidden lg:block',
-          )}
+      {wide ? (
+        <ResizablePanelGroup
+          id="template-editor"
+          defaultLayout={layout.defaultLayout}
+          onLayoutChanged={layout.onLayoutChanged}
+          className="min-h-0 flex-1"
         >
-          <LatexEditor
-            ref={latexEditor}
-            value={texSource}
-            onChange={setTexSource}
-            errors={preview.errors}
-          />
+          <ResizablePanel id="edit" minSize={320}>
+            {editorPane}
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel id="preview" minSize={320}>
+            {previewPane}
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        <div className="min-h-0 flex-1">
+          <div className={cn('h-full', pane === 'preview' && 'hidden')}>
+            {editorPane}
+          </div>
+          <div className={cn('h-full', pane === 'edit' && 'hidden')}>
+            {previewPane}
+          </div>
         </div>
-        <div
-          className={cn(
-            'min-h-0 min-w-0 border-l',
-            pane === 'edit' && 'hidden lg:block',
-          )}
-        >
-          <PdfPreview
-            {...preview}
-            pageLimit={2}
-            onErrorClick={(line) => latexEditor.current?.goToLine(line)}
-          />
-        </div>
-      </div>
+      )}
       <UnsavedChangesGuard when={dirty} />
     </div>
   )

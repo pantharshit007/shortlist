@@ -7,6 +7,7 @@ import {
   SparklesIcon,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useDefaultLayout } from 'react-resizable-panels'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { AiPanel } from '@/components/ai/ai-panel'
@@ -32,6 +33,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCollapsedSidebar } from '@/hooks/use-collapsed-sidebar'
@@ -41,6 +47,7 @@ import { usePdfPreview } from '@/hooks/use-pdf-preview'
 import { api, errorMessage, unwrap } from '@/lib/api/client'
 import { queryKeys, resumeQuery } from '@/lib/api/queries'
 import type { ResumeContent, ResumeDetail } from '@/lib/api/types'
+import { panelStorage } from '@/lib/panel-storage'
 import { site } from '@/lib/site'
 import { templateCatalog } from '@/lib/templates'
 import { cn } from '@/lib/utils'
@@ -101,6 +108,14 @@ function ResumeEditor({
 }) {
   useCollapsedSidebar()
   const docked = useMediaQuery('(min-width: 1280px)')
+  const wide = useMediaQuery('(min-width: 1024px)')
+  const showAi = docked && aiOpen
+  // Panel widths are remembered per browser, separately with and without the AI panel.
+  const layout = useDefaultLayout({
+    id: 'resume-editor',
+    panelIds: showAi ? ['edit', 'preview', 'ai'] : ['edit', 'preview'],
+    storage: panelStorage,
+  })
   const queryClient = useQueryClient()
   const structured = resume.mode === 'structured'
   const [content, setContent] = useState<ResumeContent | null>(
@@ -184,6 +199,43 @@ function ResumeEditor({
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['resumes'] }),
     onError: (error) => toast.error(errorMessage(error)),
   })
+
+  const editorPane =
+    structured && content ? (
+      <div className="mx-auto max-w-3xl p-4 sm:p-6">
+        <ContentEditor value={content} onChange={setContent} />
+      </div>
+    ) : (
+      <LatexEditor
+        ref={latexEditor}
+        value={texSource}
+        onChange={setTexSource}
+        errors={preview.errors}
+      />
+    )
+  const previewPane = (
+    <PdfPreview
+      {...preview}
+      pageLimit={resume.pageLimit}
+      onErrorClick={
+        structured ? undefined : (line) => latexEditor.current?.goToLine(line)
+      }
+      onFix={structured ? undefined : () => openAi('fix')}
+    />
+  )
+  const aiPanel = (
+    <AiPanel
+      open={aiOpen}
+      onOpenChange={onAiOpenChange}
+      docked={docked}
+      mode={aiMode}
+      resumeId={resume.id}
+      initialJobId={tailor ?? resume.jobId}
+      content={content}
+      texSource={structured ? null : texSource}
+      hasUnsavedChanges={saveState !== 'saved'}
+    />
+  )
 
   return (
     <div className="flex h-svh flex-col">
@@ -288,62 +340,50 @@ function ResumeEditor({
         </Tabs>
       </div>
 
-      <div
-        className={cn(
-          'grid min-h-0 flex-1 lg:grid-cols-2',
-          docked &&
-            aiOpen &&
-            'xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_380px]',
-        )}
-      >
-        <div
-          className={cn(
-            'min-h-0 min-w-0 overflow-y-auto',
-            pane === 'preview' && 'hidden lg:block',
-          )}
+      {wide ? (
+        <ResizablePanelGroup
+          id="resume-editor"
+          defaultLayout={layout.defaultLayout}
+          onLayoutChanged={layout.onLayoutChanged}
+          className="min-h-0 flex-1"
         >
-          {structured && content ? (
-            <div className="mx-auto max-w-3xl p-4 sm:p-6">
-              <ContentEditor value={content} onChange={setContent} />
-            </div>
-          ) : (
-            <LatexEditor
-              ref={latexEditor}
-              value={texSource}
-              onChange={setTexSource}
-              errors={preview.errors}
-            />
+          <ResizablePanel id="edit" minSize={320} className="overflow-y-auto">
+            {editorPane}
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel id="preview" minSize={320}>
+            {previewPane}
+          </ResizablePanel>
+          {showAi && (
+            <>
+              <ResizableHandle withHandle />
+              <ResizablePanel
+                id="ai"
+                defaultSize={380}
+                minSize={320}
+                maxSize={640}
+              >
+                {aiPanel}
+              </ResizablePanel>
+            </>
           )}
+        </ResizablePanelGroup>
+      ) : (
+        <div className="min-h-0 flex-1">
+          <div
+            className={cn(
+              'h-full overflow-y-auto',
+              pane === 'preview' && 'hidden',
+            )}
+          >
+            {editorPane}
+          </div>
+          <div className={cn('h-full', pane === 'edit' && 'hidden')}>
+            {previewPane}
+          </div>
         </div>
-        <div
-          className={cn(
-            'min-h-0 min-w-0 border-l',
-            pane === 'edit' && 'hidden lg:block',
-          )}
-        >
-          <PdfPreview
-            {...preview}
-            pageLimit={resume.pageLimit}
-            onErrorClick={
-              structured
-                ? undefined
-                : (line) => latexEditor.current?.goToLine(line)
-            }
-            onFix={structured ? undefined : () => openAi('fix')}
-          />
-        </div>
-        <AiPanel
-          open={aiOpen}
-          onOpenChange={onAiOpenChange}
-          docked={docked}
-          mode={aiMode}
-          resumeId={resume.id}
-          initialJobId={tailor ?? resume.jobId}
-          content={content}
-          texSource={structured ? null : texSource}
-          hasUnsavedChanges={saveState !== 'saved'}
-        />
-      </div>
+      )}
+      {!showAi && aiPanel}
       <UnsavedChangesGuard
         when={saveState === 'unsaved' || saveState === 'saving'}
       />
