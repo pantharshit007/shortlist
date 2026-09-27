@@ -121,3 +121,27 @@ export const resumeVersions = pgTable(
     check("resume_versions_one_content", sql`(${t.content} is not null) <> (${t.texSource} is not null)`),
   ],
 );
+
+// A user's own starting point for new resumes: LaTeX they wrote, or a saved copy of a resume.
+export const customTemplates = pgTable(
+  "custom_templates",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    userId: uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    mode: resumeMode().notNull(),
+    templateId: text().references(() => templates.id),
+    content: jsonb(),
+    texSource: text(),
+    ...timestamps,
+  },
+  (t) => [
+    index().on(t.userId),
+    check(
+      "custom_templates_body_matches_mode",
+      sql`(${t.mode} = 'structured' AND ${t.content} IS NOT NULL) OR (${t.mode} = 'code' AND ${t.texSource} IS NOT NULL)`,
+    ),
+  ],
+);
