@@ -1,10 +1,10 @@
 import { createAuthClient } from 'better-auth/react'
-import { anonymousClient, magicLinkClient } from 'better-auth/client/plugins'
+import { anonymousClient } from 'better-auth/client/plugins'
 import { apiUrl } from '@/lib/env'
 
 export const authClient = createAuthClient({
   baseURL: apiUrl,
-  plugins: [magicLinkClient(), anonymousClient()],
+  plugins: [anonymousClient()],
 })
 
 export const { useSession, signIn, signOut } = authClient

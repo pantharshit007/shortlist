@@ -1,20 +1,15 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { MailCheckIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { Logo } from '@/components/brand/logo'
-import { GitHubIcon, GoogleIcon } from '@/components/auth/provider-icons'
+import {
+  ChatGPTIcon,
+  GitHubIcon,
+  GoogleIcon,
+} from '@/components/auth/provider-icons'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { guestLoginEnabled, signIn, useSession } from '@/lib/auth-client'
 import { site } from '@/lib/site'
@@ -37,16 +32,19 @@ function safeRedirect(path: string | undefined) {
     : '/dashboard'
 }
 
+const providers = [
+  { id: 'google', name: 'Google', icon: GoogleIcon },
+  { id: 'github', name: 'GitHub', icon: GitHubIcon },
+  { id: 'chatgpt', name: 'ChatGPT', icon: ChatGPTIcon },
+] as const
+
+type Provider = (typeof providers)[number]['id']
+
 function LoginPage() {
   const { mode, redirect } = Route.useSearch()
   const navigate = useNavigate()
   const { data: session } = useSession()
-  const [email, setEmail] = useState('')
-  const [name, setName] = useState('')
-  const [sentTo, setSentTo] = useState<string | null>(null)
-  const [pending, setPending] = useState<
-    'email' | 'google' | 'github' | 'guest' | null
-  >(null)
+  const [pending, setPending] = useState<Provider | 'guest' | null>(null)
   const isSignup = mode === 'signup'
   const target = safeRedirect(redirect)
   // Read at click time; window doesn't exist while this page renders on the server.
@@ -56,7 +54,7 @@ function LoginPage() {
     if (session) navigate({ to: target })
   }, [session, navigate, target])
 
-  async function withProvider(provider: 'google' | 'github') {
+  async function withProvider(provider: Provider) {
     setPending(provider)
     const { error } = await signIn.social({
       provider,
@@ -66,7 +64,7 @@ function LoginPage() {
       setPending(null)
       toast.error(
         error.status === 404 || error.code === 'PROVIDER_NOT_FOUND'
-          ? `${provider === 'google' ? 'Google' : 'GitHub'} sign-in isn't set up yet. Use your email instead.`
+          ? `${providers.find((p) => p.id === provider)?.name} sign-in isn't set up yet. Try another option.`
           : (error.message ?? 'Could not start sign-in. Try again.'),
       )
     }
@@ -85,25 +83,6 @@ function LoginPage() {
     navigate({ to: target })
   }
 
-  async function withEmail(event: React.FormEvent) {
-    event.preventDefault()
-    setPending('email')
-    const { error } = await signIn.magicLink({
-      email,
-      ...(name && { name }),
-      callbackURL: callbackURL(),
-    })
-    setPending(null)
-    if (error) {
-      toast.error(
-        error.message ??
-          'Could not send the link. Check the email address and try again.',
-      )
-      return
-    }
-    setSentTo(email)
-  }
-
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col px-6 py-6 sm:px-10">
@@ -117,157 +96,65 @@ function LoginPage() {
           tabIndex={-1}
           className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-12 outline-none"
         >
-          {sentTo ? (
-            <div className="flex flex-col gap-4" aria-live="polite">
-              <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <MailCheckIcon className="size-5" />
-              </span>
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
               <h1 className="text-3xl font-semibold tracking-tight">
-                Check your email
+                {isSignup ? 'Create your account' : 'Sign in to ' + site.name}
               </h1>
               <p className="text-muted-foreground">
-                A sign-in link is on its way to{' '}
-                <span className="font-medium text-foreground">{sentTo}</span>.
-                It expires in 5 minutes.
+                {isSignup
+                  ? 'Free for 3 resumes. Use an account you already have, no password needed.'
+                  : 'Welcome back. Use the same account you signed up with.'}
               </p>
-              <div className="flex gap-2 pt-2">
-                <Button variant="outline" onClick={() => setSentTo(null)}>
-                  Use a different email
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {providers.map((provider) => (
+                <Button
+                  key={provider.id}
+                  variant="outline"
+                  size="lg"
+                  onClick={() => withProvider(provider.id)}
+                  disabled={pending !== null}
+                >
+                  {pending === provider.id ? (
+                    <Spinner data-icon="inline-start" />
+                  ) : (
+                    <provider.icon data-icon="inline-start" />
+                  )}
+                  Continue with {provider.name}
                 </Button>
+              ))}
+            </div>
+
+            {guestLoginEnabled && (
+              <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
                 <Button
                   variant="ghost"
-                  onClick={(event) => withEmail(event)}
-                  disabled={pending === 'email'}
+                  onClick={asGuest}
+                  disabled={pending !== null}
                 >
-                  {pending === 'email' && <Spinner data-icon="inline-start" />}
-                  Send again
+                  {pending === 'guest' && <Spinner data-icon="inline-start" />}
+                  Continue as guest
                 </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-semibold tracking-tight">
-                  {isSignup ? 'Create your account' : 'Sign in to ' + site.name}
-                </h1>
-                <p className="text-muted-foreground">
-                  {isSignup
-                    ? 'Free for 3 resumes. No password to remember.'
-                    : 'Welcome back. Pick up where you left off.'}
+                <p className="text-center text-xs text-muted-foreground">
+                  Try everything without an account. Guest accounts are deleted
+                  after 7 days.
                 </p>
               </div>
-
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => withProvider('google')}
-                  disabled={pending !== null}
-                >
-                  {pending === 'google' ? (
-                    <Spinner data-icon="inline-start" />
-                  ) : (
-                    <GoogleIcon data-icon="inline-start" />
-                  )}
-                  Continue with Google
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => withProvider('github')}
-                  disabled={pending !== null}
-                >
-                  {pending === 'github' ? (
-                    <Spinner data-icon="inline-start" />
-                  ) : (
-                    <GitHubIcon data-icon="inline-start" />
-                  )}
-                  Continue with GitHub
-                </Button>
-              </div>
-
-              <form onSubmit={withEmail}>
-                <FieldGroup>
-                  <FieldSeparator>or use your email</FieldSeparator>
-                  {isSignup && (
-                    <Field>
-                      <FieldLabel htmlFor="name">Your name</FieldLabel>
-                      <Input
-                        id="name"
-                        autoComplete="name"
-                        placeholder="Aarav Sharma"
-                        value={name}
-                        onChange={(event) => setName(event.target.value)}
-                      />
-                    </Field>
-                  )}
-                  <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                      id="email"
-                      name="email"
-                      spellCheck={false}
-                      type="email"
-                      required
-                      autoComplete="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(event) => setEmail(event.target.value)}
-                    />
-                    <FieldDescription>
-                      You'll get a link by email. No password needed.
-                    </FieldDescription>
-                  </Field>
-                  <Button type="submit" size="lg" disabled={pending !== null}>
-                    {pending === 'email' && (
-                      <Spinner data-icon="inline-start" />
-                    )}
-                    Email me a sign-in link
-                  </Button>
-                </FieldGroup>
-              </form>
-
-              <p className="text-sm text-muted-foreground">
-                {isSignup ? 'Already have an account? ' : 'New here? '}
-                <Link
-                  to="/login"
-                  search={{ mode: isSignup ? 'signin' : 'signup', redirect }}
-                  className="font-medium text-foreground underline underline-offset-4"
-                >
-                  {isSignup ? 'Sign in' : 'Create an account'}
-                </Link>
-              </p>
-              {guestLoginEnabled && (
-                <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
-                  <Button
-                    variant="ghost"
-                    onClick={asGuest}
-                    disabled={pending !== null}
-                  >
-                    {pending === 'guest' && (
-                      <Spinner data-icon="inline-start" />
-                    )}
-                    Continue as guest
-                  </Button>
-                  <p className="text-center text-xs text-muted-foreground">
-                    Try everything without an account. Guest accounts are
-                    deleted after 7 days.
-                  </p>
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">
-                By continuing you agree to our{' '}
-                <Link to="/terms" className="underline underline-offset-2">
-                  terms
-                </Link>{' '}
-                and{' '}
-                <Link to="/privacy" className="underline underline-offset-2">
-                  privacy policy
-                </Link>
-                .
-              </p>
-            </div>
-          )}
+            )}
+            <p className="text-xs text-muted-foreground">
+              By continuing you agree to our{' '}
+              <Link to="/terms" className="underline underline-offset-2">
+                terms
+              </Link>{' '}
+              and{' '}
+              <Link to="/privacy" className="underline underline-offset-2">
+                privacy policy
+              </Link>
+              .
+            </p>
+          </div>
         </main>
       </div>
 
