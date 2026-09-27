@@ -32,13 +32,20 @@ function safeRedirect(path: string | undefined) {
     : '/dashboard'
 }
 
-const providers = [
+const allProviders = [
   { id: 'google', name: 'Google', icon: GoogleIcon },
   { id: 'github', name: 'GitHub', icon: GitHubIcon },
   { id: 'chatgpt', name: 'ChatGPT', icon: ChatGPTIcon },
 ] as const
 
-type Provider = (typeof providers)[number]['id']
+type Provider = (typeof allProviders)[number]['id']
+
+// Sign in with ChatGPT is partner-only for now; show it once OpenAI issues this app a client.
+const providers = allProviders.filter(
+  (provider) =>
+    provider.id !== 'chatgpt' ||
+    import.meta.env.VITE_ENABLE_CHATGPT_LOGIN === 'true',
+)
 
 function LoginPage() {
   const { mode, redirect } = Route.useSearch()
