@@ -17,20 +17,24 @@ const socialProviders = {
     }),
 };
 
-// "Sign in with ChatGPT" is a standard OpenID Connect provider, so it goes through generic OAuth.
-const chatgptProvider =
-  env.CHATGPT_CLIENT_ID && env.CHATGPT_CLIENT_SECRET
-    ? [
-        {
-          providerId: "chatgpt",
-          clientId: env.CHATGPT_CLIENT_ID,
-          clientSecret: env.CHATGPT_CLIENT_SECRET,
-          discoveryUrl: env.CHATGPT_DISCOVERY_URL,
-          scopes: ["openid", "profile", "email"],
-          pkce: true,
-        },
-      ]
-    : [];
+// "Sign in with ChatGPT" is standard OpenID Connect, so it goes through generic OAuth. Settings follow
+// https://developers.openai.com/siwc/website: PKCE always; a confidential client authenticates with HTTP
+// Basic, a public client (client ID only, no secret) with none.
+const chatgptProvider = env.CHATGPT_CLIENT_ID
+  ? [
+      {
+        providerId: "chatgpt",
+        clientId: env.CHATGPT_CLIENT_ID,
+        ...(env.CHATGPT_CLIENT_SECRET && { clientSecret: env.CHATGPT_CLIENT_SECRET }),
+        tokenEndpointAuth: env.CHATGPT_CLIENT_SECRET
+          ? ({ method: "client_secret_basic" } as const)
+          : ({ method: "none" } as const),
+        discoveryUrl: env.CHATGPT_DISCOVERY_URL,
+        scopes: ["openid", "profile", "email"],
+        pkce: true,
+      },
+    ]
+  : [];
 
 export const guestLoginEnabled = env.ENABLE_GUEST_LOGIN ?? env.NODE_ENV !== "production";
 
