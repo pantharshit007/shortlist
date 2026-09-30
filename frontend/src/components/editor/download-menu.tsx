@@ -2,6 +2,11 @@ import { ChevronDownIcon, DownloadIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -32,28 +37,55 @@ export function DownloadMenu({
   }
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">
-          <DownloadIcon data-icon="inline-start" />
-          Download
-          <ChevronDownIcon data-icon="inline-end" />
-        </Button>
-      </DropdownMenuTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">
+              <DownloadIcon data-icon="inline-start" />
+              Download
+              <ChevronDownIcon data-icon="inline-end" />
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Save as PDF, LaTeX or JSON</TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            onSelect={() => download('pdf?download=true', 'pdf')}
-          >
-            PDF
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => download('tex', 'tex')}>
-            LaTeX source (.tex)
-          </DropdownMenuItem>
-          {structured && (
-            <DropdownMenuItem onSelect={() => download('json-resume', 'json')}>
-              JSON Resume
+          {[
+            {
+              path: 'pdf?download=true',
+              extension: 'pdf',
+              label: 'PDF',
+              hint: 'Ready to send or upload to job portals',
+            },
+            {
+              path: 'tex',
+              extension: 'tex',
+              label: 'LaTeX source (.tex)',
+              hint: 'Keep editing it on Overleaf',
+            },
+            ...(structured
+              ? [
+                  {
+                    path: 'json-resume',
+                    extension: 'json',
+                    label: 'JSON Resume',
+                    hint: 'Your data in an open format for other tools',
+                  },
+                ]
+              : []),
+          ].map((option) => (
+            <DropdownMenuItem
+              key={option.path}
+              onSelect={() => download(option.path, option.extension)}
+              className="flex-col items-start gap-0"
+            >
+              {option.label}
+              <span className="text-xs text-muted-foreground">
+                {option.hint}
+              </span>
             </DropdownMenuItem>
-          )}
+          ))}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

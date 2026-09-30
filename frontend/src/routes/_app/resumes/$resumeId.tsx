@@ -3,17 +3,19 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   ArrowLeftIcon,
   HistoryIcon,
+  Maximize2Icon,
   Share2Icon,
   SparklesIcon,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useDefaultLayout } from 'react-resizable-panels'
+import { useDefaultLayout, useGroupRef } from 'react-resizable-panels'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { AiPanel } from '@/components/ai/ai-panel'
 import type { AiPanelMode } from '@/components/ai/ai-panel'
 import { ContentEditor } from '@/components/editor/content-editor'
 import { DownloadMenu } from '@/components/editor/download-menu'
+import { LayoutMenu } from '@/components/editor/layout-menu'
 import { HistoryPanel } from '@/components/editor/history-panel'
 import { SharePanel } from '@/components/editor/share-panel'
 import { UnsavedChangesGuard } from '@/components/app/unsaved-changes-guard'
@@ -25,6 +27,7 @@ import type { SaveState } from '@/components/editor/save-status'
 import { SaveStatus } from '@/components/editor/save-status'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Kbd } from '@/components/ui/kbd'
 import {
   Select,
   SelectContent,
@@ -40,6 +43,11 @@ import {
 } from '@/components/ui/resizable'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useCollapsedSidebar } from '@/hooks/use-collapsed-sidebar'
 import { useDebouncedEffect } from '@/hooks/use-debounced-effect'
 import { useMediaQuery } from '@/hooks/use-media-query'
@@ -51,6 +59,11 @@ import { panelStorage } from '@/lib/panel-storage'
 import { site } from '@/lib/site'
 import { templateCatalog } from '@/lib/templates'
 import { cn } from '@/lib/utils'
+
+const focusKey = 'resume-editor-focus'
+const isMac =
+  typeof navigator !== 'undefined' &&
+  /Mac|iPhone|iPad/.test(navigator.userAgent)
 
 export const Route = createFileRoute('/_app/resumes/$resumeId')({
   validateSearch: z.object({
@@ -122,7 +135,49 @@ function ResumeEditor({
     id: 'resume-editor',
     panelIds: showAi ? ['edit', 'preview', 'ai'] : ['edit', 'preview'],
     storage: panelStorage,
+    // Keeps focus mode's collapsed panels out of the saved sizes.
+    onlySaveAfterUserInteractions: true,
   })
+  // Focus mode collapses the preview and AI panels instead of unmounting them, then puts back the sizes from before.
+  const [focus, setFocus] = useState(
+    () => panelStorage.getItem(focusKey) === '1',
+  )
+  const groupRef = useGroupRef()
+  const beforeFocus = useRef<Record<string, number>>(undefined)
+  useEffect(() => {
+    panelStorage.setItem(focusKey, focus ? '1' : '0')
+    const group = groupRef.current
+    if (!group) return
+    const current = group.getLayout()
+    const ids = Object.keys(current)
+    if (focus) {
+      if (current.preview) beforeFocus.current = current
+      group.setLayout(
+        Object.fromEntries(ids.map((id) => [id, id === 'edit' ? 100 : 0])),
+      )
+    } else if (!current.preview) {
+      const saved = beforeFocus.current
+      const same = saved && ids.every((id) => id in saved)
+      group.setLayout(
+        same
+          ? saved
+          : Object.fromEntries(
+              ids.map((id) => [id, id === 'edit' ? 50 : 50 / (ids.length - 1)]),
+            ),
+      )
+    }
+  }, [focus, wide, groupRef])
+  useEffect(() => {
+    if (!wide) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === '.' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault()
+        setFocus((on) => !on)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [wide])
   const queryClient = useQueryClient()
   const structured = resume.mode === 'structured'
   const [content, setContent] = useState<ResumeContent | null>(
@@ -131,6 +186,7 @@ function ResumeEditor({
   const [texSource, setTexSource] = useState(resume.head?.texSource ?? '')
   const [title, setTitle] = useState(resume.title)
   const [templateId, setTemplateId] = useState(resume.templateId ?? 'developer')
+  const [layoutSettings, setLayoutSettings] = useState(resume.layout)
   const [saveState, setSaveState] = useState<SaveState>('saved')
   const [pane, setPane] = useState<'edit' | 'preview'>('edit')
   const { tailor, created } = Route.useSearch()
@@ -145,6 +201,7 @@ function ResumeEditor({
   const [aiMode, setAiMode] = useState<AiPanelMode>('tailor')
   const openAi = (mode: AiPanelMode) => {
     setAiMode(mode)
+    if (docked) setFocus(false)
     onAiOpenChange(true)
   }
   const latexEditor = useRef<LatexEditorHandle>(null)
@@ -153,7 +210,11 @@ function ResumeEditor({
   )
 
   const preview = usePdfPreview(
-    structured ? (content ? { content, templateId } : null) : { texSource },
+    structured
+      ? content
+        ? { content, templateId, layout: layoutSettings }
+        : null
+      : { texSource },
   )
 
   const save = useMutation({
@@ -197,7 +258,11 @@ function ResumeEditor({
   )
 
   const update = useMutation({
-    mutationFn: (body: { title?: string; templateId?: string }) =>
+    mutationFn: (body: {
+      title?: string
+      templateId?: string
+      layout?: ResumeDetail['layout']
+    }) =>
       unwrap(
         api.PATCH('/v1/resumes/{resumeId}', {
           params: { path: { resumeId: resume.id } },
@@ -221,6 +286,7 @@ function ResumeEditor({
         errors={preview.errors}
       />
     )
+  const currentTemplate = templateCatalog.find((t) => t.id === templateId)
   const previewPane = (
     <PdfPreview
       {...preview}
@@ -289,50 +355,109 @@ function ResumeEditor({
                 className="hidden w-40 md:flex"
                 aria-label="Template"
               >
-                <SelectValue />
+                <SelectValue>{currentTemplate?.name}</SelectValue>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="w-72">
                 <SelectGroup>
                   {templateCatalog.map((template) => (
-                    <SelectItem key={template.id} value={template.id}>
-                      {template.name}
+                    <SelectItem
+                      key={template.id}
+                      value={template.id}
+                      textValue={template.name}
+                    >
+                      <span className="flex flex-col items-start">
+                        {template.name}
+                        <span className="text-xs text-muted-foreground">
+                          {template.description}
+                        </span>
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="History"
-            onClick={() => setHistoryOpen(true)}
-          >
-            <HistoryIcon />
-          </Button>
-          <Button
-            variant="outline"
-            aria-label="Share"
-            onClick={() => setShareOpen(true)}
-          >
-            <Share2Icon data-icon="inline-start" />
-            <span className="hidden sm:inline">Share</span>
-          </Button>
+          {structured && (
+            <LayoutMenu
+              value={layoutSettings}
+              templateFontSize={currentTemplate?.fontSize ?? 10}
+              onChange={(next) => {
+                setLayoutSettings(next)
+                update.mutate({ layout: next })
+              }}
+            />
+          )}
+          {wide && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Focus mode"
+                  aria-pressed={focus}
+                  onClick={() => setFocus((on) => !on)}
+                  className="aria-pressed:bg-muted"
+                >
+                  <Maximize2Icon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Focus mode
+                <Kbd>{isMac ? '⌘' : 'Ctrl'} .</Kbd>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="History"
+                onClick={() => setHistoryOpen(true)}
+              >
+                <HistoryIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Every save is kept. Compare or restore older versions.
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                aria-label="Share"
+                onClick={() => setShareOpen(true)}
+              >
+                <Share2Icon data-icon="inline-start" />
+                <span className="hidden sm:inline">Share</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Get a public link to this resume</TooltipContent>
+          </Tooltip>
           <DownloadMenu
             resumeId={resume.id}
             title={title}
             structured={structured}
           />
-          <Button
-            aria-label="Improve with AI"
-            aria-pressed={docked ? aiOpen : undefined}
-            onClick={() =>
-              docked && aiOpen ? onAiOpenChange(false) : openAi('tailor')
-            }
-          >
-            <SparklesIcon data-icon="inline-start" />
-            <span className="hidden sm:inline">Improve with AI</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label="Improve with AI"
+                aria-pressed={docked ? aiOpen : undefined}
+                onClick={() =>
+                  docked && aiOpen ? onAiOpenChange(false) : openAi('tailor')
+                }
+              >
+                <SparklesIcon data-icon="inline-start" />
+                <span className="hidden sm:inline">Improve with AI</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Tailor it to a job or polish your bullets. You review every change
+              first.
+            </TooltipContent>
+          </Tooltip>
         </div>
       </header>
 
@@ -351,6 +476,7 @@ function ResumeEditor({
       {wide ? (
         <ResizablePanelGroup
           id="resume-editor"
+          groupRef={groupRef}
           defaultLayout={layout.defaultLayout}
           onLayoutChanged={layout.onLayoutChanged}
           className="min-h-0 flex-1"
@@ -358,18 +484,19 @@ function ResumeEditor({
           <ResizablePanel id="edit" minSize={320} className="overflow-y-auto">
             {editorPane}
           </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel id="preview" minSize={320}>
+          <ResizableHandle withHandle disabled={focus} />
+          <ResizablePanel id="preview" minSize={320} collapsible>
             {previewPane}
           </ResizablePanel>
           {showAi && (
             <>
-              <ResizableHandle withHandle />
+              <ResizableHandle withHandle disabled={focus} />
               <ResizablePanel
                 id="ai"
                 defaultSize={380}
                 minSize={320}
                 maxSize={640}
+                collapsible
               >
                 {aiPanel}
               </ResizablePanel>

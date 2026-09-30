@@ -5,21 +5,25 @@ export const templateCatalog = [
     name: 'Developer',
     description:
       'The Jake-style layout most developers use, with icons for your links.',
+    fontSize: 10,
   },
   {
     id: 'jake',
     name: "Jake's Resume",
     description: 'Classic single-column layout, the standard for tech roles.',
+    fontSize: 11,
   },
   {
     id: 'sb2nov',
     name: 'Compact',
     description: 'Denser layout that fits more on one page.',
+    fontSize: 10,
   },
   {
     id: 'modern',
     name: 'Modern',
     description: 'Sans-serif type with teal section headings.',
+    fontSize: 10,
   },
 ] as const
 

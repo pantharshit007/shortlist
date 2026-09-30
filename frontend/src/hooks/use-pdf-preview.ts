@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ResumeContent } from '@/lib/api/types'
+import type { ResumeContent, ResumeDetail } from '@/lib/api/types'
 import { apiUrl } from '@/lib/env'
 
 export type CompileError = {
@@ -9,7 +9,13 @@ export type CompileError = {
 }
 
 type PreviewInput =
-  { content: ResumeContent; templateId: string } | { texSource: string } | null
+  | {
+      content: ResumeContent
+      templateId: string
+      layout?: ResumeDetail['layout']
+    }
+  | { texSource: string }
+  | null
 
 type PreviewState = {
   url: string | null

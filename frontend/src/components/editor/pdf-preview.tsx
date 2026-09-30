@@ -3,6 +3,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import type { CompileError } from '@/hooks/use-pdf-preview'
 import { PdfPages } from './pdf-pages'
 
@@ -31,10 +36,19 @@ export function PdfPreview({
       <div className="flex h-11 shrink-0 items-center gap-2 border-b px-4 text-sm">
         <span className="font-medium">Preview</span>
         {pageCount !== null && (
-          <Badge variant={over ? 'destructive' : 'secondary'}>
-            {pageCount} {pageCount === 1 ? 'page' : 'pages'}
-            {over && `, limit ${pageLimit}`}
-          </Badge>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant={over ? 'destructive' : 'secondary'} tabIndex={0}>
+                {pageCount} {pageCount === 1 ? 'page' : 'pages'}
+                {over && `, limit ${pageLimit}`}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              {over
+                ? `Longer than your ${pageLimit}-page limit. Recruiters skim, so trim it to fit.`
+                : `Pages in the PDF. Your limit is ${pageLimit}.`}
+            </TooltipContent>
+          </Tooltip>
         )}
         {loading && (
           <span className="ml-auto flex items-center gap-2 text-muted-foreground">
