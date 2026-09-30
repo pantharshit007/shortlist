@@ -1,4 +1,4 @@
-# Resume Builder web app
+# Shortlist web app
 
 TanStack Start (React, Vite) frontend for the resume builder. It talks to the Express API in `../backend`.
 

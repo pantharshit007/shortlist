@@ -428,7 +428,7 @@ export function buildOpenApiDocument() {
   return createDocument({
     openapi: "3.1.0",
     info: {
-      title: "Resume Builder API",
+      title: "Shortlist API",
       version: "1.0.0",
       description:
         "Authentication endpoints live under /api/auth (Better Auth). All other endpoints use the session cookie it sets.",

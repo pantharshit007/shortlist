@@ -1,4 +1,4 @@
-# Resume Builder API
+# Shortlist API
 
 Express + TypeScript backend for the resume builder: auth, resumes and versions, LaTeX compilation,
 AI tailoring, share links, billing. The frontend lives in `../frontend`.

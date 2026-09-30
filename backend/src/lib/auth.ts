@@ -35,7 +35,7 @@ const chatgptProvider =
 export const guestLoginEnabled = env.ENABLE_GUEST_LOGIN ?? env.NODE_ENV !== "production";
 
 export const auth = betterAuth({
-  appName: "Resume Builder",
+  appName: "Shortlist",
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
   trustedOrigins: [env.FRONTEND_URL],
