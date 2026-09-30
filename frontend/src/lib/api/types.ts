@@ -79,3 +79,4 @@ export type AdminRevenue = ResponseData<'/v1/admin/revenue', 'get'>
 export type AdminContent = ResponseData<'/v1/admin/content', 'get'>
 export type AdminTraffic = ResponseData<'/v1/admin/traffic', 'get'>
 export type AdminSystem = ResponseData<'/v1/admin/system', 'get'>
+export type AiRunList = ResponseData<'/v1/me/ai-runs', 'get'>

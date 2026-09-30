@@ -22,6 +22,7 @@ import { checkoutResponse, createCheckoutBody, subscriptionResponse } from "./mo
 import { createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
 import { usageResponse } from "./modules/usage/usage.routes.js";
 import { aiKeyResponse, putAiKeyBody } from "./modules/ai-keys/ai-keys.schemas.js";
+import { aiRunListResponse } from "./modules/ai-runs/ai-runs.routes.js";
 import { analyticsQuery, analyticsResponse } from "./modules/analytics/analytics.schemas.js";
 import {
   createCustomTemplateBody,
@@ -162,6 +163,9 @@ const paths: ZodOpenApiPathsObject = {
     get: op({ summary: "Your own AI key, without the secret", tag: "Account", response: aiKeyResponse }),
     put: op({ summary: "Test and save your own AI key", tag: "Account", body: putAiKeyBody, response: aiKeyResponse }),
     delete: op({ summary: "Remove your own AI key", tag: "Account", noContent: true }),
+  },
+  "/v1/me/ai-runs": {
+    get: op({ summary: "Your recent AI runs and this month's cost", tag: "Account", response: aiRunListResponse }),
   },
   "/v1/analytics": {
     get: op({

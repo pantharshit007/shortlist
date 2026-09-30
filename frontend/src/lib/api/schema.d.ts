@@ -350,7 +350,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -372,6 +374,7 @@ export interface paths {
                             hidden: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -431,6 +434,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies: string[]
@@ -487,6 +491,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
@@ -531,7 +536,9 @@ export interface paths {
                   label: string
                   /** Format: uri */
                   url: string
+                  sensitive?: boolean
                 }[]
+                sensitive?: ('name' | 'location')[]
               }
               sections: (
                 | {
@@ -553,6 +560,7 @@ export interface paths {
                         hidden?: boolean
                       }[]
                       organization: string
+                      sensitive?: boolean
                       role: string
                       location?: string
                       start?: string
@@ -612,6 +620,7 @@ export interface paths {
                         label: string
                         /** Format: uri */
                         url: string
+                        sensitive?: boolean
                       }[]
                       /** @default [] */
                       technologies?: string[]
@@ -668,6 +677,7 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
                   }
               )[]
@@ -697,7 +707,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -719,6 +731,7 @@ export interface paths {
                             hidden: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -778,6 +791,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies: string[]
@@ -834,6 +848,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
@@ -1035,6 +1050,81 @@ export interface paths {
         }
       }
     }
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/me/ai-runs': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Your recent AI runs and this month's cost */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                periodStart: string
+                monthCostUsdMicros: number
+                monthUnpricedRuns: number
+                runs: {
+                  /** Format: uuid */
+                  id: string
+                  createdAt: string
+                  /** @enum {string} */
+                  step:
+                    | 'import'
+                    | 'jd_parse'
+                    | 'plan'
+                    | 'rewrite'
+                    | 'verify'
+                    | 'inline_edit'
+                    | 'chat_edit'
+                    | 'fix_compile'
+                  /** @enum {string} */
+                  status: 'succeeded' | 'failed'
+                  model: string
+                  byok: boolean
+                  inputTokens: number
+                  outputTokens: number
+                  costUsdMicros: number | null
+                  latencyMs: number | null
+                  resumeId: string | null
+                }[]
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
     options?: never
     head?: never
     patch?: never
@@ -1242,7 +1332,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -1264,6 +1356,7 @@ export interface paths {
                             hidden: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -1323,6 +1416,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies: string[]
@@ -1379,6 +1473,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
@@ -1453,7 +1548,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -1475,6 +1572,7 @@ export interface paths {
                             hidden: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -1534,6 +1632,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies: string[]
@@ -1590,6 +1689,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
@@ -1692,7 +1792,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -1714,6 +1816,7 @@ export interface paths {
                             hidden: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -1773,6 +1876,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies: string[]
@@ -1829,6 +1933,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
@@ -1888,6 +1993,14 @@ export interface paths {
                 sourceResumeId: string | null
                 headVersionId: string | null
                 pageLimit: number
+                layout: {
+                  /**
+                   * @default normal
+                   * @enum {string}
+                   */
+                  spacing: 'compact' | 'normal' | 'relaxed'
+                  fontSize?: 10 | 11 | 12
+                }
                 archivedAt: string | null
                 createdAt: string
                 updatedAt: string
@@ -1959,7 +2072,9 @@ export interface paths {
                         label: string
                         /** Format: uri */
                         url: string
+                        sensitive?: boolean
                       }[]
+                      sensitive?: ('name' | 'location')[]
                     }
                     sections: (
                       | {
@@ -1981,6 +2096,7 @@ export interface paths {
                               hidden?: boolean
                             }[]
                             organization: string
+                            sensitive?: boolean
                             role: string
                             location?: string
                             start?: string
@@ -2040,6 +2156,7 @@ export interface paths {
                               label: string
                               /** Format: uri */
                               url: string
+                              sensitive?: boolean
                             }[]
                             /** @default [] */
                             technologies?: string[]
@@ -2096,6 +2213,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                         }
                     )[]
@@ -2142,6 +2260,14 @@ export interface paths {
                 sourceResumeId: string | null
                 headVersionId: string | null
                 pageLimit: number
+                layout: {
+                  /**
+                   * @default normal
+                   * @enum {string}
+                   */
+                  spacing: 'compact' | 'normal' | 'relaxed'
+                  fontSize?: 10 | 11 | 12
+                }
                 archivedAt: string | null
                 createdAt: string
                 updatedAt: string
@@ -2167,7 +2293,9 @@ export interface paths {
                         label: string
                         /** Format: uri */
                         url: string
+                        sensitive?: boolean
                       }[]
+                      sensitive?: ('name' | 'location')[]
                     }
                     sections: (
                       | {
@@ -2189,6 +2317,7 @@ export interface paths {
                               hidden: boolean
                             }[]
                             organization: string
+                            sensitive?: boolean
                             role: string
                             location?: string
                             start?: string
@@ -2248,6 +2377,7 @@ export interface paths {
                               label: string
                               /** Format: uri */
                               url: string
+                              sensitive?: boolean
                             }[]
                             /** @default [] */
                             technologies: string[]
@@ -2304,6 +2434,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                         }
                     )[]
@@ -2368,6 +2499,14 @@ export interface paths {
                 sourceResumeId: string | null
                 headVersionId: string | null
                 pageLimit: number
+                layout: {
+                  /**
+                   * @default normal
+                   * @enum {string}
+                   */
+                  spacing: 'compact' | 'normal' | 'relaxed'
+                  fontSize?: 10 | 11 | 12
+                }
                 archivedAt: string | null
                 createdAt: string
                 updatedAt: string
@@ -2393,7 +2532,9 @@ export interface paths {
                         label: string
                         /** Format: uri */
                         url: string
+                        sensitive?: boolean
                       }[]
+                      sensitive?: ('name' | 'location')[]
                     }
                     sections: (
                       | {
@@ -2415,6 +2556,7 @@ export interface paths {
                               hidden: boolean
                             }[]
                             organization: string
+                            sensitive?: boolean
                             role: string
                             location?: string
                             start?: string
@@ -2474,6 +2616,7 @@ export interface paths {
                               label: string
                               /** Format: uri */
                               url: string
+                              sensitive?: boolean
                             }[]
                             /** @default [] */
                             technologies: string[]
@@ -2530,6 +2673,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                         }
                     )[]
@@ -2602,6 +2746,14 @@ export interface paths {
             templateId?: string
             jobId?: string | null
             pageLimit?: number
+            layout?: {
+              /**
+               * @default normal
+               * @enum {string}
+               */
+              spacing?: 'compact' | 'normal' | 'relaxed'
+              fontSize?: 10 | 11 | 12
+            }
             archived?: boolean
           }
         }
@@ -2625,6 +2777,14 @@ export interface paths {
                 sourceResumeId: string | null
                 headVersionId: string | null
                 pageLimit: number
+                layout: {
+                  /**
+                   * @default normal
+                   * @enum {string}
+                   */
+                  spacing: 'compact' | 'normal' | 'relaxed'
+                  fontSize?: 10 | 11 | 12
+                }
                 archivedAt: string | null
                 createdAt: string
                 updatedAt: string
@@ -2728,7 +2888,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -2750,6 +2912,7 @@ export interface paths {
                             hidden?: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -2809,6 +2972,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies?: string[]
@@ -2865,6 +3029,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
@@ -2918,7 +3083,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -2940,6 +3107,7 @@ export interface paths {
                             hidden: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -2999,6 +3167,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies: string[]
@@ -3055,6 +3224,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
@@ -3130,7 +3300,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -3152,6 +3324,7 @@ export interface paths {
                             hidden: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -3211,6 +3384,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies: string[]
@@ -3267,6 +3441,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
@@ -3341,7 +3516,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -3363,6 +3540,7 @@ export interface paths {
                             hidden: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -3422,6 +3600,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies: string[]
@@ -3478,6 +3657,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
@@ -3688,7 +3868,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -3710,6 +3892,7 @@ export interface paths {
                             hidden?: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -3769,6 +3952,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies?: string[]
@@ -3825,9 +4009,18 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
+                }
+                layout?: {
+                  /**
+                   * @default normal
+                   * @enum {string}
+                   */
+                  spacing?: 'compact' | 'normal' | 'relaxed'
+                  fontSize?: 10 | 11 | 12
                 }
               }
             | {
@@ -4063,7 +4256,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -4085,6 +4280,7 @@ export interface paths {
                             hidden: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -4144,6 +4340,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies: string[]
@@ -4200,6 +4397,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]
@@ -4488,6 +4686,9 @@ export interface paths {
                 baseVersionId: string
                 appliedVersionId: string | null
                 summary: string
+                model: string
+                byok: boolean
+                costUsdMicros: number | null
                 createdAt: string
               }[]
             }
@@ -4578,6 +4779,9 @@ export interface paths {
                   items?: string[]
                   texSource?: string
                 }[]
+                model: string
+                byok: boolean
+                costUsdMicros: number | null
                 createdAt: string
               }
             }
@@ -4660,6 +4864,9 @@ export interface paths {
                   items?: string[]
                   texSource?: string
                 }[]
+                model: string
+                byok: boolean
+                costUsdMicros: number | null
                 createdAt: string
               }
             }
@@ -5212,7 +5419,9 @@ export interface paths {
                       label: string
                       /** Format: uri */
                       url: string
+                      sensitive?: boolean
                     }[]
+                    sensitive?: ('name' | 'location')[]
                   }
                   sections: (
                     | {
@@ -5234,6 +5443,7 @@ export interface paths {
                             hidden: boolean
                           }[]
                           organization: string
+                          sensitive?: boolean
                           role: string
                           location?: string
                           start?: string
@@ -5293,6 +5503,7 @@ export interface paths {
                             label: string
                             /** Format: uri */
                             url: string
+                            sensitive?: boolean
                           }[]
                           /** @default [] */
                           technologies: string[]
@@ -5349,6 +5560,7 @@ export interface paths {
                           label: string
                           /** Format: uri */
                           url: string
+                          sensitive?: boolean
                         }[]
                       }
                   )[]

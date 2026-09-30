@@ -99,6 +99,19 @@ export const versionsQuery = (resumeId: string) =>
       ),
   })
 
+// Versions never change content, so one fetch is enough.
+export const versionQuery = (resumeId: string, versionId: string) =>
+  queryOptions({
+    queryKey: [...queryKeys.versions(resumeId), versionId],
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/resumes/{resumeId}/versions/{versionId}', {
+          params: { path: { resumeId, versionId } },
+        }),
+      ),
+    staleTime: Infinity,
+  })
+
 export const jobsQuery = queryOptions({
   queryKey: queryKeys.jobs,
   queryFn: () => unwrap(api.GET('/v1/jobs')),
@@ -272,3 +285,8 @@ export const adminUserQuery = (userId: string) =>
         }),
       ),
   })
+
+export const aiRunsQuery = queryOptions({
+  queryKey: ['me', 'ai-runs'] as const,
+  queryFn: () => unwrap(api.GET('/v1/me/ai-runs')),
+})

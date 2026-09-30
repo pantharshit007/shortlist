@@ -573,6 +573,9 @@
                                       "url": {
                                         "type": "string",
                                         "format": "uri"
+                                      },
+                                      "sensitive": {
+                                        "type": "boolean"
                                       }
                                     },
                                     "required": [
@@ -580,6 +583,17 @@
                                       "url"
                                     ],
                                     "additionalProperties": false
+                                  }
+                                },
+                                "sensitive": {
+                                  "maxItems": 2,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "name",
+                                      "location"
+                                    ]
                                   }
                                 }
                               },
@@ -662,6 +676,9 @@
                                             "organization": {
                                               "type": "string",
                                               "maxLength": 200
+                                            },
+                                            "sensitive": {
+                                              "type": "boolean"
                                             },
                                             "role": {
                                               "type": "string",
@@ -916,6 +933,9 @@
                                                   "url": {
                                                     "type": "string",
                                                     "format": "uri"
+                                                  },
+                                                  "sensitive": {
+                                                    "type": "boolean"
                                                   }
                                                 },
                                                 "required": [
@@ -1170,6 +1190,9 @@
                                             "url": {
                                               "type": "string",
                                               "format": "uri"
+                                            },
+                                            "sensitive": {
+                                              "type": "boolean"
                                             }
                                           },
                                           "required": [
@@ -1291,11 +1314,25 @@
                                 "url": {
                                   "type": "string",
                                   "format": "uri"
+                                },
+                                "sensitive": {
+                                  "type": "boolean"
                                 }
                               },
                               "required": [
                                 "label",
                                 "url"
+                              ]
+                            }
+                          },
+                          "sensitive": {
+                            "maxItems": 2,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "name",
+                                "location"
                               ]
                             }
                           }
@@ -1375,6 +1412,9 @@
                                       "organization": {
                                         "type": "string",
                                         "maxLength": 200
+                                      },
+                                      "sensitive": {
+                                        "type": "boolean"
                                       },
                                       "role": {
                                         "type": "string",
@@ -1615,6 +1655,9 @@
                                             "url": {
                                               "type": "string",
                                               "format": "uri"
+                                            },
+                                            "sensitive": {
+                                              "type": "boolean"
                                             }
                                           },
                                           "required": [
@@ -1851,6 +1894,9 @@
                                       "url": {
                                         "type": "string",
                                         "format": "uri"
+                                      },
+                                      "sensitive": {
+                                        "type": "boolean"
                                       }
                                     },
                                     "required": [
@@ -1937,6 +1983,9 @@
                                       "url": {
                                         "type": "string",
                                         "format": "uri"
+                                      },
+                                      "sensitive": {
+                                        "type": "boolean"
                                       }
                                     },
                                     "required": [
@@ -1944,6 +1993,17 @@
                                       "url"
                                     ],
                                     "additionalProperties": false
+                                  }
+                                },
+                                "sensitive": {
+                                  "maxItems": 2,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "name",
+                                      "location"
+                                    ]
                                   }
                                 }
                               },
@@ -2026,6 +2086,9 @@
                                             "organization": {
                                               "type": "string",
                                               "maxLength": 200
+                                            },
+                                            "sensitive": {
+                                              "type": "boolean"
                                             },
                                             "role": {
                                               "type": "string",
@@ -2280,6 +2343,9 @@
                                                   "url": {
                                                     "type": "string",
                                                     "format": "uri"
+                                                  },
+                                                  "sensitive": {
+                                                    "type": "boolean"
                                                   }
                                                 },
                                                 "required": [
@@ -2534,6 +2600,9 @@
                                             "url": {
                                               "type": "string",
                                               "format": "uri"
+                                            },
+                                            "sensitive": {
+                                              "type": "boolean"
                                             }
                                           },
                                           "required": [
@@ -2881,6 +2950,174 @@
         "responses": {
           "204": {
             "description": "No content"
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/ai-runs": {
+      "get": {
+        "summary": "Your recent AI runs and this month's cost",
+        "tags": [
+          "Account"
+        ],
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "periodStart": {
+                          "type": "string"
+                        },
+                        "monthCostUsdMicros": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "monthUnpricedRuns": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "runs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "createdAt": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "string",
+                                "enum": [
+                                  "import",
+                                  "jd_parse",
+                                  "plan",
+                                  "rewrite",
+                                  "verify",
+                                  "inline_edit",
+                                  "chat_edit",
+                                  "fix_compile"
+                                ]
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "succeeded",
+                                  "failed"
+                                ]
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "byok": {
+                                "type": "boolean"
+                              },
+                              "inputTokens": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "outputTokens": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "costUsdMicros": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "latencyMs": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "resumeId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "createdAt",
+                              "step",
+                              "status",
+                              "model",
+                              "byok",
+                              "inputTokens",
+                              "outputTokens",
+                              "costUsdMicros",
+                              "latencyMs",
+                              "resumeId"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "periodStart",
+                        "monthCostUsdMicros",
+                        "monthUnpricedRuns",
+                        "runs"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
           },
           "default": {
             "description": "Error",
@@ -3436,6 +3673,9 @@
                                           "url": {
                                             "type": "string",
                                             "format": "uri"
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -3443,6 +3683,17 @@
                                           "url"
                                         ],
                                         "additionalProperties": false
+                                      }
+                                    },
+                                    "sensitive": {
+                                      "maxItems": 2,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "name",
+                                          "location"
+                                        ]
                                       }
                                     }
                                   },
@@ -3525,6 +3776,9 @@
                                                 "organization": {
                                                   "type": "string",
                                                   "maxLength": 200
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 },
                                                 "role": {
                                                   "type": "string",
@@ -3779,6 +4033,9 @@
                                                       "url": {
                                                         "type": "string",
                                                         "format": "uri"
+                                                      },
+                                                      "sensitive": {
+                                                        "type": "boolean"
                                                       }
                                                     },
                                                     "required": [
@@ -4033,6 +4290,9 @@
                                                 "url": {
                                                   "type": "string",
                                                   "format": "uri"
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -4213,6 +4473,9 @@
                                           "url": {
                                             "type": "string",
                                             "format": "uri"
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -4220,6 +4483,17 @@
                                           "url"
                                         ],
                                         "additionalProperties": false
+                                      }
+                                    },
+                                    "sensitive": {
+                                      "maxItems": 2,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "name",
+                                          "location"
+                                        ]
                                       }
                                     }
                                   },
@@ -4302,6 +4576,9 @@
                                                 "organization": {
                                                   "type": "string",
                                                   "maxLength": 200
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 },
                                                 "role": {
                                                   "type": "string",
@@ -4556,6 +4833,9 @@
                                                       "url": {
                                                         "type": "string",
                                                         "format": "uri"
+                                                      },
+                                                      "sensitive": {
+                                                        "type": "boolean"
                                                       }
                                                     },
                                                     "required": [
@@ -4810,6 +5090,9 @@
                                                 "url": {
                                                   "type": "string",
                                                   "format": "uri"
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -5009,6 +5292,9 @@
                                           "url": {
                                             "type": "string",
                                             "format": "uri"
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -5016,6 +5302,17 @@
                                           "url"
                                         ],
                                         "additionalProperties": false
+                                      }
+                                    },
+                                    "sensitive": {
+                                      "maxItems": 2,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "name",
+                                          "location"
+                                        ]
                                       }
                                     }
                                   },
@@ -5098,6 +5395,9 @@
                                                 "organization": {
                                                   "type": "string",
                                                   "maxLength": 200
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 },
                                                 "role": {
                                                   "type": "string",
@@ -5352,6 +5652,9 @@
                                                       "url": {
                                                         "type": "string",
                                                         "format": "uri"
+                                                      },
+                                                      "sensitive": {
+                                                        "type": "boolean"
                                                       }
                                                     },
                                                     "required": [
@@ -5606,6 +5909,9 @@
                                                 "url": {
                                                   "type": "string",
                                                   "format": "uri"
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -5815,6 +6121,40 @@
                             "minimum": -9007199254740991,
                             "maximum": 9007199254740991
                           },
+                          "layout": {
+                            "type": "object",
+                            "properties": {
+                              "spacing": {
+                                "default": "normal",
+                                "type": "string",
+                                "enum": [
+                                  "compact",
+                                  "normal",
+                                  "relaxed"
+                                ]
+                              },
+                              "fontSize": {
+                                "anyOf": [
+                                  {
+                                    "type": "number",
+                                    "const": 10
+                                  },
+                                  {
+                                    "type": "number",
+                                    "const": 11
+                                  },
+                                  {
+                                    "type": "number",
+                                    "const": 12
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "spacing"
+                            ],
+                            "additionalProperties": false
+                          },
                           "archivedAt": {
                             "type": [
                               "string",
@@ -5837,6 +6177,7 @@
                           "sourceResumeId",
                           "headVersionId",
                           "pageLimit",
+                          "layout",
                           "archivedAt",
                           "createdAt",
                           "updatedAt"
@@ -5985,11 +6326,25 @@
                                         "url": {
                                           "type": "string",
                                           "format": "uri"
+                                        },
+                                        "sensitive": {
+                                          "type": "boolean"
                                         }
                                       },
                                       "required": [
                                         "label",
                                         "url"
+                                      ]
+                                    }
+                                  },
+                                  "sensitive": {
+                                    "maxItems": 2,
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "enum": [
+                                        "name",
+                                        "location"
                                       ]
                                     }
                                   }
@@ -6069,6 +6424,9 @@
                                               "organization": {
                                                 "type": "string",
                                                 "maxLength": 200
+                                              },
+                                              "sensitive": {
+                                                "type": "boolean"
                                               },
                                               "role": {
                                                 "type": "string",
@@ -6309,6 +6667,9 @@
                                                     "url": {
                                                       "type": "string",
                                                       "format": "uri"
+                                                    },
+                                                    "sensitive": {
+                                                      "type": "boolean"
                                                     }
                                                   },
                                                   "required": [
@@ -6545,6 +6906,9 @@
                                               "url": {
                                                 "type": "string",
                                                 "format": "uri"
+                                              },
+                                              "sensitive": {
+                                                "type": "boolean"
                                               }
                                             },
                                             "required": [
@@ -6720,6 +7084,40 @@
                           "minimum": -9007199254740991,
                           "maximum": 9007199254740991
                         },
+                        "layout": {
+                          "type": "object",
+                          "properties": {
+                            "spacing": {
+                              "default": "normal",
+                              "type": "string",
+                              "enum": [
+                                "compact",
+                                "normal",
+                                "relaxed"
+                              ]
+                            },
+                            "fontSize": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 10
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 11
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 12
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "spacing"
+                          ],
+                          "additionalProperties": false
+                        },
                         "archivedAt": {
                           "type": [
                             "string",
@@ -6822,6 +7220,9 @@
                                                   "url": {
                                                     "type": "string",
                                                     "format": "uri"
+                                                  },
+                                                  "sensitive": {
+                                                    "type": "boolean"
                                                   }
                                                 },
                                                 "required": [
@@ -6829,6 +7230,17 @@
                                                   "url"
                                                 ],
                                                 "additionalProperties": false
+                                              }
+                                            },
+                                            "sensitive": {
+                                              "maxItems": 2,
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "name",
+                                                  "location"
+                                                ]
                                               }
                                             }
                                           },
@@ -6911,6 +7323,9 @@
                                                         "organization": {
                                                           "type": "string",
                                                           "maxLength": 200
+                                                        },
+                                                        "sensitive": {
+                                                          "type": "boolean"
                                                         },
                                                         "role": {
                                                           "type": "string",
@@ -7165,6 +7580,9 @@
                                                               "url": {
                                                                 "type": "string",
                                                                 "format": "uri"
+                                                              },
+                                                              "sensitive": {
+                                                                "type": "boolean"
                                                               }
                                                             },
                                                             "required": [
@@ -7419,6 +7837,9 @@
                                                         "url": {
                                                           "type": "string",
                                                           "format": "uri"
+                                                        },
+                                                        "sensitive": {
+                                                          "type": "boolean"
                                                         }
                                                       },
                                                       "required": [
@@ -7488,6 +7909,7 @@
                         "sourceResumeId",
                         "headVersionId",
                         "pageLimit",
+                        "layout",
                         "archivedAt",
                         "createdAt",
                         "updatedAt",
@@ -7613,6 +8035,40 @@
                           "minimum": -9007199254740991,
                           "maximum": 9007199254740991
                         },
+                        "layout": {
+                          "type": "object",
+                          "properties": {
+                            "spacing": {
+                              "default": "normal",
+                              "type": "string",
+                              "enum": [
+                                "compact",
+                                "normal",
+                                "relaxed"
+                              ]
+                            },
+                            "fontSize": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 10
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 11
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 12
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "spacing"
+                          ],
+                          "additionalProperties": false
+                        },
                         "archivedAt": {
                           "type": [
                             "string",
@@ -7715,6 +8171,9 @@
                                                   "url": {
                                                     "type": "string",
                                                     "format": "uri"
+                                                  },
+                                                  "sensitive": {
+                                                    "type": "boolean"
                                                   }
                                                 },
                                                 "required": [
@@ -7722,6 +8181,17 @@
                                                   "url"
                                                 ],
                                                 "additionalProperties": false
+                                              }
+                                            },
+                                            "sensitive": {
+                                              "maxItems": 2,
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "name",
+                                                  "location"
+                                                ]
                                               }
                                             }
                                           },
@@ -7804,6 +8274,9 @@
                                                         "organization": {
                                                           "type": "string",
                                                           "maxLength": 200
+                                                        },
+                                                        "sensitive": {
+                                                          "type": "boolean"
                                                         },
                                                         "role": {
                                                           "type": "string",
@@ -8058,6 +8531,9 @@
                                                               "url": {
                                                                 "type": "string",
                                                                 "format": "uri"
+                                                              },
+                                                              "sensitive": {
+                                                                "type": "boolean"
                                                               }
                                                             },
                                                             "required": [
@@ -8312,6 +8788,9 @@
                                                         "url": {
                                                           "type": "string",
                                                           "format": "uri"
+                                                        },
+                                                        "sensitive": {
+                                                          "type": "boolean"
                                                         }
                                                       },
                                                       "required": [
@@ -8381,6 +8860,7 @@
                         "sourceResumeId",
                         "headVersionId",
                         "pageLimit",
+                        "layout",
                         "archivedAt",
                         "createdAt",
                         "updatedAt",
@@ -8461,6 +8941,36 @@
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 3
+                  },
+                  "layout": {
+                    "type": "object",
+                    "properties": {
+                      "spacing": {
+                        "default": "normal",
+                        "type": "string",
+                        "enum": [
+                          "compact",
+                          "normal",
+                          "relaxed"
+                        ]
+                      },
+                      "fontSize": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "const": 10
+                          },
+                          {
+                            "type": "number",
+                            "const": 11
+                          },
+                          {
+                            "type": "number",
+                            "const": 12
+                          }
+                        ]
+                      }
+                    }
                   },
                   "archived": {
                     "type": "boolean"
@@ -8543,6 +9053,40 @@
                           "minimum": -9007199254740991,
                           "maximum": 9007199254740991
                         },
+                        "layout": {
+                          "type": "object",
+                          "properties": {
+                            "spacing": {
+                              "default": "normal",
+                              "type": "string",
+                              "enum": [
+                                "compact",
+                                "normal",
+                                "relaxed"
+                              ]
+                            },
+                            "fontSize": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 10
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 11
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 12
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "spacing"
+                          ],
+                          "additionalProperties": false
+                        },
                         "archivedAt": {
                           "type": [
                             "string",
@@ -8565,6 +9109,7 @@
                         "sourceResumeId",
                         "headVersionId",
                         "pageLimit",
+                        "layout",
                         "archivedAt",
                         "createdAt",
                         "updatedAt"
@@ -8834,11 +9379,25 @@
                                     "url": {
                                       "type": "string",
                                       "format": "uri"
+                                    },
+                                    "sensitive": {
+                                      "type": "boolean"
                                     }
                                   },
                                   "required": [
                                     "label",
                                     "url"
+                                  ]
+                                }
+                              },
+                              "sensitive": {
+                                "maxItems": 2,
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "name",
+                                    "location"
                                   ]
                                 }
                               }
@@ -8918,6 +9477,9 @@
                                           "organization": {
                                             "type": "string",
                                             "maxLength": 200
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           },
                                           "role": {
                                             "type": "string",
@@ -9158,6 +9720,9 @@
                                                 "url": {
                                                   "type": "string",
                                                   "format": "uri"
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -9394,6 +9959,9 @@
                                           "url": {
                                             "type": "string",
                                             "format": "uri"
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -9585,6 +10153,9 @@
                                           "url": {
                                             "type": "string",
                                             "format": "uri"
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -9592,6 +10163,17 @@
                                           "url"
                                         ],
                                         "additionalProperties": false
+                                      }
+                                    },
+                                    "sensitive": {
+                                      "maxItems": 2,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "name",
+                                          "location"
+                                        ]
                                       }
                                     }
                                   },
@@ -9674,6 +10256,9 @@
                                                 "organization": {
                                                   "type": "string",
                                                   "maxLength": 200
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 },
                                                 "role": {
                                                   "type": "string",
@@ -9928,6 +10513,9 @@
                                                       "url": {
                                                         "type": "string",
                                                         "format": "uri"
+                                                      },
+                                                      "sensitive": {
+                                                        "type": "boolean"
                                                       }
                                                     },
                                                     "required": [
@@ -10182,6 +10770,9 @@
                                                 "url": {
                                                   "type": "string",
                                                   "format": "uri"
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -10387,6 +10978,9 @@
                                           "url": {
                                             "type": "string",
                                             "format": "uri"
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -10394,6 +10988,17 @@
                                           "url"
                                         ],
                                         "additionalProperties": false
+                                      }
+                                    },
+                                    "sensitive": {
+                                      "maxItems": 2,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "name",
+                                          "location"
+                                        ]
                                       }
                                     }
                                   },
@@ -10476,6 +11081,9 @@
                                                 "organization": {
                                                   "type": "string",
                                                   "maxLength": 200
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 },
                                                 "role": {
                                                   "type": "string",
@@ -10730,6 +11338,9 @@
                                                       "url": {
                                                         "type": "string",
                                                         "format": "uri"
+                                                      },
+                                                      "sensitive": {
+                                                        "type": "boolean"
                                                       }
                                                     },
                                                     "required": [
@@ -10984,6 +11595,9 @@
                                                 "url": {
                                                   "type": "string",
                                                   "format": "uri"
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -11221,6 +11835,9 @@
                                           "url": {
                                             "type": "string",
                                             "format": "uri"
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -11228,6 +11845,17 @@
                                           "url"
                                         ],
                                         "additionalProperties": false
+                                      }
+                                    },
+                                    "sensitive": {
+                                      "maxItems": 2,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "name",
+                                          "location"
+                                        ]
                                       }
                                     }
                                   },
@@ -11310,6 +11938,9 @@
                                                 "organization": {
                                                   "type": "string",
                                                   "maxLength": 200
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 },
                                                 "role": {
                                                   "type": "string",
@@ -11564,6 +12195,9 @@
                                                       "url": {
                                                         "type": "string",
                                                         "format": "uri"
+                                                      },
+                                                      "sensitive": {
+                                                        "type": "boolean"
                                                       }
                                                     },
                                                     "required": [
@@ -11818,6 +12452,9 @@
                                                 "url": {
                                                   "type": "string",
                                                   "format": "uri"
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -12148,11 +12785,25 @@
                                     "url": {
                                       "type": "string",
                                       "format": "uri"
+                                    },
+                                    "sensitive": {
+                                      "type": "boolean"
                                     }
                                   },
                                   "required": [
                                     "label",
                                     "url"
+                                  ]
+                                }
+                              },
+                              "sensitive": {
+                                "maxItems": 2,
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "name",
+                                    "location"
                                   ]
                                 }
                               }
@@ -12232,6 +12883,9 @@
                                           "organization": {
                                             "type": "string",
                                             "maxLength": 200
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           },
                                           "role": {
                                             "type": "string",
@@ -12472,6 +13126,9 @@
                                                 "url": {
                                                   "type": "string",
                                                   "format": "uri"
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -12708,6 +13365,9 @@
                                           "url": {
                                             "type": "string",
                                             "format": "uri"
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -12733,6 +13393,36 @@
                           "basics",
                           "sections"
                         ]
+                      },
+                      "layout": {
+                        "type": "object",
+                        "properties": {
+                          "spacing": {
+                            "default": "normal",
+                            "type": "string",
+                            "enum": [
+                              "compact",
+                              "normal",
+                              "relaxed"
+                            ]
+                          },
+                          "fontSize": {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "const": 10
+                              },
+                              {
+                                "type": "number",
+                                "const": 11
+                              },
+                              {
+                                "type": "number",
+                                "const": 12
+                              }
+                            ]
+                          }
+                        }
                       }
                     },
                     "required": [
@@ -13113,6 +13803,9 @@
                                       "url": {
                                         "type": "string",
                                         "format": "uri"
+                                      },
+                                      "sensitive": {
+                                        "type": "boolean"
                                       }
                                     },
                                     "required": [
@@ -13120,6 +13813,17 @@
                                       "url"
                                     ],
                                     "additionalProperties": false
+                                  }
+                                },
+                                "sensitive": {
+                                  "maxItems": 2,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "name",
+                                      "location"
+                                    ]
                                   }
                                 }
                               },
@@ -13202,6 +13906,9 @@
                                             "organization": {
                                               "type": "string",
                                               "maxLength": 200
+                                            },
+                                            "sensitive": {
+                                              "type": "boolean"
                                             },
                                             "role": {
                                               "type": "string",
@@ -13456,6 +14163,9 @@
                                                   "url": {
                                                     "type": "string",
                                                     "format": "uri"
+                                                  },
+                                                  "sensitive": {
+                                                    "type": "boolean"
                                                   }
                                                 },
                                                 "required": [
@@ -13710,6 +14420,9 @@
                                             "url": {
                                               "type": "string",
                                               "format": "uri"
+                                            },
+                                            "sensitive": {
+                                              "type": "boolean"
                                             }
                                           },
                                           "required": [
@@ -14348,6 +15061,24 @@
                           "summary": {
                             "type": "string"
                           },
+                          "model": {
+                            "type": "string"
+                          },
+                          "byok": {
+                            "type": "boolean"
+                          },
+                          "costUsdMicros": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "createdAt": {
                             "type": "string"
                           }
@@ -14359,6 +15090,9 @@
                           "baseVersionId",
                           "appliedVersionId",
                           "summary",
+                          "model",
+                          "byok",
+                          "costUsdMicros",
                           "createdAt"
                         ],
                         "additionalProperties": false
@@ -14599,6 +15333,24 @@
                             "additionalProperties": false
                           }
                         },
+                        "model": {
+                          "type": "string"
+                        },
+                        "byok": {
+                          "type": "boolean"
+                        },
+                        "costUsdMicros": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "createdAt": {
                           "type": "string"
                         }
@@ -14611,6 +15363,9 @@
                         "appliedVersionId",
                         "summary",
                         "operations",
+                        "model",
+                        "byok",
+                        "costUsdMicros",
                         "createdAt"
                       ],
                       "additionalProperties": false
@@ -14792,6 +15547,24 @@
                             "additionalProperties": false
                           }
                         },
+                        "model": {
+                          "type": "string"
+                        },
+                        "byok": {
+                          "type": "boolean"
+                        },
+                        "costUsdMicros": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "createdAt": {
                           "type": "string"
                         }
@@ -14804,6 +15577,9 @@
                         "appliedVersionId",
                         "summary",
                         "operations",
+                        "model",
+                        "byok",
+                        "costUsdMicros",
                         "createdAt"
                       ],
                       "additionalProperties": false
@@ -16027,6 +16803,9 @@
                                           "url": {
                                             "type": "string",
                                             "format": "uri"
+                                          },
+                                          "sensitive": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -16034,6 +16813,17 @@
                                           "url"
                                         ],
                                         "additionalProperties": false
+                                      }
+                                    },
+                                    "sensitive": {
+                                      "maxItems": 2,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "name",
+                                          "location"
+                                        ]
                                       }
                                     }
                                   },
@@ -16116,6 +16906,9 @@
                                                 "organization": {
                                                   "type": "string",
                                                   "maxLength": 200
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 },
                                                 "role": {
                                                   "type": "string",
@@ -16370,6 +17163,9 @@
                                                       "url": {
                                                         "type": "string",
                                                         "format": "uri"
+                                                      },
+                                                      "sensitive": {
+                                                        "type": "boolean"
                                                       }
                                                     },
                                                     "required": [
@@ -16624,6 +17420,9 @@
                                                 "url": {
                                                   "type": "string",
                                                   "format": "uri"
+                                                },
+                                                "sensitive": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
