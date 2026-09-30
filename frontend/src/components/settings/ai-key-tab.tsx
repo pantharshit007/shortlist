@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
+import { AiRunsCard } from '@/components/settings/ai-runs-card'
 import { api, errorMessage, expectOk, unwrap } from '@/lib/api/client'
 import { aiKeyQuery, queryKeys } from '@/lib/api/queries'
 import { formatDate } from '@/lib/format'
@@ -266,6 +267,8 @@ export function AiKeyTab() {
         its last four characters, and it's never included in exports or logs.
         Remove it anytime.
       </p>
+
+      <AiRunsCard />
 
       <ConfirmDialog
         open={confirmRemove}
