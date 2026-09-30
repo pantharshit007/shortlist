@@ -36,6 +36,13 @@
       "when": 1790758242134,
       "tag": "0004_webhook_events",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790794824358,
+      "tag": "0005_users_suspended_at",
+      "breakpoints": true
     }
   ]
 }

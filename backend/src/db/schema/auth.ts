@@ -18,6 +18,8 @@ export const users = pgTable(
     plan: userPlan().notNull().default("free"),
     // Guest accounts from the "Continue as guest" button; removed after a few days.
     isAnonymous: boolean().notNull().default(false),
+    // Set by an admin; a suspended user can't sign in and their sessions are revoked.
+    suspendedAt: timestamp({ withTimezone: true }),
     ...timestamps,
   },
   (t) => [check("users_username_format", sql`${t.username} ~ '^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$'`)],

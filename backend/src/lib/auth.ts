@@ -1,4 +1,6 @@
 import { betterAuth } from "better-auth";
+import { APIError } from "better-auth/api";
+import { eq } from "drizzle-orm";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { anonymous, genericOAuth } from "better-auth/plugins";
 import { env } from "../config/env.js";
@@ -60,6 +62,17 @@ export const auth = betterAuth({
         }),
         after: async (user) => {
           track(user.id, "user_signed_up", { guest: "isAnonymous" in user && user.isAnonymous === true });
+        },
+      },
+    },
+    session: {
+      create: {
+        before: async (session) => {
+          const [user] = await db
+            .select({ suspendedAt: schema.users.suspendedAt })
+            .from(schema.users)
+            .where(eq(schema.users.id, session.userId));
+          if (user?.suspendedAt) throw new APIError("FORBIDDEN", { message: "This account is suspended" });
         },
       },
     },
