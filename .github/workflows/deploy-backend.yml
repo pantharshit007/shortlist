@@ -4,8 +4,10 @@ name: Deploy backend
 on:
   push:
     branches: [main]
+    # Frontend changes deploy through Vercel, and documentation changes run nothing on the server.
     paths:
       - "backend/**"
+      - "!backend/**/*.md"
       - ".github/workflows/deploy-backend.yml"
   workflow_dispatch:
 
