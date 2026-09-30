@@ -34,6 +34,36 @@ const commonPackages = String.raw`\documentclass[letterpaper,10pt]{article}
 \end{document}
 `;
 
+// Jake's Resume (sb2nov) preamble, the most pasted document, at every base size with every size command,
+// so each font size's metrics (cm, lasy, marvosym) is cached.
+const sizes = ["tiny", "scriptsize", "footnotesize", "small", "normalsize", "large", "Large", "LARGE", "huge", "Huge"];
+const sampler = sizes
+  .map(
+    (size) =>
+      `{\\${size} ` +
+      String.raw`Aa \textbf{Aa} \textit{Aa} \textbf{\textit{Aa}} \textsc{Aa} \texttt{Aa} $x^2_i \Box \Diamond \mho \lhd \leadsto \Join$ \Letter\Mobilefone\Email}\par`,
+  )
+  .join("\n");
+const jakePreamble = (pt: number) => String.raw`\documentclass[letterpaper,${pt}pt]{article}
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\input{glyphtounicode}
+\pdfgentounicode=1
+\begin{document}
+{\scshape\bfseries Aa}
+${sampler}
+\end{document}
+`;
+
 const compile = createTectonic({
   bin: process.env.TECTONIC_BIN ?? "tectonic",
   onlyCached: false,
@@ -44,6 +74,7 @@ const compile = createTectonic({
 const documents = [
   ...templates.map((t) => ({ name: t.id, tex: t.render(sampleResume) })),
   { name: "common-packages", tex: commonPackages },
+  ...[10, 11, 12].map((pt) => ({ name: `jake-${pt}pt`, tex: jakePreamble(pt) })),
 ];
 
 let failed = false;
