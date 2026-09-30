@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 // Treats empty values like `KEY=` in .env as unset.
-const optionalString = z.preprocess((value) => (value === "" ? undefined : value), z.string().trim().min(1).optional());
+const emptyAsUnset = (value: unknown) => (value === "" ? undefined : value);
+const optionalString = z.preprocess(emptyAsUnset, z.string().trim().min(1).optional());
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -16,7 +17,7 @@ const envSchema = z.object({
   // Set in production (e.g. ".example.com") so app. and api. subdomains share the session cookie.
   COOKIE_DOMAIN: optionalString,
   // One-click guest accounts. Defaults to on in development and off in production.
-  ENABLE_GUEST_LOGIN: z.stringbool().optional(),
+  ENABLE_GUEST_LOGIN: z.preprocess(emptyAsUnset, z.stringbool().optional()),
   GOOGLE_CLIENT_ID: optionalString,
   GOOGLE_CLIENT_SECRET: optionalString,
   GITHUB_CLIENT_ID: optionalString,
@@ -24,7 +25,7 @@ const envSchema = z.object({
   CHATGPT_CLIENT_ID: optionalString,
   CHATGPT_CLIENT_SECRET: optionalString,
   CHATGPT_DISCOVERY_URL: z.preprocess(
-    (value) => (value === "" ? undefined : value),
+    emptyAsUnset,
     z.url().default("https://auth.openai.com/.well-known/openid-configuration"),
   ),
 
@@ -48,7 +49,7 @@ const envSchema = z.object({
   COMPILER_URL: optionalString,
   TECTONIC_BIN: z.string().default("tectonic"),
   // true in production images where the TeX bundle is pre-downloaded; compiles then never touch the network.
-  TECTONIC_ONLY_CACHED: z.stringbool().default(false),
+  TECTONIC_ONLY_CACHED: z.preprocess(emptyAsUnset, z.stringbool().default(false)),
   COMPILE_TIMEOUT_MS: z.coerce.number().int().positive().default(20_000),
   COMPILE_CONCURRENCY: z.coerce.number().int().positive().default(2),
 
@@ -57,10 +58,7 @@ const envSchema = z.object({
 
   // Product analytics and API metrics. Empty: nothing is sent.
   POSTHOG_KEY: optionalString,
-  POSTHOG_HOST: z.preprocess(
-    (value) => (value === "" ? undefined : value),
-    z.url().default("https://us.i.posthog.com"),
-  ),
+  POSTHOG_HOST: z.preprocess(emptyAsUnset, z.url().default("https://us.i.posthog.com")),
 
   RAZORPAY_KEY_ID: optionalString,
   RAZORPAY_KEY_SECRET: optionalString,
