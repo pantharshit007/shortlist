@@ -67,6 +67,11 @@ function EditorRoute() {
   const { tailor } = Route.useSearch()
   // Lives above the editor so the AI panel stays open when applied changes remount it.
   const [aiOpen, setAiOpen] = useState(Boolean(tailor))
+  // Autosaves move the head too, so only a head this editor didn't save (restore, AI changes) remounts it.
+  const [ownHeads] = useState(() => new Set<string>())
+  const [editorKey, setEditorKey] = useState<string | null>(null)
+  const head = resume?.headVersionId ?? null
+  if (head && head !== editorKey && !ownHeads.has(head)) setEditorKey(head)
 
   if (isPending) {
     return (
@@ -86,13 +91,13 @@ function EditorRoute() {
       </div>
     )
   }
-  // Remount when the head version changes from outside (restore, AI changes) so the draft resets.
   return (
     <ResumeEditor
-      key={resume.headVersionId ?? resume.id}
+      key={editorKey ?? resume.id}
       resume={resume}
       aiOpen={aiOpen}
       onAiOpenChange={setAiOpen}
+      onSaved={(versionId) => ownHeads.add(versionId)}
     />
   )
 }
@@ -101,10 +106,12 @@ function ResumeEditor({
   resume,
   aiOpen,
   onAiOpenChange,
+  onSaved,
 }: {
   resume: ResumeDetail
   aiOpen: boolean
   onAiOpenChange: (open: boolean) => void
+  onSaved: (versionId: string) => void
 }) {
   useCollapsedSidebar()
   const docked = useMediaQuery('(min-width: 1280px)')
@@ -163,13 +170,14 @@ function ResumeEditor({
     onSuccess: (version, payload) => {
       lastSaved.current = payload
       if (created) setEditedSinceCreate(true)
+      onSaved(version.id)
       setHeadVersionId(version.id)
       setSaveState((state) => (state === 'saving' ? 'saved' : state))
       // Keep the cached head in sync without remounting the editor.
       queryClient.setQueryData(
         queryKeys.resume(resume.id),
         (old: ResumeDetail | undefined) =>
-          old ? { ...old, head: version } : old,
+          old ? { ...old, headVersionId: version.id, head: version } : old,
       )
       queryClient.invalidateQueries({ queryKey: queryKeys.versions(resume.id) })
     },
