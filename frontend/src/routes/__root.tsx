@@ -21,16 +21,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: `${site.name}: resumes tailored to every job` },
       { name: 'description', content: site.description },
-      {
-        name: 'theme-color',
-        content: '#eef0eb',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        name: 'theme-color',
-        content: '#121816',
-        media: '(prefers-color-scheme: dark)',
-      },
+      // Light by default; ThemeProvider updates it when a visitor switches theme.
+      { name: 'theme-color', content: '#eef0eb' },
       { property: 'og:site_name', content: site.name },
     ],
     links: [

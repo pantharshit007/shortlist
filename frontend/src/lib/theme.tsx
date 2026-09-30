@@ -19,7 +19,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 const STORAGE_KEY = 'theme'
 
 // Runs before first paint (inlined in <head>) so the page never flashes the wrong theme.
-export const themeScript = `(function(){try{var t=localStorage.getItem('${STORAGE_KEY}')||'system';var d=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d)}catch(e){}})()`
+export const themeScript = `(function(){try{var t=localStorage.getItem('${STORAGE_KEY}')||'light';var d=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d)}catch(e){}})()`
 
 function systemPrefersDark() {
   return (
@@ -31,14 +31,15 @@ function systemPrefersDark() {
 function readStoredTheme(): Theme {
   try {
     const value = localStorage.getItem(STORAGE_KEY)
-    return value === 'light' || value === 'dark' ? value : 'system'
+    return value === 'dark' || value === 'system' ? value : 'light'
   } catch {
-    return 'system'
+    return 'light'
   }
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('system')
+  // Light unless the visitor picks otherwise.
+  const [theme, setThemeState] = useState<Theme>('light')
   const [systemDark, setSystemDark] = useState(false)
 
   useEffect(() => {
@@ -66,8 +67,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next)
     try {
-      if (next === 'system') localStorage.removeItem(STORAGE_KEY)
-      else localStorage.setItem(STORAGE_KEY, next)
+      localStorage.setItem(STORAGE_KEY, next)
     } catch {
       // Storage can be unavailable (private mode); the choice then lasts for this visit.
     }
