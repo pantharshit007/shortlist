@@ -20,8 +20,13 @@ function niceMax(value: number) {
 
 export function ViewsChart({
   data,
+  unit = ['view', 'views'],
+  format = (value) => value.toLocaleString('en-IN'),
 }: {
   data: { day: string; views: number }[]
+  // Singular and plural name of what is counted, for the tooltip and screen readers.
+  unit?: [string, string]
+  format?: (value: number) => string
 }) {
   const top = niceMax(Math.max(...data.map((d) => d.views)))
   const ticks = [top, top / 2, 0]
@@ -41,7 +46,7 @@ export function ViewsChart({
         >
           {ticks.map((tick) => (
             <span key={tick} className="-my-2 leading-4">
-              {tick.toLocaleString('en-IN')}
+              {format(tick)}
             </span>
           ))}
         </div>
@@ -56,7 +61,7 @@ export function ViewsChart({
           </div>
           <div
             role="img"
-            aria-label={`Views per day, ${data.length} days, ${data.reduce((sum, d) => sum + d.views, 0)} in total`}
+            aria-label={`${unit[1]} per day, ${data.length} days, ${format(data.reduce((sum, d) => sum + d.views, 0))} in total`}
             className="relative flex h-full items-end gap-[2px]"
           >
             {data.map((point) => (
@@ -73,7 +78,8 @@ export function ViewsChart({
                 <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 hidden -translate-x-1/2 rounded-md border bg-popover px-2 py-1 text-xs whitespace-nowrap text-popover-foreground shadow-md group-hover:block">
                   <span className="font-medium">{formatDay(point.day)}</span>
                   <span className="text-muted-foreground">
-                    , {point.views} {point.views === 1 ? 'view' : 'views'}
+                    , {format(point.views)}{' '}
+                    {point.views === 1 ? unit[0] : unit[1]}
                   </span>
                 </span>
               </div>
@@ -82,9 +88,7 @@ export function ViewsChart({
         </div>
       </div>
       <div aria-hidden className="flex gap-3 text-xs text-muted-foreground">
-        <span className="invisible tabular-nums">
-          {top.toLocaleString('en-IN')}
-        </span>
+        <span className="invisible tabular-nums">{format(top)}</span>
         <div className="relative h-4 flex-1">
           {labelIndexes.map((index) => (
             <span
@@ -109,18 +113,18 @@ export function ViewsChart({
         </div>
       </div>
       <table className="sr-only">
-        <caption>Views per day</caption>
+        <caption>{unit[1]} per day</caption>
         <thead>
           <tr>
             <th scope="col">Day</th>
-            <th scope="col">Views</th>
+            <th scope="col">{unit[1]}</th>
           </tr>
         </thead>
         <tbody>
           {data.map((point) => (
             <tr key={point.day}>
               <td>{formatDay(point.day)}</td>
-              <td>{point.views}</td>
+              <td>{format(point.views)}</td>
             </tr>
           ))}
         </tbody>

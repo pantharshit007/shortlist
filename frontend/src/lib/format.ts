@@ -55,3 +55,47 @@ export function initials(name: string) {
     .map((part) => part[0].toUpperCase())
     .join('')
 }
+
+const inr = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  maximumFractionDigits: 0,
+})
+
+export const formatInr = (paise: number) => inr.format(paise / 100)
+
+const usd = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})
+
+// AI cost is stored in millionths of a dollar.
+export const formatUsd = (micros: number) => usd.format(micros / 1_000_000)
+
+export const formatNumber = (value: number) => value.toLocaleString('en-IN')
+
+export function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`
+  const byteUnits = ['KB', 'MB', 'GB', 'TB']
+  let value = bytes / 1024
+  let unit = 0
+  while (value >= 1024 && unit < byteUnits.length - 1) {
+    value /= 1024
+    unit++
+  }
+  return `${value.toFixed(value < 10 ? 1 : 0)} ${byteUnits[unit]}`
+}
+
+export function formatDuration(seconds: number) {
+  if (seconds < 60) return `${seconds}s`
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ${seconds % 60}s`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ${minutes % 60}m`
+  return `${Math.floor(hours / 24)}d ${hours % 24}h`
+}
+
+export const percent = (part: number, whole: number) =>
+  whole === 0 ? '0%' : `${Math.round((part / whole) * 100)}%`

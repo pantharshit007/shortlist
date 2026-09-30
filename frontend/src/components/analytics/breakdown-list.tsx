@@ -1,11 +1,13 @@
 export function BreakdownList({
   title,
   rows,
-  label,
+  label = (value) => value,
+  empty = 'No views yet',
 }: {
   title: string
   rows: { label: string; views: number }[]
-  label: (value: string) => string
+  label?: (value: string) => string
+  empty?: string
 }) {
   const total = rows.reduce((sum, row) => sum + row.views, 0)
   const max = Math.max(1, ...rows.map((row) => row.views))
@@ -14,7 +16,7 @@ export function BreakdownList({
     <section className="flex flex-col gap-4">
       <h2 className="font-sans text-base font-semibold">{title}</h2>
       {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No views yet</p>
+        <p className="text-sm text-muted-foreground">{empty}</p>
       ) : (
         <ul className="flex flex-col gap-3">
           {rows.map((row) => (

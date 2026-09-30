@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ArrowDownIcon, ArrowUpIcon, Share2Icon } from 'lucide-react'
+import { Share2Icon } from 'lucide-react'
 import { z } from 'zod'
 import { BreakdownList } from '@/components/analytics/breakdown-list'
+import { Change } from '@/components/analytics/change'
 import {
   countryLabel,
   deviceLabel,
@@ -129,25 +130,6 @@ function NoLinks() {
         <Link to="/workspace">Go to your resumes</Link>
       </Button>
     </div>
-  )
-}
-
-function Change({ current, previous }: { current: number; previous: number }) {
-  if (previous === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        {current === 0 ? 'None yet' : 'None in the period before'}
-      </p>
-    )
-  }
-  const change = Math.round(((current - previous) / previous) * 100)
-  const Icon = change >= 0 ? ArrowUpIcon : ArrowDownIcon
-  return (
-    <p className="flex items-center gap-1 text-sm text-muted-foreground">
-      <Icon className="size-3.5" aria-hidden />
-      <span className="sr-only">{change >= 0 ? 'Up' : 'Down'}</span>
-      {Math.abs(change)}% vs the {previous.toLocaleString('en-IN')} before
-    </p>
   )
 }
 
