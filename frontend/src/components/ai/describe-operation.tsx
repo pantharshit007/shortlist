@@ -1,5 +1,6 @@
-import { diffLines } from 'diff'
+import { ItemsDiff, LineDiff, WordDiff } from '@/components/diff'
 import type { ResumeContent, SuggestionOperation } from '@/lib/api/types'
+import { cn } from '@/lib/utils'
 
 type Entry = { id: string; bullets?: { id: string; text: string }[] } & Record<
   string,
@@ -102,6 +103,22 @@ export function OperationTitle({
   }
 }
 
+function childIds(content: ResumeContent, parentId: string) {
+  if (parentId === 'sections') return content.sections.map((s) => s.id)
+  const section = content.sections.find((s) => s.id === parentId)
+  if (section?.type === 'skills') return section.groups.map((g) => g.id)
+  if (section && 'entries' in section)
+    return (section.entries as Entry[]).map((e) => e.id)
+  const entry = allEntries(content).find((e) => e.entry.id === parentId)
+  return entry?.entry.bullets?.map((b) => b.id) ?? []
+}
+
+function findSkillItems(content: ResumeContent, groupId: string) {
+  return content.sections
+    .flatMap((s) => (s.type === 'skills' ? s.groups : []))
+    .find((g) => g.id === groupId)?.items
+}
+
 export function OperationBody({
   op,
   content,
@@ -114,76 +131,51 @@ export function OperationBody({
   if (op.type === 'update_bullet' && op.text) {
     const before =
       content && op.bulletId ? findBulletText(content, op.bulletId) : undefined
-    return (
-      <div className="flex flex-col gap-1.5 text-sm">
-        {before && (
-          <p className="text-muted-foreground line-through decoration-muted-foreground/60">
-            <Rich text={before} />
-          </p>
-        )}
-        <p>
-          <span className="box-decoration-clone rounded-[2px] bg-highlight/45 px-0.5">
-            <Rich text={op.text} />
-          </span>
-        </p>
-      </div>
-    )
+    return <WordDiff before={before ?? ''} after={op.text} />
   }
   if (op.type === 'update_headline' && op.text) {
-    return (
-      <p className="text-sm">
-        {content?.basics.headline && (
-          <span className="mr-2 text-muted-foreground line-through">
-            {content.basics.headline}
-          </span>
-        )}
-        <span className="rounded-[2px] bg-highlight/45 px-0.5">{op.text}</span>
-      </p>
-    )
+    return <WordDiff before={content?.basics.headline ?? ''} after={op.text} />
   }
-  if (op.type === 'reorder' && op.orderedIds && content) {
+  if (op.type === 'set_hidden' && content && op.targetId) {
+    const text = findBulletText(content, op.targetId)
+    return text ? (
+      <p
+        className={cn(
+          'text-sm break-words',
+          op.hidden && 'text-muted-foreground line-through',
+        )}
+      >
+        <Rich text={text} />
+      </p>
+    ) : null
+  }
+  if (op.type === 'reorder' && op.orderedIds && content && op.parentId) {
+    const old = childIds(content, op.parentId)
     return (
-      <ol className="ml-4 list-decimal text-sm text-muted-foreground">
-        {op.orderedIds.map((id) => (
-          <li key={id}>{labelFor(content, id).replace(/^the /, '')}</li>
-        ))}
+      <ol className="ml-5 list-decimal text-sm">
+        {op.orderedIds.map((id, index) => {
+          const was = old.indexOf(id)
+          return (
+            <li key={id}>
+              {labelFor(content, id).replace(/^the /, '')}
+              {was !== -1 && was !== index && (
+                <span className="ml-1.5 text-xs text-muted-foreground">
+                  (was {was + 1})
+                </span>
+              )}
+            </li>
+          )
+        })}
       </ol>
     )
   }
   if (op.type === 'update_skills' && op.items) {
-    return <p className="text-sm">{op.items.join(', ')}</p>
+    const before =
+      content && op.groupId ? findSkillItems(content, op.groupId) : undefined
+    return <ItemsDiff before={before ?? []} after={op.items} />
   }
   if (op.type === 'replace_source' && op.texSource && texSource !== null) {
-    const changes = diffLines(texSource, op.texSource).filter(
-      (part) => part.added || part.removed,
-    )
-    return (
-      <pre className="max-h-72 overflow-auto rounded-md bg-muted p-2 font-mono text-xs leading-5">
-        {changes.slice(0, 40).map((part, index) =>
-          part.value
-            .replace(/\n$/, '')
-            .split('\n')
-            .map((line, lineIndex) => (
-              <div
-                key={`${index}-${lineIndex}`}
-                className={
-                  part.added
-                    ? 'bg-highlight/40'
-                    : 'text-destructive line-through decoration-destructive/50'
-                }
-              >
-                {part.added ? '+ ' : '- '}
-                {line}
-              </div>
-            )),
-        )}
-        {changes.length > 40 && (
-          <div className="pt-1 text-muted-foreground">
-            {changes.length - 40} more changes not shown
-          </div>
-        )}
-      </pre>
-    )
+    return <LineDiff before={texSource} after={op.texSource} />
   }
   return null
 }

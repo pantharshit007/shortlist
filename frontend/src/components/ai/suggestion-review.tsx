@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { api, errorMessage, unwrap } from '@/lib/api/client'
 import { queryKeys, usageQuery } from '@/lib/api/queries'
 import type { ResumeContent, Suggestion } from '@/lib/api/types'
+import { formatUsd } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { OperationBody, OperationTitle } from './describe-operation'
 
@@ -65,6 +66,17 @@ export function SuggestionReview({
     onError: (error) => toast.error(errorMessage(error)),
   })
 
+  const { costUsdMicros, byok } = suggestion
+  const cost = typeof costUsdMicros === 'number' && (
+    <p className="text-xs text-muted-foreground">
+      This run cost{' '}
+      {costUsdMicros > 0 && costUsdMicros < 10_000
+        ? `less than ${formatUsd(10_000)}`
+        : formatUsd(costUsdMicros)}
+      {byok && ' on your own key'}
+    </p>
+  )
+
   // Also what a weak model looks like: the server drops changes that point at items that don't exist.
   if (suggestion.operations.length === 0) {
     return (
@@ -82,6 +94,7 @@ export function SuggestionReview({
             The model said: {suggestion.summary}
           </p>
         )}
+        {cost}
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={onDiscard}>
             Back
@@ -108,12 +121,15 @@ export function SuggestionReview({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {suggestion.summary && (
+      {(suggestion.summary || cost) && (
         <div className="flex flex-col gap-2 pb-4">
-          <p className="flex items-start gap-2 text-sm">
-            <SparklesIcon className="mt-0.5 size-4 shrink-0 text-primary" />
-            {suggestion.summary}
-          </p>
+          {suggestion.summary && (
+            <p className="flex items-start gap-2 text-sm">
+              <SparklesIcon className="mt-0.5 size-4 shrink-0 text-primary" />
+              {suggestion.summary}
+            </p>
+          )}
+          {cost}
         </div>
       )}
 

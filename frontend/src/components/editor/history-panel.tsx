@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { ContentDiff, LineDiff } from '@/components/diff'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -36,8 +37,10 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
 import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { api, errorMessage, unwrap } from '@/lib/api/client'
-import { queryKeys, versionsQuery } from '@/lib/api/queries'
+import { queryKeys, versionQuery, versionsQuery } from '@/lib/api/queries'
 import type { VersionSummary } from '@/lib/api/types'
 import { apiUrl } from '@/lib/env'
 import { formatDateTime } from '@/lib/format'
@@ -95,6 +98,76 @@ function VersionPreview({
     )
   if (!url) return <Skeleton className="aspect-17/22 w-full" />
   return <PdfPages url={url} />
+}
+
+function VersionChanges({
+  resumeId,
+  version,
+  headVersionId,
+}: {
+  resumeId: string
+  version: VersionSummary
+  headVersionId: string | null
+}) {
+  const canCompareCurrent =
+    headVersionId !== null && headVersionId !== version.id
+  const [against, setAgainst] = useState<'previous' | 'current'>(
+    version.parentId ? 'previous' : 'current',
+  )
+  const baseId = against === 'current' ? headVersionId : version.parentId
+  const after = useQuery(versionQuery(resumeId, version.id))
+  const before = useQuery({
+    ...versionQuery(resumeId, baseId ?? ''),
+    enabled: baseId !== null,
+  })
+
+  let body: React.ReactNode = <Skeleton className="h-24 w-full" />
+  if (after.isError || before.isError)
+    body = (
+      <p className="text-sm text-muted-foreground">
+        Couldn't load the changes.
+      </p>
+    )
+  else if (after.data && before.data) {
+    const a = before.data
+    const b = after.data
+    body =
+      a.texSource !== null && b.texSource !== null ? (
+        <LineDiff before={a.texSource} after={b.texSource} />
+      ) : a.content && b.content ? (
+        <ContentDiff before={a.content} after={b.content} />
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          These versions use different editors, so there's no text comparison.
+        </p>
+      )
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {version.parentId && canCompareCurrent && (
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          Compared with
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="sm"
+            value={against}
+            onValueChange={(v) => v && setAgainst(v as typeof against)}
+          >
+            <ToggleGroupItem value="previous">Version before</ToggleGroupItem>
+            <ToggleGroupItem value="current">Current version</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground">
+        {against === 'current'
+          ? 'Struck text is in your current version. Marked text is what restoring brings back.'
+          : 'Struck text was removed in this version. Marked text was added.'}
+      </p>
+      {body}
+    </div>
+  )
 }
 
 function NameVersionDialog({
@@ -320,10 +393,36 @@ export function HistoryPanel({
                             {version.label ? 'Rename' : 'Name it'}
                           </Button>
                         </div>
-                        <VersionPreview
-                          resumeId={resumeId}
-                          versionId={version.id}
-                        />
+                        {version.parentId || !isCurrent ? (
+                          <Tabs
+                            defaultValue={
+                              version.parentId ? 'changes' : 'preview'
+                            }
+                          >
+                            <TabsList>
+                              <TabsTrigger value="preview">Preview</TabsTrigger>
+                              <TabsTrigger value="changes">Changes</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="preview">
+                              <VersionPreview
+                                resumeId={resumeId}
+                                versionId={version.id}
+                              />
+                            </TabsContent>
+                            <TabsContent value="changes">
+                              <VersionChanges
+                                resumeId={resumeId}
+                                version={version}
+                                headVersionId={headVersionId}
+                              />
+                            </TabsContent>
+                          </Tabs>
+                        ) : (
+                          <VersionPreview
+                            resumeId={resumeId}
+                            versionId={version.id}
+                          />
+                        )}
                       </div>
                     )}
                   </li>
