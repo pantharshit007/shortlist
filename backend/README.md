@@ -10,7 +10,7 @@ Requirements: Node 24, pnpm 11, Docker, and [Tectonic](https://tectonic-typesett
 ```sh
 pnpm install
 cp .env.example .env              # then set BETTER_AUTH_SECRET: openssl rand -hex 32
-pnpm services:up                  # Postgres + Redis in Docker
+pnpm services:up                  # Postgres in Docker
 pnpm db:migrate && pnpm db:seed   # tables + templates
 pnpm dev                          # API on http://localhost:4000
 pnpm worker                       # optional: scheduled maintenance jobs
@@ -48,7 +48,7 @@ src/
   schemas/             resume content schema shared by every module
   templates/           LaTeX templates (Developer, Jake's, Compact, Modern)
 drizzle/               SQL migrations
-deploy/                Caddyfile, backup script
+deploy/                Caddy block for the VPS's existing Caddy, backup script
 ```
 
 Services never touch `req`/`res`, so the same logic can be reused by the worker or a future MCP server.
@@ -92,24 +92,28 @@ Every variable is listed in `.env.example`. Where to get them:
 
 ## Deploy to the VPS
 
-The production stack (`docker-compose.prod.yml`) runs Caddy (HTTPS), the API, the worker, the LaTeX compiler,
-Postgres, Redis and nightly encrypted backups.
+The production stack (`docker-compose.prod.yml`) runs the API, the worker, the LaTeX compiler, Postgres and
+nightly encrypted backups. There is no Redis: rate limits count in memory, scheduled jobs use Postgres locks and
+webhook de-duplication is a Postgres table. HTTPS comes from the Caddy that already runs on the VPS.
 
 The compiler runs untrusted LaTeX, so it holds no secrets, has no internet access (the TeX packages are
 downloaded when the image is built), runs as a non-root user on a read-only filesystem, and has CPU, memory and
-process limits. Postgres, Redis and the compiler are on internal networks only.
+process limits. Postgres and the compiler are on internal networks only.
 
 1. Harden the server once: create a sudo user, log in with SSH keys, disable root and password login, allow only
    ports 22, 80 and 443 (`ufw`), install `fail2ban` and `unattended-upgrades`, install Docker.
-2. Point DNS for `api.<domain>` at the server.
+2. Point DNS for `api.shortlist.co.in` at the server (an `A` record to its IP).
 3. On the server:
    ```sh
    git clone <repo> && cd resumebuilder/backend
    cp .env.example .env.production   # fill in production values, NODE_ENV=production, STORAGE_DRIVER=r2
+   docker network ls                 # note the existing Caddy's network, e.g. pragati_default; set PROXY_NETWORK to it
    docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
    ```
    The API container applies migrations and syncs templates on start.
-4. Set `FRONTEND_URL` to the deployed frontend, `BETTER_AUTH_URL` to `https://api.<domain>` and `COOKIE_DOMAIN`
+4. Add the block from `deploy/Caddyfile` to the existing Caddy's Caddyfile and reload that Caddy. It reaches the API
+   as `shortlist-api:4000` over the shared network and issues the HTTPS certificate.
+5. Set `FRONTEND_URL` to the deployed frontend, `BETTER_AUTH_URL` to `https://api.<domain>` and `COOKIE_DOMAIN`
    to `.<domain>` so the frontend and API share the session cookie.
 
 Update: `git pull && docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build`.

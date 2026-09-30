@@ -1,6 +1,7 @@
-# The API's domain, set by API_DOMAIN. Caddy obtains and renews HTTPS certificates automatically.
-{$API_DOMAIN:api.shortlist.co.in} {
+# Add this block to the Caddyfile of the Caddy already serving ports 80/443 on the VPS,
+# then reload it. Caddy issues and renews the HTTPS certificate automatically.
+api.shortlist.co.in {
 	encode zstd gzip
-	reverse_proxy api:4000
+	reverse_proxy shortlist-api:4000
 	header -Server
 }

@@ -1,23 +1,8 @@
 # Production stack for the VPS: docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+# HTTPS comes from the Caddy already running on the VPS; add deploy/Caddyfile's block to its Caddyfile.
 name: resumebuilder
 
 services:
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    environment:
-      API_DOMAIN: ${API_DOMAIN}
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data
-      - caddy-config:/config
-    networks: [edge]
-    depends_on: [api]
-
   api:
     build: { context: ., target: api }
     restart: unless-stopped
@@ -25,12 +10,17 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/resumebuilder
-      REDIS_URL: redis://redis:6379
       COMPILER_URL: http://compiler:4100
-    networks: [edge, backend, compile]
+    networks:
+      edge: {}
+      backend: {}
+      compile: {}
+      # Shared with the Caddy that already serves ports 80/443 on the VPS; the alias avoids
+      # clashing with other apps' services on that network.
+      proxy:
+        aliases: [shortlist-api]
     depends_on:
       postgres: { condition: service_healthy }
-      redis: { condition: service_healthy }
       compiler: { condition: service_started }
 
   worker:
@@ -41,9 +31,8 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/resumebuilder
-      REDIS_URL: redis://redis:6379
       COMPILER_URL: http://compiler:4100
-    # edge gives outbound internet access (R2); backend reaches Postgres and Redis.
+    # edge gives outbound internet access (R2, AI providers); backend reaches Postgres.
     networks: [edge, backend]
     depends_on: [api]
 
@@ -80,19 +69,6 @@ services:
       retries: 10
     networks: [backend]
 
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    networks: [backend]
-
   backup:
     image: postgres:17-alpine
     restart: unless-stopped
@@ -111,12 +87,13 @@ services:
       postgres: { condition: service_healthy }
 
 networks:
+  # The existing reverse proxy's network, e.g. pragati_default. Find it with: docker network ls
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK}
   edge: {}
   backend: { internal: true }
   compile: { internal: true }
 
 volumes:
-  caddy-data:
-  caddy-config:
   postgres-data:
-  redis-data:
