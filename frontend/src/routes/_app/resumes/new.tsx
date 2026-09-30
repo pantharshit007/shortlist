@@ -130,7 +130,7 @@ function TemplatePicker({
         value={value}
         onValueChange={(next) => next && onChange(next)}
         aria-label="Template"
-        className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4"
+        className="grid w-full grid-cols-2 gap-4 @xl:grid-cols-4"
       >
         {options.map((option) => {
           const selected = option.value === value
@@ -392,11 +392,14 @@ function NewResumePage() {
       <div
         className={cn(
           previewInput &&
-            'grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)]',
+            'grid items-start gap-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]',
         )}
       >
         {source === 'upload' && imported ? (
-          <section aria-labelledby="review" className="flex flex-col gap-6">
+          <section
+            aria-labelledby="review"
+            className="@container flex flex-col gap-6"
+          >
             <div className="flex flex-col gap-2">
               <h2 id="review" className="text-2xl font-semibold tracking-tight">
                 We read your resume
@@ -485,6 +488,7 @@ function NewResumePage() {
           </section>
         ) : (
           <form
+            className="@container"
             onSubmit={(event) => {
               event.preventDefault()
               if (!canSubmit) return
@@ -515,7 +519,7 @@ function NewResumePage() {
                   type="single"
                   value={source}
                   onValueChange={(value) => value && setSource(value as Source)}
-                  className="grid w-full auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-4"
+                  className="grid w-full auto-rows-fr grid-cols-2 gap-3 @xl:grid-cols-4"
                   aria-label="Start from"
                 >
                   {sources.map((option) => (
