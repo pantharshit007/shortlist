@@ -23,20 +23,39 @@ export class ApiError extends Error {
   }
 }
 
+const UNREACHABLE =
+  "Couldn't reach Shortlist. Check your connection and try again."
+
+// fetch rejects with a TypeError when no response arrives at all (offline, CORS, server restarting).
+async function send<T>(request: Promise<T>) {
+  try {
+    return await request
+  } catch (error) {
+    if (error instanceof TypeError)
+      throw new ApiError(0, 'UNREACHABLE', UNREACHABLE)
+    throw error
+  }
+}
+
+function toApiError(response: Response, error: unknown, fallback: string) {
+  const body = (error ?? {}) as ErrorBody
+  // A gateway answers for the API while it's down, without our error body.
+  const gateway = [502, 503, 504].includes(response.status)
+  return new ApiError(
+    response.status,
+    body.error?.code ?? (gateway ? 'UNREACHABLE' : 'UNKNOWN'),
+    body.error?.message ?? (gateway ? UNREACHABLE : fallback),
+    body.error?.details,
+  )
+}
+
 // Turns openapi-fetch's { data, error } into the payload or a thrown ApiError.
 export async function unwrap<T>(
   request: Promise<{ data?: { data: T }; error?: unknown; response: Response }>,
 ): Promise<T> {
-  const { data, error, response } = await request
-  if (error !== undefined || !data) {
-    const body = (error ?? {}) as ErrorBody
-    throw new ApiError(
-      response.status,
-      body.error?.code ?? 'UNKNOWN',
-      body.error?.message ?? 'Something went wrong. Try again.',
-      body.error?.details,
-    )
-  }
+  const { data, error, response } = await send(request)
+  if (error !== undefined || !data)
+    throw toApiError(response, error, 'Something went wrong. Try again.')
   return data.data
 }
 
@@ -44,15 +63,8 @@ export async function unwrap<T>(
 export async function expectOk(
   request: Promise<{ error?: unknown; response: Response }>,
 ) {
-  const { error, response } = await request
-  if (!response.ok) {
-    const body = (error ?? {}) as ErrorBody
-    throw new ApiError(
-      response.status,
-      body.error?.code ?? 'UNKNOWN',
-      body.error?.message ?? 'Something went wrong.',
-    )
-  }
+  const { error, response } = await send(request)
+  if (!response.ok) throw toApiError(response, error, 'Something went wrong.')
 }
 
 export function errorMessage(error: unknown) {
