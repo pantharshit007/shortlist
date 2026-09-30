@@ -1,4 +1,5 @@
 import { env } from "../../config/env.js";
+import { dayKeys } from "../analytics/analytics.service.js";
 
 const configured = () => Boolean(env.POSTHOG_PERSONAL_API_KEY && env.POSTHOG_PROJECT_ID);
 
@@ -102,7 +103,16 @@ async function traffic(days: number, timeZone: string) {
       previousPageviews: num(current[3]),
       previousVisitors: num(current[4]),
     },
-    byDay: byDay.map(([day, views, visitors]) => ({ day: String(day), views: num(views), visitors: num(visitors) })),
+    byDay: (() => {
+      // PostHog returns only days with page views; the chart needs every day in the range.
+      const found = new Map(
+        byDay.map(([day, views, visitors]) => [String(day), { views: num(views), visitors: num(visitors) }]),
+      );
+      return dayKeys(days, timeZone, new Date()).map((day) => ({
+        day,
+        ...(found.get(day) ?? { views: 0, visitors: 0 }),
+      }));
+    })(),
     pages,
     referrers,
     countries,
