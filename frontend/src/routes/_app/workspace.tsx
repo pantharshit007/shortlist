@@ -26,6 +26,12 @@ import { templateCatalog } from '@/lib/templates'
 
 export const Route = createFileRoute('/_app/workspace')({
   head: () => ({ meta: [{ title: `Workspace | ${site.name}` }] }),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.prefetchQuery(resumesQuery(false)),
+      context.queryClient.prefetchQuery(usageQuery),
+      context.queryClient.prefetchQuery(profileQuery),
+    ]),
   component: WorkspacePage,
 })
 

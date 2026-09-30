@@ -29,6 +29,7 @@ import { site } from '@/lib/site'
 
 export const Route = createFileRoute('/_app/profile')({
   head: () => ({ meta: [{ title: `Profile | ${site.name}` }] }),
+  loader: ({ context }) => context.queryClient.prefetchQuery(profileQuery),
   component: ProfilePage,
 })
 

@@ -53,6 +53,7 @@ import { site } from '@/lib/site'
 
 export const Route = createFileRoute('/_app/jobs')({
   head: () => ({ meta: [{ title: `Jobs | ${site.name}` }] }),
+  loader: ({ context }) => context.queryClient.prefetchQuery(jobsQuery),
   component: JobsPage,
 })
 

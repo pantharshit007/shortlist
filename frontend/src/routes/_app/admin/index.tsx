@@ -29,6 +29,12 @@ import {
 } from '@/lib/format'
 
 export const Route = createFileRoute('/_app/admin/')({
+  loaderDeps: ({ search }) => ({ days: search.days ?? 30 }),
+  // Changing the search in place shows the page's loading state instead of holding the old page.
+  loader: ({ context, deps, cause }) =>
+    cause === 'stay'
+      ? undefined
+      : context.queryClient.prefetchQuery(adminOverviewQuery(deps.days)),
   component: OverviewPage,
 })
 

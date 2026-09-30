@@ -62,6 +62,8 @@ import { site } from '@/lib/site'
 
 export const Route = createFileRoute('/_app/admin/users/$userId')({
   head: () => ({ meta: [{ title: `User · Admin | ${site.name}` }] }),
+  loader: ({ context, params }) =>
+    context.queryClient.prefetchQuery(adminUserQuery(params.userId)),
   component: UserPage,
 })
 

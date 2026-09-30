@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/admin/system')({
   head: () => ({ meta: [{ title: `System · Admin | ${site.name}` }] }),
+  loader: ({ context }) => context.queryClient.prefetchQuery(adminSystemQuery),
   component: SystemPage,
 })
 

@@ -49,6 +49,17 @@ const search = z.object({
 export const Route = createFileRoute('/_app/admin/users/')({
   validateSearch: search,
   head: () => ({ meta: [{ title: `Users · Admin | ${site.name}` }] }),
+  loaderDeps: ({ search: { q, plan, status, page } }) => ({
+    q,
+    plan,
+    status,
+    page,
+  }),
+  // Changing the search in place shows the page's loading state instead of holding the old page.
+  loader: ({ context, deps, cause }) =>
+    cause === 'stay'
+      ? undefined
+      : context.queryClient.prefetchQuery(adminUsersQuery(deps)),
   component: UsersPage,
 })
 

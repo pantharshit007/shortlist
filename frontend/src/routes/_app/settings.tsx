@@ -69,6 +69,12 @@ const searchSchema = z.object({
 export const Route = createFileRoute('/_app/settings')({
   validateSearch: searchSchema,
   head: () => ({ meta: [{ title: `Settings | ${site.name}` }] }),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.prefetchQuery(meQuery),
+      context.queryClient.prefetchQuery(usageQuery),
+      context.queryClient.prefetchQuery(subscriptionQuery),
+    ]),
   component: SettingsPage,
 })
 

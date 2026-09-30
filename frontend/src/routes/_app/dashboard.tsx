@@ -28,6 +28,14 @@ import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/dashboard')({
   head: () => ({ meta: [{ title: `Dashboard | ${site.name}` }] }),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.prefetchQuery(meQuery),
+      context.queryClient.prefetchQuery(usageQuery),
+      context.queryClient.prefetchQuery(profileQuery),
+      context.queryClient.prefetchQuery(resumesQuery(false)),
+      context.queryClient.prefetchQuery(analyticsQuery(30)),
+    ]),
   component: DashboardPage,
 })
 

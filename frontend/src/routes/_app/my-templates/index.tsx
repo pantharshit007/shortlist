@@ -45,6 +45,8 @@ import { templateCatalog } from '@/lib/templates'
 
 export const Route = createFileRoute('/_app/my-templates/')({
   head: () => ({ meta: [{ title: `Templates | ${site.name}` }] }),
+  loader: ({ context }) =>
+    context.queryClient.prefetchQuery(customTemplatesQuery),
   component: TemplatesPage,
 })
 

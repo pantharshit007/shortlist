@@ -42,6 +42,12 @@ export const Route = createFileRoute('/_app/analytics')({
     days: z.union([z.literal(7), z.literal(30), z.literal(90)]).optional(),
   }),
   head: () => ({ meta: [{ title: `Analytics | ${site.name}` }] }),
+  loaderDeps: ({ search }) => ({ days: search.days ?? 30 }),
+  // Changing the search in place shows the page's loading state instead of holding the old page.
+  loader: ({ context, deps, cause }) =>
+    cause === 'stay'
+      ? undefined
+      : context.queryClient.prefetchQuery(analyticsQuery(deps.days)),
   component: AnalyticsPage,
 })
 
