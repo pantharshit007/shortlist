@@ -11,6 +11,8 @@ import { site } from '@/lib/site'
 import { ThemeProvider, themeScript } from '@/lib/theme'
 import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
+import { initAnalytics } from '@/lib/analytics'
+import { useEffect } from 'react'
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
@@ -42,6 +44,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  useEffect(initAnalytics, [])
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
