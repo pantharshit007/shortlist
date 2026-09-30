@@ -4,6 +4,7 @@ import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import type { Link } from './content-helpers'
+import { SensitiveToggle } from './fields'
 
 export function LinksEditor({
   links,
@@ -28,7 +29,7 @@ export function LinksEditor({
       {links.map((link, index) => (
         <div
           key={index}
-          className="grid grid-cols-[1fr_2fr_auto] items-end gap-2"
+          className="grid grid-cols-[1fr_2fr_auto_auto] items-end gap-2"
         >
           <Field>
             <FieldLabel
@@ -59,6 +60,12 @@ export function LinksEditor({
               onChange={(event) => update(index, { url: event.target.value })}
             />
           </Field>
+          <SensitiveToggle
+            label={`${link.label || 'link'} URL`}
+            pressed={link.sensitive ?? false}
+            onPressedChange={(sensitive) => update(index, { sensitive })}
+            className="h-8 min-w-8"
+          />
           <Button
             type="button"
             variant="ghost"

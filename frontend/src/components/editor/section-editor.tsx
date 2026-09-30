@@ -58,6 +58,8 @@ function EntryFields({
             label="Company"
             value={e.organization}
             onChange={(v) => set({ ...e, organization: v ?? '' })}
+            sensitive={e.sensitive}
+            onSensitiveChange={(sensitive) => set({ ...e, sensitive })}
           />
           <TextField
             id={id('role')}

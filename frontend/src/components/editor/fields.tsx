@@ -1,6 +1,49 @@
+import { LockIcon, LockOpenIcon } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Toggle } from '@/components/ui/toggle'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
+
+// Sensitive values are replaced with placeholders before anything is sent to an AI model.
+export function SensitiveToggle({
+  label,
+  pressed,
+  onPressedChange,
+  className,
+}: {
+  label: string
+  pressed: boolean
+  onPressedChange: (pressed: boolean) => void
+  className?: string
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Toggle
+          size="sm"
+          aria-label={`Hide ${label} from AI`}
+          pressed={pressed}
+          onPressedChange={onPressedChange}
+          className={cn(
+            'text-muted-foreground aria-pressed:text-foreground',
+            className,
+          )}
+        >
+          {pressed ? <LockIcon /> : <LockOpenIcon />}
+        </Toggle>
+      </TooltipTrigger>
+      <TooltipContent>
+        {pressed ? 'Hidden from AI' : 'Hide from AI'}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
 
 type InputPassthrough = Pick<
   React.ComponentProps<typeof Input>,
@@ -15,6 +58,8 @@ export function TextField({
   placeholder,
   type = 'text',
   className,
+  sensitive,
+  onSensitiveChange,
   ...inputProps
 }: {
   id: string
@@ -24,10 +69,24 @@ export function TextField({
   placeholder?: string
   type?: string
   className?: string
+  sensitive?: boolean
+  onSensitiveChange?: (sensitive: boolean) => void
 } & InputPassthrough) {
   return (
     <Field className={className}>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      {onSensitiveChange ? (
+        <div className="flex items-center justify-between gap-2">
+          <FieldLabel htmlFor={id}>{label}</FieldLabel>
+          <SensitiveToggle
+            label={label.toLowerCase()}
+            pressed={sensitive ?? false}
+            onPressedChange={onSensitiveChange}
+            className="-my-1"
+          />
+        </div>
+      ) : (
+        <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      )}
       <Input
         id={id}
         type={type}

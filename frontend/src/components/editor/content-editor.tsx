@@ -26,6 +26,17 @@ export function ContentEditor({
     onChange({ ...value, basics: { ...basics, ...patch } })
   const setSections = (sections: ResumeContent['sections']) =>
     onChange({ ...value, sections })
+  type SensitiveField = NonNullable<typeof basics.sensitive>[number]
+  const sensitiveProps = (field: SensitiveField) => ({
+    sensitive: basics.sensitive?.includes(field),
+    onSensitiveChange: (on: boolean) =>
+      setBasics({
+        sensitive: [
+          ...(basics.sensitive ?? []).filter((f) => f !== field),
+          ...(on ? [field] : []),
+        ],
+      }),
+  })
 
   return (
     <div className="flex flex-col gap-5">
@@ -33,13 +44,20 @@ export function ContentEditor({
         aria-label="Your details"
         className="flex flex-col gap-4 rounded-xl border bg-card p-4 sm:p-5"
       >
-        <h2 className="text-lg font-semibold">Your details</h2>
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg font-semibold">Your details</h2>
+          <p className="text-sm text-muted-foreground">
+            Your email and phone are never sent to AI. Use the lock to hide
+            other details too.
+          </p>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             id="basics-name"
             autoComplete="name"
             label="Full name"
             value={basics.name}
+            {...sensitiveProps('name')}
             onChange={(v) => setBasics({ name: v ?? '' })}
           />
           <TextField
@@ -74,6 +92,7 @@ export function ContentEditor({
             value={basics.location}
             placeholder="Bengaluru"
             onChange={(v) => setBasics({ location: v })}
+            {...sensitiveProps('location')}
           />
         </div>
         <div className="flex flex-col gap-2">
