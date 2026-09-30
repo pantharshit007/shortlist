@@ -33,7 +33,9 @@ const rules = `Rules you must follow:
 - Never invent facts. Don't add employers, titles, dates, numbers, metrics, tools or skills that don't appear in
   the resume or the master profile. You may rephrase, reorder, emphasise with **bold**, or hide content.
 - Keep bullets to one or two lines, starting with a strong action verb, no first person.
-- Refer to items only by the ids given in the JSON. Propose only changes that clearly help.`;
+- Refer to items only by the ids given in the JSON. Propose only changes that clearly help.
+- Follow the conventions (spelling, date format, terminology) of the job's location when a job is given,
+  otherwise keep the resume's own.`;
 
 function toOperation(raw: z.infer<typeof aiStructuredOutput>["operations"][number]) {
   const candidate =
@@ -107,7 +109,7 @@ ${input.instructions ? `\nThe user adds: ${input.instructions}\n` : ""}
     step: input.type === "tailor" ? "rewrite" : isInline ? "inline_edit" : "chat_edit",
     tier: isInline ? "fast" : "smart",
     schema: aiStructuredOutput,
-    system: `You are an expert resume editor for software engineers in India.\n${rules}`,
+    system: `You are an expert resume editor for software engineers.\n${rules}`,
     prompt,
     resumeId,
     ...(jobId && { jobId }),
