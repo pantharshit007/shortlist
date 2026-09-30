@@ -1,0 +1,61 @@
+name: Deploy backend
+
+# The frontend deploys itself through Vercel's GitHub integration; this ships the backend to the VPS.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+
+# One deploy at a time; a newer push waits instead of racing the current one.
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: backend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+  deploy:
+    needs: check
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Pull and restart on the VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          fingerprint: ${{ secrets.VPS_FINGERPRINT }}
+          command_timeout: 30m
+          script: |
+            set -e
+            cd ~/shortlist
+            git fetch --quiet origin main
+            git reset --hard origin/main
+            cd backend
+            docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build --remove-orphans
+            docker image prune -f
+      - name: Check the API answers
+        run: curl -fsS --retry 20 --retry-delay 6 --retry-all-errors https://api.shortlist.co.in/health
