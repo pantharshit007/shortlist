@@ -57,3 +57,9 @@ export const payments = pgTable(
   },
   (t) => [index().on(t.userId), index().on(t.razorpayOrderId)],
 );
+
+// Webhook deliveries already handled; providers retry, so each event id is processed once.
+export const webhookEvents = pgTable("webhook_events", {
+  id: text().primaryKey(), // "razorpay:<event id>"
+  receivedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+});

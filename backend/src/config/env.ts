@@ -9,7 +9,6 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
   DATABASE_URL: z.url(),
   // Rate limit counters. Required in production; development falls back to in-memory counters.
-  REDIS_URL: optionalString,
   FRONTEND_URL: z.url().default("http://localhost:3000"),
 
   BETTER_AUTH_SECRET: z.string().min(32),
@@ -69,7 +68,6 @@ const parsed = envSchema
       e.STORAGE_DRIVER !== "r2" || (e.R2_ACCOUNT_ID && e.R2_ACCESS_KEY_ID && e.R2_SECRET_ACCESS_KEY && e.R2_BUCKET),
     { message: "STORAGE_DRIVER=r2 needs R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and R2_BUCKET" },
   )
-  .refine((e) => e.NODE_ENV !== "production" || e.REDIS_URL, { message: "REDIS_URL is required in production" })
   .refine((e) => e.NODE_ENV !== "production" || e.COMPILER_URL, {
     message: "COMPILER_URL is required in production so untrusted LaTeX never runs next to app secrets",
   })

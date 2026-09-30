@@ -1,8 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { payments, subscriptions } from "../../db/schema/index.js";
+import { payments, subscriptions, webhookEvents } from "../../db/schema/index.js";
 import { logger } from "../../lib/logger.js";
-import { redis } from "../../lib/redis.js";
 import { recomputePlan } from "./billing.service.js";
 
 type Entity = Record<string, unknown> & { id: string };
@@ -24,8 +23,13 @@ const fromUnix = (seconds?: number) => (seconds ? new Date(seconds * 1000) : nul
 
 // Razorpay retries deliveries; each event id is processed once.
 async function firstDelivery(eventId: string | undefined) {
-  if (!eventId || !redis) return true;
-  return (await redis.set(`webhook:razorpay:${eventId}`, "1", "EX", 7 * 24 * 3600, "NX")) === "OK";
+  if (!eventId) return true;
+  const inserted = await db
+    .insert(webhookEvents)
+    .values({ id: `razorpay:${eventId}` })
+    .onConflictDoNothing()
+    .returning({ id: webhookEvents.id });
+  return inserted.length > 0;
 }
 
 async function onPaymentCaptured(payment: NonNullable<RazorpayEvent["payload"]["payment"]>["entity"], raw: unknown) {

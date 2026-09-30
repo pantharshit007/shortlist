@@ -1,49 +1,75 @@
-import { Queue, Worker } from "bullmq";
-import { Redis } from "ioredis";
-import { env } from "./config/env.js";
 import { pool } from "./db/index.js";
 import { type MaintenanceTask, maintenanceTasks } from "./jobs/maintenance.js";
 import { logger } from "./lib/logger.js";
 
 // Runs scheduled maintenance. Start one instance alongside the API: `pnpm worker`.
+// Every task is an idempotent sweep, so each also runs once at startup to catch up on missed runs.
 
-if (!env.REDIS_URL) {
-  logger.fatal("REDIS_URL is required to run the worker");
-  process.exit(1);
-}
+type Schedule = { minute: number; hour?: number }; // No hour = every hour.
 
-// BullMQ requires maxRetriesPerRequest: null on its connections.
-const connection = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null });
-const queue = new Queue("maintenance", { connection });
-
-const schedules: Record<MaintenanceTask, string> = {
-  "expire-subscriptions": "0 * * * *",
-  "purge-deleted-resumes": "30 2 * * *",
-  "purge-old-uploads": "45 2 * * *",
-  "purge-guest-users": "0 3 * * *",
+const schedules: Record<MaintenanceTask, Schedule> = {
+  "expire-subscriptions": { minute: 0 },
+  "purge-deleted-resumes": { hour: 2, minute: 30 },
+  "purge-old-uploads": { hour: 2, minute: 45 },
+  "purge-guest-users": { hour: 3, minute: 0 },
 };
 
-for (const [task, pattern] of Object.entries(schedules)) {
-  await queue.upsertJobScheduler(task, { pattern, tz: "Asia/Kolkata" }, { name: task });
+const clock = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Kolkata",
+  hour: "numeric",
+  minute: "numeric",
+  hourCycle: "h23",
+});
+
+function isDue(schedule: Schedule, now: Date) {
+  const parts = Object.fromEntries(clock.formatToParts(now).map((part) => [part.type, Number(part.value)]));
+  return parts.minute === schedule.minute && (schedule.hour === undefined || parts.hour === schedule.hour);
 }
 
-const worker = new Worker(
-  "maintenance",
-  async (job) => {
-    const task = maintenanceTasks[job.name as MaintenanceTask];
-    if (!task) throw new Error(`Unknown maintenance task: ${job.name}`);
-    await task();
-  },
-  { connection, concurrency: 1 },
-);
+// A Postgres advisory lock per task, so two workers never run the same task at once.
+async function run(task: MaintenanceTask) {
+  const client = await pool.connect();
+  try {
+    const { rows } = await client.query<{ locked: boolean }>("select pg_try_advisory_lock(hashtext($1)) as locked", [
+      `maintenance:${task}`,
+    ]);
+    if (!rows[0]?.locked) return;
+    try {
+      await maintenanceTasks[task]();
+    } finally {
+      await client.query("select pg_advisory_unlock(hashtext($1))", [`maintenance:${task}`]);
+    }
+  } catch (err) {
+    logger.error({ err, task }, "Maintenance task failed");
+  } finally {
+    client.release();
+  }
+}
 
-worker.on("failed", (job, err) => logger.error({ err, task: job?.name }, "Maintenance task failed"));
+const tasks = Object.keys(schedules) as MaintenanceTask[];
+for (const task of tasks) await run(task);
+
+// Checked twice a minute so timer drift can't skip a due minute; lastRun stops a second run in the same minute.
+const lastRun = new Map<MaintenanceTask, number>();
+let running = false;
+const timer = setInterval(async () => {
+  if (running) return;
+  running = true;
+  const now = new Date();
+  const minute = Math.floor(now.getTime() / 60_000);
+  for (const task of tasks) {
+    if (isDue(schedules[task], now) && lastRun.get(task) !== minute) {
+      lastRun.set(task, minute);
+      await run(task);
+    }
+  }
+  running = false;
+}, 30_000);
+
 logger.info("Worker started");
 
 async function shutdown() {
-  await worker.close();
-  await queue.close();
-  await connection.quit();
+  clearInterval(timer);
   await pool.end();
   process.exit(0);
 }
