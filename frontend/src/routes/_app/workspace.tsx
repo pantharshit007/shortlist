@@ -118,7 +118,7 @@ function WorkspacePage() {
         <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
           {[0, 1, 2].map((i) => (
             <div key={i} className="flex flex-col gap-3">
-              <Skeleton className="aspect-[17/13] w-full" />
+              <Skeleton className="aspect-17/13 w-full" />
               <Skeleton className="h-4 w-2/3" />
             </div>
           ))}
@@ -168,7 +168,7 @@ function WorkspacePage() {
           ))}
           {view === 'active' && (
             <li className="group relative flex flex-col gap-3">
-              <div className="flex aspect-[17/13] w-full items-center justify-center rounded-[3px] border border-dashed border-foreground/20 text-muted-foreground transition-colors group-hover:border-primary/60 group-hover:text-primary">
+              <div className="flex aspect-17/13 w-full items-center justify-center rounded-[3px] border border-dashed border-foreground/20 text-muted-foreground transition-colors group-hover:border-primary/60 group-hover:text-primary">
                 <PlusIcon className="size-6" />
               </div>
               <Link

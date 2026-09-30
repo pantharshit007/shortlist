@@ -84,7 +84,7 @@ function TemplatesPage() {
           <div className={grid}>
             {[0, 1].map((i) => (
               <div key={i} className="flex flex-col gap-3">
-                <Skeleton className="aspect-[17/13] w-full" />
+                <Skeleton className="aspect-17/13 w-full" />
                 <Skeleton className="h-4 w-2/3" />
               </div>
             ))}
@@ -106,7 +106,7 @@ function TemplatesPage() {
               <CustomTemplateCard key={template.id} template={template} />
             ))}
             <li className="group relative flex flex-col gap-3">
-              <div className="flex aspect-[17/13] w-full items-center justify-center rounded-[3px] border border-dashed border-foreground/20 text-muted-foreground transition-colors group-hover:border-primary/60 group-hover:text-primary">
+              <div className="flex aspect-17/13 w-full items-center justify-center rounded-[3px] border border-dashed border-foreground/20 text-muted-foreground transition-colors group-hover:border-primary/60 group-hover:text-primary">
                 <CodeIcon className="size-6" />
               </div>
               <div className="flex flex-col gap-0.5">

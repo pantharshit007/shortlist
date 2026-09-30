@@ -93,7 +93,7 @@ function VersionPreview({
         This version doesn't compile, so there's no preview.
       </p>
     )
-  if (!url) return <Skeleton className="aspect-[17/22] w-full" />
+  if (!url) return <Skeleton className="aspect-17/22 w-full" />
   return <PdfPages url={url} />
 }
 

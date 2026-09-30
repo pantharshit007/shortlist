@@ -119,7 +119,7 @@ function PdfView({
   return url ? (
     <PdfPages url={url} />
   ) : (
-    <Skeleton className="aspect-[17/22] w-full" />
+    <Skeleton className="aspect-17/22 w-full" />
   )
 }
 

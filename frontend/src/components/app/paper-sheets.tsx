@@ -12,7 +12,7 @@ export function Sheet({
   return (
     <div
       className={cn(
-        'relative aspect-[17/13] w-full overflow-hidden rounded-[3px] bg-sheet px-[9%] pt-[8%] text-sheet-foreground shadow-[0_1px_2px_rgb(0_0_0/0.06),0_6px_16px_-8px_rgb(0_0_0/0.18)] ring-1 ring-black/5 transition-[translate,box-shadow] duration-200 motion-safe:group-hover:-translate-y-1 group-hover:shadow-[0_2px_4px_rgb(0_0_0/0.06),0_14px_28px_-12px_rgb(0_0_0/0.28)]',
+        'relative aspect-17/13 w-full overflow-hidden rounded-[3px] bg-sheet px-[9%] pt-[8%] text-sheet-foreground shadow-[0_1px_2px_rgb(0_0_0/0.06),0_6px_16px_-8px_rgb(0_0_0/0.18)] ring-1 ring-black/5 transition-[translate,box-shadow] duration-200 motion-safe:group-hover:-translate-y-1 group-hover:shadow-[0_2px_4px_rgb(0_0_0/0.06),0_14px_28px_-12px_rgb(0_0_0/0.28)]',
         className,
       )}
     >

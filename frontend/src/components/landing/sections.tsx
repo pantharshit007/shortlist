@@ -239,7 +239,7 @@ export function TemplatesShowcase() {
                   width={1020}
                   height={1320}
                   loading="lazy"
-                  className="aspect-[17/22] w-full rounded-sm bg-sheet object-cover object-top shadow-sm ring-1 ring-black/5 transition-transform duration-300 group-hover:-translate-y-1"
+                  className="aspect-17/22 w-full rounded-sm bg-sheet object-cover object-top shadow-sm ring-1 ring-black/5 transition-transform duration-300 group-hover:-translate-y-1"
                 />
                 <span className="font-medium">{template.name}</span>
               </Link>

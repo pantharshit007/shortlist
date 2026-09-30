@@ -102,7 +102,7 @@ function layoutOptions(): PickerOption[] {
         width={1020}
         height={1320}
         loading="lazy"
-        className="aspect-[17/22] w-full rounded-sm bg-sheet object-cover object-top"
+        className="aspect-17/22 w-full rounded-sm bg-sheet object-cover object-top"
       />
     ),
   }))
@@ -698,7 +698,7 @@ function NewResumePage() {
                       value: 'blank-page',
                       name: 'Blank page',
                       note: 'LaTeX from scratch',
-                      preview: <BlankPageSheet className="aspect-[17/22]" />,
+                      preview: <BlankPageSheet className="aspect-17/22" />,
                     },
                     ...layoutOptions(),
                     ...(customTemplates ?? []).map((template) => ({
@@ -707,12 +707,12 @@ function NewResumePage() {
                       note: 'Your template',
                       preview:
                         template.mode === 'code' ? (
-                          <LatexSheet className="aspect-[17/22]" />
+                          <LatexSheet className="aspect-17/22" />
                         ) : (
                           <ResumeSheet
                             title={template.name}
                             tailored={false}
-                            className="aspect-[17/22]"
+                            className="aspect-17/22"
                           />
                         ),
                     })),
