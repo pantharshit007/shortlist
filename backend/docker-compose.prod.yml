@@ -9,7 +9,7 @@ services:
     env_file: .env.production
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/resumebuilder
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@shortlist-postgres:5432/resumebuilder
       COMPILER_URL: http://compiler:4100
     networks:
       edge: {}
@@ -30,7 +30,7 @@ services:
     env_file: .env.production
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/resumebuilder
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@shortlist-postgres:5432/resumebuilder
       COMPILER_URL: http://compiler:4100
     # edge gives outbound internet access (R2, AI providers); backend reaches Postgres.
     networks: [edge, backend]
@@ -67,7 +67,10 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-    networks: [backend]
+    networks:
+      # The api also sits on the proxy network, where other apps may have a "postgres" too.
+      backend:
+        aliases: [shortlist-postgres]
 
   backup:
     image: postgres:17-alpine

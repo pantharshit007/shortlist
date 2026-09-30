@@ -14,7 +14,7 @@ while true; do
   file="/tmp/resumebuilder-${stamp}.sql.gz.enc"
 
   # Encrypted before it leaves the server, so a leaked bucket doesn't expose user data.
-  pg_dump -h postgres -U postgres -d resumebuilder --no-owner \
+  pg_dump -h shortlist-postgres -U postgres -d resumebuilder --no-owner \
     | gzip \
     | openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:BACKUP_ENCRYPTION_KEY -out "$file"
 
