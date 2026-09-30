@@ -59,6 +59,24 @@ const envSchema = z.object({
   // Product analytics and API metrics. Empty: nothing is sent.
   POSTHOG_KEY: optionalString,
   POSTHOG_HOST: z.preprocess(emptyAsUnset, z.url().default("https://us.i.posthog.com")),
+  // Read access for the admin dashboard's traffic page (PostHog's query and replay APIs).
+  POSTHOG_PERSONAL_API_KEY: optionalString,
+  POSTHOG_PROJECT_ID: optionalString,
+  POSTHOG_APP_HOST: z.preprocess(emptyAsUnset, z.url().default("https://us.posthog.com")),
+
+  // Comma-separated emails that can open the admin dashboard. They must be verified by the sign-in provider.
+  ADMIN_EMAILS: z.preprocess(
+    emptyAsUnset,
+    z
+      .string()
+      .default("")
+      .transform((value) =>
+        value
+          .split(",")
+          .map((email) => email.trim().toLowerCase())
+          .filter(Boolean),
+      ),
+  ),
 
   RAZORPAY_KEY_ID: optionalString,
   RAZORPAY_KEY_SECRET: optionalString,

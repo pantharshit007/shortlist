@@ -1,4 +1,4 @@
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import {
   DeleteObjectsCommand,
@@ -14,6 +14,8 @@ export interface Storage {
   put(key: string, body: Buffer, contentType: string): Promise<void>;
   get(key: string): Promise<Buffer | null>;
   deletePrefix(prefix: string): Promise<void>;
+  // The newest object under a prefix whose keys sort by time, e.g. timestamped backups.
+  latest(prefix: string): Promise<{ key: string; sizeBytes: number; modifiedAt: Date } | null>;
 }
 
 function localStorage(root: string): Storage {
@@ -38,6 +40,14 @@ function localStorage(root: string): Storage {
     },
     async deletePrefix(prefix) {
       await rm(pathFor(prefix), { recursive: true, force: true });
+    },
+    async latest(prefix) {
+      const dir = pathFor(prefix);
+      const names = await readdir(dir).catch(() => [] as string[]);
+      const name = names.sort().at(-1);
+      if (!name) return null;
+      const info = await stat(resolve(dir, name));
+      return { key: `${prefix}${name}`, sizeBytes: info.size, modifiedAt: info.mtime };
     },
   };
 }
@@ -74,6 +84,20 @@ function r2Storage(): Storage {
         }
         token = page.IsTruncated ? page.NextContinuationToken : undefined;
       } while (token);
+    },
+    async latest(prefix) {
+      let newest: { key: string; sizeBytes: number; modifiedAt: Date } | null = null;
+      let token: string | undefined;
+      do {
+        const page = await client.send(
+          new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix, ContinuationToken: token }),
+        );
+        const last = page.Contents?.at(-1);
+        if (last?.Key)
+          newest = { key: last.Key, sizeBytes: last.Size ?? 0, modifiedAt: last.LastModified ?? new Date(0) };
+        token = page.IsTruncated ? page.NextContinuationToken : undefined;
+      } while (token);
+      return newest;
     },
   };
 }

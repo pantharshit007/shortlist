@@ -5,7 +5,7 @@ import { linkViews, resumes, shareLinks } from "../../db/schema/index.js";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // Every calendar day in the range, oldest first, so days without views still show as zero.
-function dayKeys(days: number, timeZone: string, now: Date) {
+export function dayKeys(days: number, timeZone: string, now: Date) {
   const format = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" });
   const keys = new Set<string>();
   for (let offset = days - 1; offset >= 0; offset--) keys.add(format.format(new Date(now.getTime() - offset * DAY_MS)));

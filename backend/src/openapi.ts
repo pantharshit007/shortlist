@@ -1,5 +1,22 @@
 import { z } from "zod";
 import { createDocument, type ZodOpenApiOperationObject, type ZodOpenApiPathsObject } from "zod-openapi";
+import {
+  adminAiResponse,
+  adminContentQuery,
+  adminContentResponse,
+  adminOverviewResponse,
+  adminRangeQuery,
+  adminRevenueResponse,
+  adminSubscriptionParams,
+  adminSystemResponse,
+  adminTrafficResponse,
+  adminUserListResponse,
+  adminUserParams,
+  adminUserResponse,
+  adminUsersQuery,
+  createAdminSubscriptionBody,
+  updateAdminUserBody,
+} from "./modules/admin/admin.schemas.js";
 import { coverageQuery, coverageResponse } from "./modules/coverage/coverage.routes.js";
 import { checkoutResponse, createCheckoutBody, subscriptionResponse } from "./modules/billing/billing.schemas.js";
 import { createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
@@ -421,6 +438,84 @@ const paths: ZodOpenApiPathsObject = {
       tag: "Billing",
       response: subscriptionResponse,
     }),
+  },
+
+  "/v1/admin/overview": {
+    get: op({
+      summary: "Key numbers across the product",
+      tag: "Admin",
+      query: adminRangeQuery,
+      response: adminOverviewResponse,
+    }),
+  },
+  "/v1/admin/users": {
+    get: op({ summary: "Search users", tag: "Admin", query: adminUsersQuery, response: adminUserListResponse }),
+  },
+  "/v1/admin/users/{userId}": {
+    get: op({
+      summary: "Everything about one user",
+      tag: "Admin",
+      params: adminUserParams,
+      response: adminUserResponse,
+    }),
+    patch: op({
+      summary: "Suspend or restore a user",
+      tag: "Admin",
+      params: adminUserParams,
+      body: updateAdminUserBody,
+      response: adminUserResponse,
+    }),
+  },
+  "/v1/admin/users/{userId}/sessions": {
+    delete: op({ summary: "Sign a user out everywhere", tag: "Admin", params: adminUserParams, noContent: true }),
+  },
+  "/v1/admin/users/{userId}/subscriptions": {
+    post: op({
+      summary: "Give a user a paid plan for free",
+      tag: "Admin",
+      params: adminUserParams,
+      body: createAdminSubscriptionBody,
+      response: adminUserResponse,
+      status: 201,
+    }),
+  },
+  "/v1/admin/users/{userId}/subscriptions/{subscriptionId}": {
+    delete: op({
+      summary: "End a plan given from the admin dashboard",
+      tag: "Admin",
+      params: adminSubscriptionParams,
+      noContent: true,
+    }),
+  },
+  "/v1/admin/ai": {
+    get: op({ summary: "AI runs, cost and failures", tag: "Admin", query: adminRangeQuery, response: adminAiResponse }),
+  },
+  "/v1/admin/revenue": {
+    get: op({
+      summary: "Payments and subscriptions",
+      tag: "Admin",
+      query: adminRangeQuery,
+      response: adminRevenueResponse,
+    }),
+  },
+  "/v1/admin/content": {
+    get: op({
+      summary: "Resumes, templates and sharing",
+      tag: "Admin",
+      query: adminContentQuery,
+      response: adminContentResponse,
+    }),
+  },
+  "/v1/admin/traffic": {
+    get: op({
+      summary: "Site traffic from PostHog",
+      tag: "Admin",
+      query: adminRangeQuery,
+      response: adminTrafficResponse,
+    }),
+  },
+  "/v1/admin/system": {
+    get: op({ summary: "Health of the API, database and services", tag: "Admin", response: adminSystemResponse }),
   },
 };
 

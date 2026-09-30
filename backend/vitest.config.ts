@@ -8,6 +8,7 @@ export default defineConfig({
       DATABASE_URL: "postgres://test:test@localhost:5432/test",
       BETTER_AUTH_SECRET: "test-secret-that-is-at-least-32-characters-long",
       LOG_LEVEL: "fatal",
+      ADMIN_EMAILS: " Admin@Example.com ,second@example.com",
     },
     testTimeout: 60_000,
   },

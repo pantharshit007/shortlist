@@ -16,6 +16,7 @@ export const meResponse = z.object({
   username: z.string(),
   plan: z.enum(["free", "season_pass", "pro"]),
   isAnonymous: z.boolean(),
+  isAdmin: z.boolean(),
   createdAt: z.date(),
 });
 
