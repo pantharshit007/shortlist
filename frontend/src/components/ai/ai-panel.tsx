@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { ArrowUpIcon, PlusIcon, SparklesIcon, XIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   Field,
@@ -30,10 +30,16 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { api, unwrap } from '@/lib/api/client'
+import { api, errorMessage, unwrap } from '@/lib/api/client'
 import { aiErrorMessage } from '@/lib/api/errors'
-import { jobsQuery, queryKeys } from '@/lib/api/queries'
+import {
+  jobsQuery,
+  queryKeys,
+  resumeQuery,
+  suggestionsQuery,
+} from '@/lib/api/queries'
 import type { ResumeContent, Suggestion } from '@/lib/api/types'
+import { panelStorage } from '@/lib/panel-storage'
 import { CoverageReport } from './coverage-report'
 import { SuggestionReview } from './suggestion-review'
 
@@ -165,6 +171,46 @@ export function AiPanel({
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null)
   const composer = useRef<HTMLTextAreaElement>(null)
 
+  // A run keeps going on the server if the page reloads, so offer a finished suggestion the user never saw.
+  const seenKey = `seen-suggestion:${resumeId}`
+  const [seenId, setSeenId] = useState(() => panelStorage.getItem(seenKey))
+  const markSeen = (id: string) => {
+    setSeenId(id)
+    panelStorage.setItem(seenKey, id)
+  }
+  // The editor already holds this query; refetching here could remount it mid-edit.
+  const { data: headId } = useQuery({
+    ...resumeQuery(resumeId),
+    select: (resume) => resume.head?.id,
+    refetchOnMount: false,
+  })
+  const { data: suggestions } = useQuery({
+    ...suggestionsQuery(resumeId),
+    enabled: open,
+  })
+  const latest = suggestions?.[0]
+  const ready =
+    latest &&
+    latest.status === 'pending' &&
+    latest.id !== seenId &&
+    latest.baseVersionId === headId &&
+    Date.now() - new Date(latest.createdAt).getTime() < 24 * 60 * 60_000
+      ? latest
+      : null
+  const reopen = useMutation({
+    mutationFn: (suggestionId: string) =>
+      unwrap(
+        api.GET('/v1/resumes/{resumeId}/suggestions/{suggestionId}', {
+          params: { path: { resumeId, suggestionId } },
+        }),
+      ),
+    onSuccess: (next) => {
+      markSeen(next.id)
+      setSuggestion(next)
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  })
+
   const suggest = useMutation({
     mutationFn: (body: SuggestBody) =>
       unwrap(
@@ -174,6 +220,7 @@ export function AiPanel({
         }),
       ),
     onSuccess: (next, body) => {
+      markSeen(next.id)
       setSuggestion(next)
       if (body.type === 'edit') setRequest('')
     },
@@ -223,7 +270,10 @@ export function AiPanel({
           >
             <Spinner className="size-6" />
             <p>{pendingText[suggest.variables.type]}</p>
-            <p className="text-sm">This takes 10 to 30 seconds.</p>
+            <p className="text-sm">
+              This can take a minute or two. If you reload, the result waits for
+              you here.
+            </p>
           </div>
         ) : suggestion ? (
           <SuggestionReview
@@ -249,6 +299,34 @@ export function AiPanel({
           </div>
         ) : (
           <div className="flex flex-col gap-8">
+            {ready && (
+              <Alert role="status">
+                <SparklesIcon />
+                <AlertTitle>Your last suggestion is ready</AlertTitle>
+                <AlertDescription>
+                  It finished while you were away. Review it before asking for a
+                  new one.
+                </AlertDescription>
+                <div className="col-start-2 mt-2 flex gap-2">
+                  <Button
+                    size="sm"
+                    disabled={reopen.isPending}
+                    onClick={() => reopen.mutate(ready.id)}
+                  >
+                    {reopen.isPending && <Spinner data-icon="inline-start" />}
+                    Review it
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => markSeen(ready.id)}
+                  >
+                    Dismiss
+                  </Button>
+                </div>
+              </Alert>
+            )}
+
             <section
               aria-labelledby="ai-tailor"
               className="flex flex-col gap-4"

@@ -1,4 +1,5 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { AlertTriangleIcon, SparklesIcon } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Spinner } from '@/components/ui/spinner'
 import { api, errorMessage, unwrap } from '@/lib/api/client'
-import { queryKeys } from '@/lib/api/queries'
+import { queryKeys, usageQuery } from '@/lib/api/queries'
 import type { ResumeContent, Suggestion } from '@/lib/api/types'
 import { cn } from '@/lib/utils'
 import { OperationBody, OperationTitle } from './describe-operation'
@@ -27,6 +28,7 @@ export function SuggestionReview({
   onDiscard: () => void
 }) {
   const queryClient = useQueryClient()
+  const { data: usage } = useQuery(usageQuery)
   // Anything that might add facts the user never gave starts unchecked.
   const [accepted, setAccepted] = useState<Set<string>>(
     () =>
@@ -52,6 +54,9 @@ export function SuggestionReview({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.resume(resumeId) })
       queryClient.invalidateQueries({ queryKey: queryKeys.versions(resumeId) })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.suggestions(resumeId),
+      })
       toast.success(
         `${accepted.size} ${accepted.size === 1 ? 'change' : 'changes'} applied`,
       )
@@ -60,16 +65,35 @@ export function SuggestionReview({
     onError: (error) => toast.error(errorMessage(error)),
   })
 
+  // Also what a weak model looks like: the server drops changes that point at items that don't exist.
   if (suggestion.operations.length === 0) {
     return (
       <div className="flex flex-col gap-4">
-        <p className="text-muted-foreground">
-          {suggestion.summary ||
-            'No changes to suggest. Your resume already fits.'}
-        </p>
-        <Button variant="outline" className="self-start" onClick={onDiscard}>
-          Back
-        </Button>
+        <div className="flex flex-col gap-1">
+          <p className="font-medium">No changes it could use</p>
+          <p className="text-sm text-muted-foreground">
+            {usage?.ownAiKey
+              ? 'The AI came back without any changes that fit your resume. Try again, or pick a stronger model in your AI provider settings.'
+              : 'The AI came back without any changes that fit your resume. Try again, or ask for something more specific.'}
+          </p>
+        </div>
+        {suggestion.summary && (
+          <p className="text-sm break-words text-muted-foreground">
+            The model said: {suggestion.summary}
+          </p>
+        )}
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={onDiscard}>
+            Back
+          </Button>
+          {usage?.ownAiKey && (
+            <Button variant="ghost" asChild>
+              <Link to="/settings" search={{ tab: 'ai' }}>
+                AI provider settings
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
     )
   }
