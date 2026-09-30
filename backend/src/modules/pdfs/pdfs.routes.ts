@@ -63,7 +63,10 @@ pdfsRouter.post(
   requireAuth,
   compileLimiter,
   ...validated({ body: createPreviewBody }, async (req, res) => {
-    const tex = "content" in req.body ? renderStructured(req.body.templateId, req.body.content) : req.body.texSource;
+    const tex =
+      "content" in req.body
+        ? renderStructured(req.body.templateId, req.body.content, req.body.layout)
+        : req.body.texSource;
     const { pdf, pageCount } = await compileOrThrow(tex);
     sendPdf(res, pdf, "preview.pdf", pageCount);
   }),

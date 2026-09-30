@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { resumeContentSchema } from "../../schemas/resume-content.js";
+import { resumeLayoutSchema } from "../../templates/layout.js";
 
 export const texSourceSchema = z.string().min(1).max(200_000);
 const idParam = z.uuid();
@@ -34,6 +35,7 @@ export const updateResumeBody = z
     templateId: z.string().optional(),
     jobId: idParam.nullable().optional(),
     pageLimit: z.number().int().min(1).max(3).optional(),
+    layout: resumeLayoutSchema.optional(),
     archived: z.boolean().optional(),
   })
   .refine((body) => Object.keys(body).length > 0, "Provide at least one field to update");
@@ -84,6 +86,7 @@ export const resumeSummary = z.object({
   sourceResumeId: z.uuid().nullable(),
   headVersionId: z.uuid().nullable(),
   pageLimit: z.number().int(),
+  layout: resumeLayoutSchema,
   archivedAt: z.date().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),

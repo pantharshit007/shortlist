@@ -1,13 +1,16 @@
 import type { ResumeContent } from "../schemas/resume-content.js";
 import { renderSections } from "./classic-body.js";
 import { contactParts, tex, visibleContent } from "./latex.js";
+import { applyLayout, nameGapPt, type ResumeLayout } from "./layout.js";
 import { sharedMacros } from "./macros.js";
 
 // Denser layout in the style of sb2nov/resume (MIT): name left, contact details right.
-export function renderSb2nov(input: ResumeContent) {
+export function renderSb2nov(input: ResumeContent, layout?: ResumeLayout) {
   const { basics, sections } = visibleContent(input);
   const contacts = contactParts(basics);
-  return String.raw`\documentclass[a4paper,10pt]{article}
+  const gap = nameGapPt(layout);
+  return applyLayout(
+    String.raw`\documentclass[a4paper,10pt]{article}
 \usepackage[empty]{fullpage}
 \usepackage{titlesec}
 \usepackage[usenames,dvipsnames]{color}
@@ -30,11 +33,13 @@ export function renderSb2nov(input: ResumeContent) {
 ${sharedMacros}
 \begin{document}
 \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
-  \textbf{\LARGE ${tex(basics.name)}} & ${contacts.slice(0, 2).join(" $|$ ")} \\
+  \textbf{\LARGE ${tex(basics.name)}} & ${contacts.slice(0, 2).join(" $|$ ")} \\${gap ? `[${gap}pt]` : ""}
   ${basics.headline ? tex(basics.headline) : ""} & ${contacts.slice(2).join(" $|$ ")} \\
 \end{tabular*}
 
 ${renderSections(sections)}
 \end{document}
-`;
+`,
+    layout,
+  );
 }

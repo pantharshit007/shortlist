@@ -12,6 +12,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { ResumeLayout } from "../../templates/layout.js";
 import { users } from "./auth.js";
 import { createdAt, timestamps } from "./columns.js";
 
@@ -82,6 +83,7 @@ export const resumes = pgTable(
       onDelete: "set null",
     }),
     pageLimit: integer().notNull().default(1),
+    layout: jsonb().$type<ResumeLayout>().notNull().default({ spacing: "normal" }),
     archivedAt: timestamp({ withTimezone: true }),
     deletedAt: timestamp({ withTimezone: true }),
     ...timestamps,

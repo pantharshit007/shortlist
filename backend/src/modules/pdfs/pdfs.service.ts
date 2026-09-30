@@ -3,19 +3,20 @@ import { AppError, NotFoundError } from "../../lib/errors.js";
 import { compileTex } from "../../lib/latex/compile.js";
 import type { ResumeContent } from "../../schemas/resume-content.js";
 import { findTemplate } from "../../templates/index.js";
+import type { ResumeLayout } from "../../templates/layout.js";
 import { slugify } from "../users/usernames.js";
 
-export function renderStructured(templateId: string | null, content: ResumeContent) {
+export function renderStructured(templateId: string | null, content: ResumeContent, layout?: ResumeLayout) {
   const template = findTemplate(templateId ?? "developer");
   if (!template) throw new NotFoundError("Template");
-  return template.render(content);
+  return template.render(content, layout);
 }
 
 export function texForVersion(
-  resume: { templateId: string | null },
+  resume: { templateId: string | null; layout: ResumeLayout },
   version: { content: ResumeContent | null; texSource: string | null },
 ) {
-  return version.content ? renderStructured(resume.templateId, version.content) : version.texSource!;
+  return version.content ? renderStructured(resume.templateId, version.content, resume.layout) : version.texSource!;
 }
 
 export async function compileOrThrow(tex: string) {

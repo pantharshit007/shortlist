@@ -1,6 +1,7 @@
 import type { ResumeContent } from "../schemas/resume-content.js";
 import { renderDeveloper } from "./developer.js";
 import { renderJake } from "./jake.js";
+import type { ResumeLayout } from "./layout.js";
 import { renderModern } from "./modern.js";
 import { renderSb2nov } from "./sb2nov.js";
 
@@ -10,7 +11,7 @@ export type TemplateDefinition = {
   description: string;
   atsSafe: boolean;
   version: number;
-  render: (content: ResumeContent) => string;
+  render: (content: ResumeContent, layout?: ResumeLayout) => string;
 };
 
 export const templates: TemplateDefinition[] = [

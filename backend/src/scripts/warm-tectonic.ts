@@ -72,7 +72,12 @@ const compile = createTectonic({
 });
 
 const documents = [
-  ...templates.map((t) => ({ name: t.id, tex: t.render(sampleResume) })),
+  ...templates.flatMap((t) =>
+    ([undefined, 10, 11, 12] as const).map((fontSize) => ({
+      name: `${t.id}${fontSize ? `-relaxed-${fontSize}pt` : ""}`,
+      tex: t.render(sampleResume, fontSize ? { spacing: "relaxed", fontSize } : undefined),
+    })),
+  ),
   { name: "common-packages", tex: commonPackages },
   ...[10, 11, 12].map((pt) => ({ name: `jake-${pt}pt`, tex: jakePreamble(pt) })),
 ];

@@ -1,5 +1,6 @@
 import type { ResumeContent, ResumeSection } from "../schemas/resume-content.js";
 import { dateRange, tex, texRich, texUrl, visibleContent } from "./latex.js";
+import { applyLayout, nameGap, type ResumeLayout } from "./layout.js";
 
 // The Jake's Resume variant popular with Indian developers: small-caps name, icon header,
 // tight margins, company above a bold role, projects with Live and Github links.
@@ -168,13 +169,14 @@ function renderSection(s: ResumeSection): string {
   }
 }
 
-export function renderDeveloper(input: ResumeContent) {
+export function renderDeveloper(input: ResumeContent, layout?: ResumeLayout) {
   const { basics, sections } = visibleContent(input);
-  const lines = [`{\\Huge \\scshape ${tex(basics.name)}}`];
+  const lines = [`{\\Huge \\scshape ${tex(basics.name)}}${nameGap(layout)}`];
   if (basics.headline) lines.push(`\\small ${tex(basics.headline)}`);
   const contacts = header(basics);
   if (contacts) lines.push(contacts);
-  return `${preamble}
+  return applyLayout(
+    `${preamble}
 \\begin{document}
 \\begin{center}
   ${lines.join(" \\\\ \\vspace{1pt}\n  ")}
@@ -184,5 +186,7 @@ export function renderDeveloper(input: ResumeContent) {
 ${sections.map(renderSection).filter(Boolean).join("\n\n")}
 
 \\end{document}
-`;
+`,
+    layout,
+  );
 }

@@ -232,6 +232,10 @@ export async function updateResume(userId: string, resumeId: string, changes: z.
     await assertTemplateExists(changes.templateId);
     update.templateId = changes.templateId;
   }
+  if (changes.layout) {
+    if (resume.mode === "code") throw new AppError(400, "LAYOUT_NOT_ALLOWED", "Code-mode resumes set their own layout");
+    update.layout = changes.layout;
+  }
   if (changes.jobId !== undefined) {
     if (changes.jobId) await assertJobOwned(userId, changes.jobId);
     update.jobId = changes.jobId;

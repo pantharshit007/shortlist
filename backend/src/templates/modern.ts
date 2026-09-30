@@ -1,12 +1,14 @@
 import type { ResumeContent } from "../schemas/resume-content.js";
 import { renderSections } from "./classic-body.js";
 import { contactParts, tex, visibleContent } from "./latex.js";
+import { applyLayout, nameGap, type ResumeLayout } from "./layout.js";
 import { sharedMacros } from "./macros.js";
 
 // Inspired by Awesome-CV: sans-serif type, accent-colored section titles, single column.
-export function renderModern(input: ResumeContent) {
+export function renderModern(input: ResumeContent, layout?: ResumeLayout) {
   const { basics, sections } = visibleContent(input);
-  return String.raw`\documentclass[a4paper,10.5pt]{article}
+  return applyLayout(
+    String.raw`\documentclass[a4paper,10.5pt]{article}
 \usepackage[empty]{fullpage}
 \usepackage{titlesec}
 \usepackage{xcolor}
@@ -32,12 +34,14 @@ export function renderModern(input: ResumeContent) {
 ${sharedMacros}
 \begin{document}
 \begin{center}
-  {\fontsize{26pt}{30pt}\selectfont\bfseries ${tex(basics.name)}} \\ \vspace{4pt}
+  {\fontsize{26pt}{30pt}\selectfont\bfseries ${tex(basics.name)}}${nameGap(layout)} \\ \vspace{4pt}
   ${basics.headline ? String.raw`{\color{accent}\small ${tex(basics.headline)}} \\ \vspace{2pt}` : ""}
   {\color{muted}\small ${contactParts(basics).join(" \\textbullet{} ")}}
 \end{center}
 
 ${renderSections(sections)}
 \end{document}
-`;
+`,
+    layout,
+  );
 }

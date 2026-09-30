@@ -1,0 +1,1 @@
+ALTER TABLE "resumes" ADD COLUMN "layout" jsonb DEFAULT '{"spacing":"normal"}'::jsonb NOT NULL;
