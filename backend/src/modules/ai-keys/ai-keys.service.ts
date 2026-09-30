@@ -8,6 +8,7 @@ import { AppError } from "../../lib/errors.js";
 import { type AiProvider, createModel, defaultModels } from "../../lib/ai/models.js";
 import { open, seal } from "../../lib/secret-box.js";
 import type { putAiKeyBody } from "./ai-keys.schemas.js";
+import { track } from "../../lib/analytics.js";
 
 const publicColumns = {
   provider: userAiKeys.provider,
@@ -72,6 +73,7 @@ export async function putAiKey(userId: string, input: z.infer<typeof putAiKeyBod
     .values({ userId, ...values })
     .onConflictDoUpdate({ target: userAiKeys.userId, set: values })
     .returning(publicColumns);
+  track(userId, "ai_key_added", { provider: input.provider, custom_model: Boolean(modelId) });
   return row!;
 }
 

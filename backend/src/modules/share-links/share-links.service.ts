@@ -6,6 +6,7 @@ import { ConflictError, NotFoundError } from "../../lib/errors.js";
 import { hashPassword } from "../../lib/passwords.js";
 import { getOwnedResume } from "../resumes/resumes.service.js";
 import { slugify } from "../users/usernames.js";
+import { track } from "../../lib/analytics.js";
 
 type ShareLinkRow = typeof shareLinks.$inferSelect;
 
@@ -85,6 +86,11 @@ export async function createShareLink(
       expiresAt: input.expiresAt ?? null,
     })
     .returning();
+  track(userId, "share_link_created", {
+    pinned: Boolean(input.pinnedVersionId),
+    password: Boolean(input.password),
+    shows_contact: input.showContact,
+  });
   return toResponse(link!);
 }
 

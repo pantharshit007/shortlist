@@ -5,6 +5,7 @@ import { env } from "../config/env.js";
 import { db } from "../db/index.js";
 import * as schema from "../db/schema/index.js";
 import { generateUsername } from "../modules/users/usernames.js";
+import { track } from "./analytics.js";
 
 const socialProviders = {
   ...(env.GOOGLE_CLIENT_ID &&
@@ -57,6 +58,9 @@ export const auth = betterAuth({
         before: async (user) => ({
           data: { ...user, username: await generateUsername(user.name, user.email) },
         }),
+        after: async (user) => {
+          track(user.id, "user_signed_up", { guest: "isAnonymous" in user && user.isAnonymous === true });
+        },
       },
     },
   },

@@ -55,6 +55,13 @@ const envSchema = z.object({
   // Optional; raises Jina Reader's rate limit when fetching job posts from URLs.
   JINA_API_KEY: optionalString,
 
+  // Product analytics and API metrics. Empty: nothing is sent.
+  POSTHOG_KEY: optionalString,
+  POSTHOG_HOST: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.url().default("https://us.i.posthog.com"),
+  ),
+
   RAZORPAY_KEY_ID: optionalString,
   RAZORPAY_KEY_SECRET: optionalString,
   RAZORPAY_WEBHOOK_SECRET: optionalString,

@@ -6,6 +6,7 @@ import { jobs } from "../../db/schema/index.js";
 import { generateStructured } from "../../lib/ai/generate.js";
 import { AppError, NotFoundError } from "../../lib/errors.js";
 import { parsedJobSchema } from "./jobs.schemas.js";
+import { track } from "../../lib/analytics.js";
 
 const system = `You extract structured requirements from job descriptions.
 Copy requirements faithfully; don't add skills that aren't mentioned. Keep items short (1-5 words each).
@@ -60,6 +61,7 @@ export async function createJob(userId: string, input: { rawText: string } | { s
     .insert(jobs)
     .values({ userId, company: parsed.company, role: parsed.role, sourceUrl, rawText, textHash, parsed })
     .returning();
+  track(userId, "job_added", { from: sourceUrl ? "link" : "text" });
   return { ...job!, parsed };
 }
 

@@ -1,5 +1,6 @@
 import { pool } from "./db/index.js";
 import { type MaintenanceTask, maintenanceTasks } from "./jobs/maintenance.js";
+import { flushAnalytics } from "./lib/analytics.js";
 import { logger } from "./lib/logger.js";
 
 // Runs scheduled maintenance. Start one instance alongside the API: `pnpm worker`.
@@ -70,6 +71,7 @@ logger.info("Worker started");
 
 async function shutdown() {
   clearInterval(timer);
+  await flushAnalytics();
   await pool.end();
   process.exit(0);
 }

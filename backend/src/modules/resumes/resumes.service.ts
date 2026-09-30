@@ -9,6 +9,7 @@ import { assertTemplateExists } from "../templates/templates.service.js";
 import { assertResumeQuota } from "../usage/quotas.js";
 import type { z } from "zod";
 import type { createResumeBody, createVersionBody, updateResumeBody } from "./resumes.schemas.js";
+import { track } from "../../lib/analytics.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 type VersionKind = (typeof resumeVersions.$inferInsert)["kind"];
@@ -179,7 +180,7 @@ export async function createResume(userId: string, input: z.infer<typeof createR
 
   const { payload, kind, sourceResumeId } = await resolveSource(userId, input, templateId);
 
-  return db.transaction(async (tx) => {
+  const created = await db.transaction(async (tx) => {
     const [resume] = await tx
       .insert(resumes)
       .values({
@@ -195,6 +196,8 @@ export async function createResume(userId: string, input: z.infer<typeof createR
     const head = await appendVersion(tx, resume!, kind, payload);
     return { ...resume!, headVersionId: head.id, head: toVersionDetail(head) };
   });
+  track(userId, "resume_created", { mode: input.mode, source: input.source.type, template: templateId });
+  return created;
 }
 
 export async function listResumes(userId: string, archived: boolean) {

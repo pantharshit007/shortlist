@@ -2,6 +2,7 @@ import { generateStructured } from "../../lib/ai/generate.js";
 import { readUpload } from "../uploads/uploads.service.js";
 import { assertAiQuota } from "../usage/quotas.js";
 import { extractionSchema, normalizeExtraction } from "./extraction.js";
+import { track } from "../../lib/analytics.js";
 
 const system = `You extract resumes into structured JSON.
 Rules:
@@ -40,5 +41,6 @@ export async function createImport(userId: string, input: { uploadId: string } |
     prompt,
     files,
   });
+  track(userId, "resume_imported", { from: "uploadId" in input ? "file" : "text" });
   return { content: normalizeExtraction(data), aiRunId: runId };
 }

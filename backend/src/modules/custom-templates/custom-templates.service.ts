@@ -6,6 +6,7 @@ import { AppError, NotFoundError } from "../../lib/errors.js";
 import { resumeContentSchema } from "../../schemas/resume-content.js";
 import { getResume } from "../resumes/resumes.service.js";
 import type { createCustomTemplateBody, updateCustomTemplateBody } from "./custom-templates.schemas.js";
+import { track } from "../../lib/analytics.js";
 
 const MAX_CUSTOM_TEMPLATES = 20;
 
@@ -69,6 +70,7 @@ export async function createCustomTemplate(userId: string, input: z.infer<typeof
     .insert(customTemplates)
     .values({ userId, name: input.name, ...values })
     .returning();
+  track(userId, "template_created", { from: input.type });
   return toDetail(row!);
 }
 

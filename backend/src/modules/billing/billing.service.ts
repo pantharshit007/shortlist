@@ -4,6 +4,7 @@ import { db } from "../../db/index.js";
 import { payments, subscriptions, users } from "../../db/schema/index.js";
 import { AppError, ConflictError, NotFoundError } from "../../lib/errors.js";
 import { razorpay } from "../../lib/razorpay.js";
+import { track } from "../../lib/analytics.js";
 
 export const prices = { season_pass: 49_900, pro: 12_900 } as const;
 
@@ -29,6 +30,7 @@ export async function recomputePlan(userId: string) {
 export async function createCheckout(userId: string, plan: "season_pass" | "pro") {
   const keyId = env.RAZORPAY_KEY_ID;
   if (!keyId) throw new AppError(503, "PAYMENTS_NOT_CONFIGURED", "Payments are not configured");
+  track(userId, "checkout_started", { plan });
 
   if (plan === "season_pass") {
     const order = await razorpay<{ id: string }>("POST", "/orders", {

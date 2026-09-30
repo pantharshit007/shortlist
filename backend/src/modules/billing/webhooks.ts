@@ -3,6 +3,7 @@ import { db } from "../../db/index.js";
 import { payments, subscriptions, webhookEvents } from "../../db/schema/index.js";
 import { logger } from "../../lib/logger.js";
 import { recomputePlan } from "./billing.service.js";
+import { track } from "../../lib/analytics.js";
 
 type Entity = Record<string, unknown> & { id: string };
 type RazorpayEvent = {
@@ -64,6 +65,7 @@ async function onPaymentCaptured(payment: NonNullable<RazorpayEvent["payload"]["
       .where(eq(subscriptions.id, row.subscriptionId));
   }
   await recomputePlan(row.userId);
+  track(row.userId, "payment_captured", { amount_inr: row.amountPaise / 100 });
 }
 
 async function onSubscriptionEvent(event: RazorpayEvent, raw: unknown) {

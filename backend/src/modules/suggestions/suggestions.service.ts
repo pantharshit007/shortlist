@@ -25,6 +25,7 @@ import {
   type createSuggestionBody,
   storedSuggestion,
 } from "./suggestions.schemas.js";
+import { track } from "../../lib/analytics.js";
 
 type CreateInput = z.infer<typeof createSuggestionBody>;
 
@@ -189,6 +190,7 @@ export async function createSuggestion(userId: string, resumeId: string, input: 
     })
     .where(eq(aiRuns.id, result.runId))
     .returning();
+  track(userId, "ai_suggestion_created", { type: input.type });
   return toResponse(run!);
 }
 
@@ -231,7 +233,7 @@ export async function listSuggestions(userId: string, resumeId: string) {
 // Creates a new version from the accepted operations. Applied on top of the current head,
 // so edits the user made after asking for the suggestion are kept.
 export async function applySuggestion(userId: string, resumeId: string, suggestionId: string, acceptedIds: string[]) {
-  return db.transaction(async (tx) => {
+  const version = await db.transaction(async (tx) => {
     const resume = await getOwnedResume(userId, resumeId, tx);
     const run = await getOwnedSuggestionRun(userId, resumeId, suggestionId);
     if (run.versionId) throw new ConflictError("This suggestion was already applied");
@@ -265,4 +267,6 @@ export async function applySuggestion(userId: string, resumeId: string, suggesti
       .where(eq(aiRuns.id, run.id));
     return version;
   });
+  track(userId, "ai_suggestion_applied", { accepted: acceptedIds.length });
+  return version;
 }

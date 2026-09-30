@@ -1,6 +1,7 @@
 import { app } from "./app.js";
 import { env } from "./config/env.js";
 import { pool } from "./db/index.js";
+import { flushAnalytics } from "./lib/analytics.js";
 import { logger } from "./lib/logger.js";
 
 const server = app.listen(env.PORT, () => {
@@ -10,6 +11,7 @@ const server = app.listen(env.PORT, () => {
 function shutdown(signal: string) {
   logger.info(`${signal} received, shutting down`);
   server.close(async () => {
+    await flushAnalytics();
     await pool.end();
     process.exit(0);
   });

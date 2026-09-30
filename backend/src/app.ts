@@ -12,6 +12,7 @@ import { notFound } from "./middleware/not-found.js";
 import { apiLimiter } from "./middleware/rate-limit.js";
 import { buildOpenApiDocument } from "./openapi.js";
 import { v1 } from "./routes.js";
+import { requestMetrics } from "./middleware/request-metrics.js";
 
 export const app = express();
 
@@ -21,6 +22,7 @@ app.set("trust proxy", 1);
 app.use(helmet());
 app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
 app.use(pinoHttp({ logger }));
+app.use(requestMetrics);
 
 // Better Auth reads the raw request body, so it is mounted before express.json().
 app.all("/api/auth/*splat", toNodeHandler(auth));
