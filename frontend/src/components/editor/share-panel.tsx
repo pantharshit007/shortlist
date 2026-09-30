@@ -36,12 +36,23 @@ import { Spinner } from '@/components/ui/spinner'
 import { Switch } from '@/components/ui/switch'
 import { api, errorMessage, expectOk, unwrap } from '@/lib/api/client'
 import {
+  meQuery,
   queryKeys,
   shareLinkStatsQuery,
   shareLinksQuery,
 } from '@/lib/api/queries'
 import type { ShareLink } from '@/lib/api/types'
 import { formatDate, timeAgo } from '@/lib/format'
+import { site } from '@/lib/site'
+
+// Edge hyphens are trimmed on submit, not here, so "vibe-" can be typed.
+const toSlugDraft = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .slice(0, 30)
 
 function CopyButton({ value }: { value: string }) {
   const [copied, setCopied] = useState(false)
@@ -250,18 +261,23 @@ function CreateLinkForm({
   resumeId,
   headVersionId,
   onDone,
+  onCancel,
 }: {
   resumeId: string
   headVersionId: string | null
   onDone: () => void
+  onCancel: () => void
 }) {
   const queryClient = useQueryClient()
+  const { data: me } = useQuery(meQuery)
   const [slug, setSlug] = useState('')
   const [showContact, setShowContact] = useState(false)
   const [isListed, setIsListed] = useState(false)
   const [pin, setPin] = useState(false)
   const [password, setPassword] = useState('')
   const [expiresAt, setExpiresAt] = useState('')
+  const cleanSlug = slug.replace(/^-+|-+$/g, '')
+  const slugTooShort = slug.length > 0 && cleanSlug.length < 3
 
   const create = useMutation({
     mutationFn: () =>
@@ -269,7 +285,7 @@ function CreateLinkForm({
         api.POST('/v1/resumes/{resumeId}/share-links', {
           params: { path: { resumeId } },
           body: {
-            ...(slug.trim() && { slug: slug.trim().toLowerCase() }),
+            ...(cleanSlug && { slug: cleanSlug }),
             showContact,
             isListed,
             pinnedVersionId: pin ? headVersionId : null,
@@ -306,7 +322,7 @@ function CreateLinkForm({
       }}
     >
       <FieldGroup className="gap-4">
-        <Field>
+        <Field data-invalid={slugTooShort}>
           <FieldLabel htmlFor="slug">Link name (optional)</FieldLabel>
           <Input
             id="slug"
@@ -315,12 +331,18 @@ function CreateLinkForm({
             spellCheck={false}
             placeholder="razorpay-backend"
             value={slug}
-            onChange={(e) => setSlug(e.target.value)}
+            aria-invalid={slugTooShort}
+            onChange={(e) => setSlug(toSlugDraft(e.target.value))}
           />
-          <FieldDescription>
-            Lowercase letters, numbers and hyphens. Leave it empty to use the
-            resume name.
-          </FieldDescription>
+          {slugTooShort ? (
+            <FieldError>Use at least 3 letters or numbers.</FieldError>
+          ) : (
+            <FieldDescription className="break-all">
+              {cleanSlug
+                ? `${site.displayDomain}/${me?.username ?? '…'}/${cleanSlug}`
+                : 'Leave it empty to use the resume name.'}
+            </FieldDescription>
+          )}
         </Field>
         <SwitchField
           id="new-contact"
@@ -373,13 +395,15 @@ function CreateLinkForm({
         <Button
           type="submit"
           disabled={
-            create.isPending || (password.length > 0 && password.length < 4)
+            create.isPending ||
+            slugTooShort ||
+            (password.length > 0 && password.length < 4)
           }
         >
           {create.isPending && <Spinner data-icon="inline-start" />}
           Create link
         </Button>
-        <Button type="button" variant="ghost" onClick={onDone}>
+        <Button type="button" variant="ghost" onClick={onCancel}>
           Cancel
         </Button>
       </div>
@@ -419,6 +443,9 @@ export function SharePanel({
               resumeId={resumeId}
               headVersionId={headVersionId}
               onDone={() => setCreating(false)}
+              onCancel={() =>
+                links?.length ? setCreating(false) : onOpenChange(false)
+              }
             />
           ) : (
             <Button
