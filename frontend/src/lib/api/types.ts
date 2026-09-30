@@ -70,3 +70,12 @@ export type PublicResume = ResponseData<
   'get'
 >
 export type CreateResumeBody = RequestBody<'/v1/resumes', 'post'>
+
+export type AdminOverview = ResponseData<'/v1/admin/overview', 'get'>
+export type AdminUserList = ResponseData<'/v1/admin/users', 'get'>
+export type AdminUser = ResponseData<'/v1/admin/users/{userId}', 'get'>
+export type AdminAi = ResponseData<'/v1/admin/ai', 'get'>
+export type AdminRevenue = ResponseData<'/v1/admin/revenue', 'get'>
+export type AdminContent = ResponseData<'/v1/admin/content', 'get'>
+export type AdminTraffic = ResponseData<'/v1/admin/traffic', 'get'>
+export type AdminSystem = ResponseData<'/v1/admin/system', 'get'>

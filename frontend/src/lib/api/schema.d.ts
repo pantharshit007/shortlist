@@ -40,6 +40,7 @@ export interface paths {
                 /** @enum {string} */
                 plan: 'free' | 'season_pass' | 'pro'
                 isAnonymous: boolean
+                isAdmin: boolean
                 createdAt: string
               }
             }
@@ -124,6 +125,7 @@ export interface paths {
                 /** @enum {string} */
                 plan: 'free' | 'season_pass' | 'pro'
                 isAnonymous: boolean
+                isAdmin: boolean
                 createdAt: string
               }
             }
@@ -5592,6 +5594,1210 @@ export interface paths {
         }
       }
     }
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/admin/overview': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Key numbers across the product */
+    get: {
+      parameters: {
+        query?: {
+          days?: '7' | '30' | '90'
+          timeZone?: string
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                days: number
+                totals: {
+                  users: number
+                  guests: number
+                  newUsers: number
+                  previousNewUsers: number
+                  activeUsers: number
+                  previousActiveUsers: number
+                  paidUsers: number
+                  suspendedUsers: number
+                  resumes: number
+                  resumesCreated: number
+                  previousResumesCreated: number
+                  aiRuns: number
+                  previousAiRuns: number
+                  aiFailed: number
+                  aiCostUsdMicros: number
+                  previousAiCostUsdMicros: number
+                  revenuePaise: number
+                  previousRevenuePaise: number
+                  shareViews: number
+                  previousShareViews: number
+                }
+                byDay: {
+                  day: string
+                  signups: number
+                  resumes: number
+                  aiRuns: number
+                  views: number
+                }[]
+                plans: {
+                  label: string
+                  count: number
+                }[]
+                providers: {
+                  label: string
+                  count: number
+                }[]
+                funnel: {
+                  signedUp: number
+                  createdResume: number
+                  usedAi: number
+                  shared: number
+                  paid: number
+                }
+                recentSignups: {
+                  /** Format: uuid */
+                  id: string
+                  name: string
+                  email: string
+                  image: string | null
+                  /** @enum {string} */
+                  plan: 'free' | 'season_pass' | 'pro'
+                  createdAt: string
+                  providers: string[]
+                }[]
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/admin/users': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Search users */
+    get: {
+      parameters: {
+        query?: {
+          q?: string
+          plan?: 'free' | 'season_pass' | 'pro'
+          status?: 'active' | 'suspended' | 'guest'
+          page?: number
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                users: {
+                  /** Format: uuid */
+                  id: string
+                  name: string
+                  email: string
+                  image: string | null
+                  username: string
+                  /** @enum {string} */
+                  plan: 'free' | 'season_pass' | 'pro'
+                  isAnonymous: boolean
+                  suspendedAt: string | null
+                  createdAt: string
+                  lastActiveAt: string | null
+                  providers: string[]
+                  resumes: number
+                  aiRuns: number
+                }[]
+                page: number
+                pageSize: number
+                total: number
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/admin/users/{userId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Everything about one user */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          userId: string
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                user: {
+                  /** Format: uuid */
+                  id: string
+                  name: string
+                  email: string
+                  emailVerified: boolean
+                  image: string | null
+                  username: string
+                  /** @enum {string} */
+                  plan: 'free' | 'season_pass' | 'pro'
+                  isAnonymous: boolean
+                  suspendedAt: string | null
+                  createdAt: string
+                  updatedAt: string
+                }
+                accounts: {
+                  providerId: string
+                  createdAt: string
+                }[]
+                resumes: {
+                  /** Format: uuid */
+                  id: string
+                  title: string
+                  /** @enum {string} */
+                  mode: 'structured' | 'code'
+                  templateId: string | null
+                  createdAt: string
+                  updatedAt: string
+                  archivedAt: string | null
+                  deletedAt: string | null
+                  versions: number
+                }[]
+                ai: {
+                  runs: number
+                  byokRuns: number
+                  costUsdMicros: number
+                  lastRunAt: string | null
+                  bySteps: {
+                    step: string
+                    runs: number
+                    failed: number
+                    costUsdMicros: number
+                  }[]
+                }
+                usage: {
+                  /** @enum {string} */
+                  plan: 'free' | 'season_pass' | 'pro'
+                  ownAiKey: boolean
+                  periodStart: string
+                  periodEnd: string
+                  resumes: {
+                    used: number
+                    limit: number
+                  }
+                  tailor: {
+                    used: number
+                    limit: number
+                  }
+                  edit: {
+                    used: number
+                    limit: number
+                  }
+                  import: {
+                    used: number
+                    limit: number
+                  }
+                }
+                subscriptions: {
+                  /** Format: uuid */
+                  id: string
+                  /** @enum {string} */
+                  plan: 'season_pass' | 'pro'
+                  /** @enum {string} */
+                  status:
+                    'created' | 'active' | 'past_due' | 'cancelled' | 'expired'
+                  currentPeriodStart: string | null
+                  currentPeriodEnd: string | null
+                  razorpaySubscriptionId: string | null
+                  complimentary: boolean
+                  createdAt: string
+                }[]
+                payments: {
+                  /** Format: uuid */
+                  id: string
+                  amountPaise: number
+                  /** @enum {string} */
+                  status: 'created' | 'captured' | 'failed' | 'refunded'
+                  method: string | null
+                  razorpayPaymentId: string | null
+                  createdAt: string
+                }[]
+                sessions: {
+                  /** Format: uuid */
+                  id: string
+                  createdAt: string
+                  updatedAt: string
+                  expiresAt: string
+                  userAgent: string | null
+                  ipAddress: string | null
+                }[]
+                shareLinks: number
+                shareViews: number
+                jobs: number
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /** Suspend or restore a user */
+    patch: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          userId: string
+        }
+        cookie?: never
+      }
+      requestBody?: {
+        content: {
+          'application/json': {
+            suspended: boolean
+          }
+        }
+      }
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                user: {
+                  /** Format: uuid */
+                  id: string
+                  name: string
+                  email: string
+                  emailVerified: boolean
+                  image: string | null
+                  username: string
+                  /** @enum {string} */
+                  plan: 'free' | 'season_pass' | 'pro'
+                  isAnonymous: boolean
+                  suspendedAt: string | null
+                  createdAt: string
+                  updatedAt: string
+                }
+                accounts: {
+                  providerId: string
+                  createdAt: string
+                }[]
+                resumes: {
+                  /** Format: uuid */
+                  id: string
+                  title: string
+                  /** @enum {string} */
+                  mode: 'structured' | 'code'
+                  templateId: string | null
+                  createdAt: string
+                  updatedAt: string
+                  archivedAt: string | null
+                  deletedAt: string | null
+                  versions: number
+                }[]
+                ai: {
+                  runs: number
+                  byokRuns: number
+                  costUsdMicros: number
+                  lastRunAt: string | null
+                  bySteps: {
+                    step: string
+                    runs: number
+                    failed: number
+                    costUsdMicros: number
+                  }[]
+                }
+                usage: {
+                  /** @enum {string} */
+                  plan: 'free' | 'season_pass' | 'pro'
+                  ownAiKey: boolean
+                  periodStart: string
+                  periodEnd: string
+                  resumes: {
+                    used: number
+                    limit: number
+                  }
+                  tailor: {
+                    used: number
+                    limit: number
+                  }
+                  edit: {
+                    used: number
+                    limit: number
+                  }
+                  import: {
+                    used: number
+                    limit: number
+                  }
+                }
+                subscriptions: {
+                  /** Format: uuid */
+                  id: string
+                  /** @enum {string} */
+                  plan: 'season_pass' | 'pro'
+                  /** @enum {string} */
+                  status:
+                    'created' | 'active' | 'past_due' | 'cancelled' | 'expired'
+                  currentPeriodStart: string | null
+                  currentPeriodEnd: string | null
+                  razorpaySubscriptionId: string | null
+                  complimentary: boolean
+                  createdAt: string
+                }[]
+                payments: {
+                  /** Format: uuid */
+                  id: string
+                  amountPaise: number
+                  /** @enum {string} */
+                  status: 'created' | 'captured' | 'failed' | 'refunded'
+                  method: string | null
+                  razorpayPaymentId: string | null
+                  createdAt: string
+                }[]
+                sessions: {
+                  /** Format: uuid */
+                  id: string
+                  createdAt: string
+                  updatedAt: string
+                  expiresAt: string
+                  userAgent: string | null
+                  ipAddress: string | null
+                }[]
+                shareLinks: number
+                shareViews: number
+                jobs: number
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    trace?: never
+  }
+  '/v1/admin/users/{userId}/sessions': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /** Sign a user out everywhere */
+    delete: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          userId: string
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description No content */
+        204: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/admin/users/{userId}/subscriptions': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Give a user a paid plan for free */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          userId: string
+        }
+        cookie?: never
+      }
+      requestBody?: {
+        content: {
+          'application/json': {
+            /** @enum {string} */
+            plan: 'season_pass' | 'pro'
+            months: number
+          }
+        }
+      }
+      responses: {
+        /** @description OK */
+        201: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                user: {
+                  /** Format: uuid */
+                  id: string
+                  name: string
+                  email: string
+                  emailVerified: boolean
+                  image: string | null
+                  username: string
+                  /** @enum {string} */
+                  plan: 'free' | 'season_pass' | 'pro'
+                  isAnonymous: boolean
+                  suspendedAt: string | null
+                  createdAt: string
+                  updatedAt: string
+                }
+                accounts: {
+                  providerId: string
+                  createdAt: string
+                }[]
+                resumes: {
+                  /** Format: uuid */
+                  id: string
+                  title: string
+                  /** @enum {string} */
+                  mode: 'structured' | 'code'
+                  templateId: string | null
+                  createdAt: string
+                  updatedAt: string
+                  archivedAt: string | null
+                  deletedAt: string | null
+                  versions: number
+                }[]
+                ai: {
+                  runs: number
+                  byokRuns: number
+                  costUsdMicros: number
+                  lastRunAt: string | null
+                  bySteps: {
+                    step: string
+                    runs: number
+                    failed: number
+                    costUsdMicros: number
+                  }[]
+                }
+                usage: {
+                  /** @enum {string} */
+                  plan: 'free' | 'season_pass' | 'pro'
+                  ownAiKey: boolean
+                  periodStart: string
+                  periodEnd: string
+                  resumes: {
+                    used: number
+                    limit: number
+                  }
+                  tailor: {
+                    used: number
+                    limit: number
+                  }
+                  edit: {
+                    used: number
+                    limit: number
+                  }
+                  import: {
+                    used: number
+                    limit: number
+                  }
+                }
+                subscriptions: {
+                  /** Format: uuid */
+                  id: string
+                  /** @enum {string} */
+                  plan: 'season_pass' | 'pro'
+                  /** @enum {string} */
+                  status:
+                    'created' | 'active' | 'past_due' | 'cancelled' | 'expired'
+                  currentPeriodStart: string | null
+                  currentPeriodEnd: string | null
+                  razorpaySubscriptionId: string | null
+                  complimentary: boolean
+                  createdAt: string
+                }[]
+                payments: {
+                  /** Format: uuid */
+                  id: string
+                  amountPaise: number
+                  /** @enum {string} */
+                  status: 'created' | 'captured' | 'failed' | 'refunded'
+                  method: string | null
+                  razorpayPaymentId: string | null
+                  createdAt: string
+                }[]
+                sessions: {
+                  /** Format: uuid */
+                  id: string
+                  createdAt: string
+                  updatedAt: string
+                  expiresAt: string
+                  userAgent: string | null
+                  ipAddress: string | null
+                }[]
+                shareLinks: number
+                shareViews: number
+                jobs: number
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/admin/users/{userId}/subscriptions/{subscriptionId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /** End a plan given from the admin dashboard */
+    delete: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          userId: string
+          subscriptionId: string
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description No content */
+        204: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/admin/ai': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** AI runs, cost and failures */
+    get: {
+      parameters: {
+        query?: {
+          days?: '7' | '30' | '90'
+          timeZone?: string
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                days: number
+                totals: {
+                  runs: number
+                  failed: number
+                  byok: number
+                  costUsdMicros: number
+                  inputTokens: number
+                  cachedInputTokens: number
+                  outputTokens: number
+                  users: number
+                }
+                bySteps: {
+                  step: string
+                  runs: number
+                  failed: number
+                  costUsdMicros: number
+                  p50Ms: number
+                  p95Ms: number
+                }[]
+                byModels: {
+                  model: string
+                  runs: number
+                  costUsdMicros: number
+                  tokens: number
+                }[]
+                byDay: {
+                  day: string
+                  runs: number
+                  costUsdMicros: number
+                }[]
+                failures: {
+                  /** Format: uuid */
+                  id: string
+                  createdAt: string
+                  step: string
+                  model: string
+                  error: string | null
+                  /** Format: uuid */
+                  userId: string
+                  email: string
+                }[]
+                topUsers: {
+                  /** Format: uuid */
+                  userId: string
+                  email: string
+                  name: string
+                  runs: number
+                  costUsdMicros: number
+                }[]
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/admin/revenue': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Payments and subscriptions */
+    get: {
+      parameters: {
+        query?: {
+          days?: '7' | '30' | '90'
+          timeZone?: string
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                days: number
+                totals: {
+                  paise: number
+                  previousPaise: number
+                  allTimePaise: number
+                  payers: number
+                  checkouts: number
+                  checkoutsPaid: number
+                }
+                byDay: {
+                  day: string
+                  paise: number
+                }[]
+                activeSubscriptions: {
+                  /** @enum {string} */
+                  plan: 'season_pass' | 'pro'
+                  active: number
+                }[]
+                statuses: {
+                  label: string
+                  count: number
+                }[]
+                payments: {
+                  /** Format: uuid */
+                  id: string
+                  createdAt: string
+                  amountPaise: number
+                  /** @enum {string} */
+                  status: 'created' | 'captured' | 'failed' | 'refunded'
+                  method: string | null
+                  razorpayPaymentId: string | null
+                  plan: ('season_pass' | 'pro') | null
+                  /** Format: uuid */
+                  userId: string
+                  email: string
+                }[]
+                razorpayConfigured: boolean
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/admin/content': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Resumes, templates and sharing */
+    get: {
+      parameters: {
+        query?: {
+          days?: '7' | '30' | '90'
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                days: number
+                resumes: {
+                  total: number
+                  live: number
+                  archived: number
+                  deleted: number
+                  structured: number
+                  code: number
+                  tailored: number
+                }
+                byTemplate: {
+                  label: string
+                  count: number
+                }[]
+                versionKinds: {
+                  label: string
+                  count: number
+                }[]
+                sharing: {
+                  links: number
+                  listed: number
+                  protected: number
+                  plain: number
+                  views: number
+                }
+                topLinks: {
+                  /** Format: uuid */
+                  id: string
+                  slug: string
+                  username: string
+                  resumeTitle: string
+                  views: number
+                  totalViews: number
+                }[]
+                customTemplates: number
+                jobs: number
+                jobsFromUrl: number
+                uploads: {
+                  files: number
+                  bytes: number
+                  pdf: number
+                  tex: number
+                  text: number
+                }
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/admin/traffic': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Site traffic from PostHog */
+    get: {
+      parameters: {
+        query?: {
+          days?: '7' | '30' | '90'
+          timeZone?: string
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                configured: boolean
+                dashboardUrl: string
+                error: string | null
+                data: {
+                  totals: {
+                    pageviews: number
+                    visitors: number
+                    sessions: number
+                    previousPageviews: number
+                    previousVisitors: number
+                  }
+                  byDay: {
+                    day: string
+                    views: number
+                    visitors: number
+                  }[]
+                  pages: {
+                    label: string
+                    count: number
+                  }[]
+                  referrers: {
+                    label: string
+                    count: number
+                  }[]
+                  countries: {
+                    label: string
+                    count: number
+                  }[]
+                  devices: {
+                    label: string
+                    count: number
+                  }[]
+                  browsers: {
+                    label: string
+                    count: number
+                  }[]
+                  events: {
+                    event: string
+                    count: number
+                    people: number
+                  }[]
+                  api: {
+                    route: string
+                    requests: number
+                    p50Ms: number
+                    p95Ms: number
+                    errors: number
+                  }[]
+                  recordings: {
+                    id: string
+                    distinctId: string
+                    startedAt: string
+                    durationSeconds: number
+                    clicks: number
+                    startUrl: string | null
+                    url: string
+                  }[]
+                } | null
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/admin/system': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Health of the API, database and services */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: {
+                api: {
+                  nodeVersion: string
+                  uptimeSeconds: number
+                  rssBytes: number
+                  heapUsedBytes: number
+                  environment: string
+                }
+                database: {
+                  version: string
+                  sizeBytes: number
+                  latencyMs: number
+                  connections: {
+                    state: string
+                    count: number
+                  }[]
+                  tables: {
+                    name: string
+                    rows: number
+                    sizeBytes: number
+                  }[]
+                }
+                compiler: {
+                  /** @enum {string} */
+                  mode: 'in-process' | 'service'
+                  ok: boolean
+                  latencyMs: number | null
+                }
+                backup: {
+                  key: string
+                  sizeBytes: number
+                  modifiedAt: string
+                } | null
+                lastWebhookAt: string | null
+                integrations: {
+                  name: string
+                  configured: boolean
+                }[]
+              }
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
     options?: never
     head?: never
     patch?: never

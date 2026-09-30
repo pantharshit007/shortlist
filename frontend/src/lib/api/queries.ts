@@ -19,6 +19,11 @@ export const queryKeys = {
   job: (id: string) => ['job', id] as const,
   subscription: ['subscription'] as const,
   analytics: (days: number) => ['analytics', days] as const,
+  admin: ['admin'] as const,
+  adminReport: (report: string, days?: number) =>
+    ['admin', report, days] as const,
+  adminUsers: (search: AdminUsersSearch) => ['admin', 'users', search] as const,
+  adminUser: (id: string) => ['admin', 'user', id] as const,
 }
 
 export const meQuery = queryOptions({
@@ -156,6 +161,114 @@ export const analyticsQuery = (days: 7 | 30 | 90) =>
               timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             },
           },
+        }),
+      ),
+  })
+
+// Days are bucketed in the viewer's own time zone.
+const timeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone
+
+type AdminRange = 7 | 30 | 90
+
+export const adminOverviewQuery = (days: AdminRange) =>
+  queryOptions({
+    queryKey: queryKeys.adminReport('overview', days),
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/admin/overview', {
+          params: {
+            query: { days: String(days) as never, timeZone: timeZone() },
+          },
+        }),
+      ),
+  })
+
+export const adminAiQuery = (days: AdminRange) =>
+  queryOptions({
+    queryKey: queryKeys.adminReport('ai', days),
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/admin/ai', {
+          params: {
+            query: { days: String(days) as never, timeZone: timeZone() },
+          },
+        }),
+      ),
+  })
+
+export const adminRevenueQuery = (days: AdminRange) =>
+  queryOptions({
+    queryKey: queryKeys.adminReport('revenue', days),
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/admin/revenue', {
+          params: {
+            query: { days: String(days) as never, timeZone: timeZone() },
+          },
+        }),
+      ),
+  })
+
+export const adminContentQuery = (days: AdminRange) =>
+  queryOptions({
+    queryKey: queryKeys.adminReport('content', days),
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/admin/content', {
+          params: { query: { days: String(days) as never } },
+        }),
+      ),
+  })
+
+export const adminTrafficQuery = (days: AdminRange) =>
+  queryOptions({
+    queryKey: queryKeys.adminReport('traffic', days),
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/admin/traffic', {
+          params: {
+            query: { days: String(days) as never, timeZone: timeZone() },
+          },
+        }),
+      ),
+    // The API caches PostHog results for five minutes.
+    staleTime: 5 * 60_000,
+  })
+
+export const adminSystemQuery = queryOptions({
+  queryKey: queryKeys.adminReport('system'),
+  queryFn: () => unwrap(api.GET('/v1/admin/system')),
+  refetchInterval: 30_000,
+})
+
+export type AdminUsersSearch = {
+  q?: string
+  plan?: 'free' | 'season_pass' | 'pro'
+  status?: 'active' | 'suspended' | 'guest'
+  page?: number
+}
+
+export const adminUsersQuery = (search: AdminUsersSearch) =>
+  queryOptions({
+    queryKey: queryKeys.adminUsers(search),
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/admin/users', {
+          params: {
+            query: { ...search, page: String(search.page ?? 1) as never },
+          },
+        }),
+      ),
+    placeholderData: (previous) => previous,
+  })
+
+export const adminUserQuery = (userId: string) =>
+  queryOptions({
+    queryKey: queryKeys.adminUser(userId),
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/admin/users/{userId}', {
+          params: { path: { userId } },
         }),
       ),
   })
