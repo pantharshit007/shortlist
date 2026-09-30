@@ -81,7 +81,7 @@ function EditorRoute() {
       <div className="flex h-svh flex-col items-center justify-center gap-3 p-6 text-center">
         <p className="text-lg font-medium">{errorMessage(error)}</p>
         <Button variant="outline" asChild>
-          <Link to="/dashboard">Back to resumes</Link>
+          <Link to="/workspace">Back to resumes</Link>
         </Button>
       </div>
     )
@@ -242,7 +242,7 @@ function ResumeEditor({
       <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-4">
         <Button variant="ghost" size="icon" asChild>
           <Link
-            to="/dashboard"
+            to="/workspace"
             aria-label="Back to resumes"
             onClick={(event) => {
               if (editedSinceCreate && saveState === 'saved') {
@@ -395,7 +395,7 @@ function ResumeEditor({
         title="Also save it as a template?"
         description="Your resume is saved. Keep a copy as a template to start future resumes from it."
         cancelLabel="Not now"
-        onDone={() => navigate({ to: '/dashboard' })}
+        onDone={() => navigate({ to: '/workspace' })}
       />
       <HistoryPanel
         open={historyOpen}

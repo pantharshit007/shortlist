@@ -19,6 +19,7 @@ import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppJobsRouteImport } from './routes/_app/jobs'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppWorkspaceRouteImport } from './routes/_app/workspace'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
 import { Route as SitePrivacyRouteImport } from './routes/_site/privacy'
@@ -76,6 +77,11 @@ const AppProfileRoute = AppProfileRouteImport.update({
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWorkspaceRoute = AppWorkspaceRouteImport.update({
+  id: '/workspace',
+  path: '/workspace',
   getParentRoute: () => AppRoute,
 } as any)
 const SiteIndexRoute = SiteIndexRouteImport.update({
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/jobs': typeof AppJobsRoute
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
+  '/workspace': typeof AppWorkspaceRoute
   '/pricing': typeof SitePricingRoute
   '/privacy': typeof SitePrivacyRoute
   '/templates': typeof SiteTemplatesRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/jobs': typeof AppJobsRoute
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
+  '/workspace': typeof AppWorkspaceRoute
   '/pricing': typeof SitePricingRoute
   '/privacy': typeof SitePrivacyRoute
   '/templates': typeof SiteTemplatesRoute
@@ -181,6 +189,7 @@ export interface FileRoutesById {
   '/_app/jobs': typeof AppJobsRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/workspace': typeof AppWorkspaceRoute
   '/_site/pricing': typeof SitePricingRoute
   '/_site/privacy': typeof SitePrivacyRoute
   '/_site/templates': typeof SiteTemplatesRoute
@@ -204,6 +213,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/profile'
     | '/settings'
+    | '/workspace'
     | '/pricing'
     | '/privacy'
     | '/templates'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/profile'
     | '/settings'
+    | '/workspace'
     | '/pricing'
     | '/privacy'
     | '/templates'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/_app/jobs'
     | '/_app/profile'
     | '/_app/settings'
+    | '/_app/workspace'
     | '/_site/pricing'
     | '/_site/privacy'
     | '/_site/templates'
@@ -338,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/workspace': {
+      id: '/_app/workspace'
+      path: '/workspace'
+      fullPath: '/workspace'
+      preLoaderRoute: typeof AppWorkspaceRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_site/': {
       id: '/_site/'
       path: '/'
@@ -417,6 +436,7 @@ interface AppRouteChildren {
   AppJobsRoute: typeof AppJobsRoute
   AppProfileRoute: typeof AppProfileRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppWorkspaceRoute: typeof AppWorkspaceRoute
   AppMyTemplatesCustomTemplateIdRoute: typeof AppMyTemplatesCustomTemplateIdRoute
   AppMyTemplatesNewRoute: typeof AppMyTemplatesNewRoute
   AppResumesResumeIdRoute: typeof AppResumesResumeIdRoute
@@ -430,6 +450,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppJobsRoute: AppJobsRoute,
   AppProfileRoute: AppProfileRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppWorkspaceRoute: AppWorkspaceRoute,
   AppMyTemplatesCustomTemplateIdRoute: AppMyTemplatesCustomTemplateIdRoute,
   AppMyTemplatesNewRoute: AppMyTemplatesNewRoute,
   AppResumesResumeIdRoute: AppResumesResumeIdRoute,

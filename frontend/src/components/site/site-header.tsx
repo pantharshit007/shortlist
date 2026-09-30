@@ -43,7 +43,7 @@ export function SiteHeader() {
           <ThemeToggle />
           {session ? (
             <Button asChild className="hidden sm:inline-flex">
-              <Link to="/dashboard">Open dashboard</Link>
+              <Link to="/workspace">Open workspace</Link>
             </Button>
           ) : (
             <>
@@ -86,8 +86,8 @@ export function SiteHeader() {
                   </Button>
                 ))}
                 <Button className="mt-4" asChild onClick={() => setOpen(false)}>
-                  <Link to={session ? '/dashboard' : '/login'}>
-                    {session ? 'Open dashboard' : 'Sign in'}
+                  <Link to={session ? '/workspace' : '/login'}>
+                    {session ? 'Open workspace' : 'Sign in'}
                   </Link>
                 </Button>
               </nav>

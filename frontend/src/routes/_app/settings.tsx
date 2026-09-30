@@ -242,13 +242,13 @@ const paidPlans = [
     id: 'season_pass',
     name: 'Season Pass',
     price: '₹499 for 6 months',
-    body: 'One payment. Unlimited resumes and 40 tailored versions a month.',
+    body: 'One payment for 6 months. 40 AI-tailored resumes a month and unlimited AI edits.',
   },
   {
     id: 'pro',
     name: 'Pro',
     price: '₹129 a month',
-    body: 'Same limits, billed monthly. Cancel anytime.',
+    body: 'The same AI limits as the Season Pass, billed monthly. Cancel anytime.',
   },
 ] as const
 
@@ -378,7 +378,7 @@ function BillingTab({
               ) : (
                 <>
                   <UsageRow
-                    label="Tailored versions this month"
+                    label="AI-tailored resumes this month"
                     used={usage.tailor.used}
                     limit={usage.tailor.limit}
                   />
@@ -388,7 +388,7 @@ function BillingTab({
                     limit={usage.edit.limit}
                   />
                   <UsageRow
-                    label="Imports this month"
+                    label="AI imports this month"
                     used={usage.import.used}
                     limit={usage.import.limit}
                   />

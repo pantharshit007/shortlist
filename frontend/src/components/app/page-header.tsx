@@ -4,14 +4,18 @@ export function PageHeader({
   title,
   description,
   actions,
+  leading,
 }: {
   title: string
   description?: React.ReactNode
   actions?: React.ReactNode
+  // Shown before the title, e.g. the user's photo.
+  leading?: React.ReactNode
 }) {
   return (
     <div className="flex flex-wrap items-start gap-4">
       <SidebarTrigger className="-ml-1 md:hidden" />
+      {leading}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
         {description && (

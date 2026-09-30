@@ -7,9 +7,9 @@ import { hasUserAiKey } from "../ai-keys/ai-keys.service.js";
 export type Plan = (typeof users.$inferSelect)["plan"];
 export type QuotaKind = "tailor" | "edit" | "import";
 
-// Monthly limits from the PRD pricing. Paid limits are fair-use caps.
+// Monthly AI limits per plan; resumes are unlimited on every plan (1000 = unlimited). Paid limits are fair-use caps.
 export const planLimits: Record<Plan, Record<QuotaKind | "resumes", number>> = {
-  free: { resumes: 3, tailor: 5, edit: 50, import: 5 },
+  free: { resumes: 1000, tailor: 3, edit: 50, import: 3 },
   season_pass: { resumes: 1000, tailor: 40, edit: 1000, import: 50 },
   pro: { resumes: 1000, tailor: 40, edit: 1000, import: 50 },
 };
@@ -76,7 +76,8 @@ export async function assertAiQuota(userId: string, kind: QuotaKind) {
 export async function assertResumeQuota(userId: string) {
   const limit = planLimits[await planOf(userId)].resumes;
   const used = await activeResumes(userId);
-  if (used >= limit) throw quotaError(`Your plan allows ${limit} resumes. Delete one or upgrade.`, limit, used);
+  if (used >= limit)
+    throw quotaError(`You've reached the limit of ${limit} resumes. Delete some you no longer need.`, limit, used);
 }
 
 export async function getUsage(userId: string) {

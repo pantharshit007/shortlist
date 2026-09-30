@@ -1,7 +1,7 @@
 import { ArrowUpIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-// Small drawings of a page, so the dashboard reads like a desk of resumes rather than a table.
+// Small drawings of a page, so the workspace reads like a desk of resumes rather than a table.
 export function Sheet({
   className,
   children,

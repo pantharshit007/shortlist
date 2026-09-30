@@ -29,7 +29,7 @@
   --accent-foreground: #18201d;
   --destructive: #b3261e;
   --border: #d3d9d1;
-  --input: #cbd2c9;
+  --input: #7d8882;
   --ring: #0b6e65;
   --radius: 0.625rem;
 
@@ -72,7 +72,7 @@
   --accent-foreground: #e4eae5;
   --destructive: #f07167;
   --border: #2b3532;
-  --input: #34403c;
+  --input: #65716b;
   --ring: #58bfae;
 
   --highlight: #d9b83a;
@@ -169,6 +169,29 @@
   }
   p {
     text-wrap: pretty;
+  }
+  /* Tailwind v4 leaves buttons on the default arrow; clickable things get the hand. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab'],
+  [role='radio'],
+  [role='checkbox'],
+  [role='switch'],
+  summary,
+  select {
+    cursor: pointer;
+  }
+  /* On touch screens every button gets a 44px tap area without changing how it looks. */
+  @media (pointer: coarse) {
+    [data-slot='button'] {
+      position: relative;
+    }
+    [data-slot='button']::after {
+      content: '';
+      position: absolute;
+      inset-block: min(0px, calc((100% - 2.75rem) / 2));
+      inset-inline: min(0px, calc((100% - 2.75rem) / 2));
+    }
   }
   ::selection {
     background: color-mix(in oklab, var(--highlight) 55%, transparent);

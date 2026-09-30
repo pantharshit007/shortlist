@@ -39,7 +39,7 @@ function LandingPage() {
             </Button>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">
-            Free for 3 resumes. No card needed.
+            Unlimited resumes, free. No card needed.
           </p>
         </div>
         <HeroDemo />

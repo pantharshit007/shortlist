@@ -5,6 +5,7 @@ import {
   ChartColumnIcon,
   ChevronsUpDownIcon,
   FileTextIcon,
+  LayoutDashboardIcon,
   LayoutTemplateIcon,
   LogOutIcon,
   MonitorIcon,
@@ -43,16 +44,22 @@ import {
 } from '@/components/ui/sidebar'
 import { meQuery, usageQuery } from '@/lib/api/queries'
 import { signOut } from '@/lib/auth-client'
-import { planLabels } from '@/lib/format'
+import { initials, planLabels } from '@/lib/format'
 import { useTheme } from '@/lib/theme'
 import type { Theme } from '@/lib/theme'
 
 const nav = [
   {
     to: '/dashboard',
-    label: 'Resumes',
+    label: 'Dashboard',
+    icon: LayoutDashboardIcon,
+    match: ['/dashboard'],
+  },
+  {
+    to: '/workspace',
+    label: 'Workspace',
     icon: FileTextIcon,
-    match: ['/dashboard', '/resumes'],
+    match: ['/workspace', '/resumes'],
   },
   {
     to: '/my-templates',
@@ -81,31 +88,25 @@ const nav = [
   },
 ] as const
 
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join('')
-}
-
 function UsageCard() {
   const { data: usage } = useQuery(usageQuery)
   if (!usage || usage.plan !== 'free' || usage.ownAiKey) return null
-  const percent = Math.min(100, (usage.tailor.used / usage.tailor.limit) * 100)
+  const left = Math.max(0, usage.tailor.limit - usage.tailor.used)
   return (
     <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 text-sm">
       <p className="font-medium tabular-nums">
-        {usage.tailor.used} of {usage.tailor.limit} tailored this month
+        {left} of {usage.tailor.limit} AI-tailored resumes left this month
       </p>
       <Progress
-        value={percent}
-        aria-label="Tailored versions used this month"
+        value={(left / usage.tailor.limit) * 100}
+        aria-label="AI-tailored resumes left this month"
       />
+      <p className="text-xs text-muted-foreground">
+        Resumes you write yourself are always free and unlimited.
+      </p>
       <Button size="sm" variant="outline" asChild>
         <Link to="/settings" search={{ tab: 'billing' }}>
-          Get more with Season Pass
+          Get 40 a month with Season Pass
         </Link>
       </Button>
     </div>

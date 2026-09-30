@@ -126,7 +126,7 @@ function NoLinks() {
         </p>
       </div>
       <Button asChild>
-        <Link to="/dashboard">Go to your resumes</Link>
+        <Link to="/workspace">Go to your resumes</Link>
       </Button>
     </div>
   )

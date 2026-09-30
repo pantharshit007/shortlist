@@ -29,7 +29,7 @@ export const Route = createFileRoute('/login')({
 function safeRedirect(path: string | undefined) {
   return path && path.startsWith('/') && !path.startsWith('//')
     ? path
-    : '/dashboard'
+    : '/workspace'
 }
 
 const allProviders = [
@@ -110,7 +110,7 @@ function LoginPage() {
               </h1>
               <p className="text-muted-foreground">
                 {isSignup
-                  ? 'Free for 3 resumes. Use an account you already have, no password needed.'
+                  ? 'Unlimited resumes, free. Use an account you already have, no password needed.'
                   : 'Welcome back. Use the same account you signed up with.'}
               </p>
             </div>

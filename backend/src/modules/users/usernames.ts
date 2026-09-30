@@ -7,10 +7,12 @@ import { usernameRedirects, users } from "../../db/schema/index.js";
 export const USERNAME_PATTERN = /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/;
 
 // Names that would clash with app routes on the frontend domain.
+// Every top-level frontend route must be listed, or that user's public page at /<username> is hidden.
 const RESERVED = new Set([
   "about",
   "account",
   "admin",
+  "analytics",
   "api",
   "app",
   "assets",
@@ -22,9 +24,11 @@ const RESERVED = new Set([
   "edit",
   "help",
   "home",
+  "jobs",
   "login",
   "logout",
   "me",
+  "my-templates",
   "new",
   "pricing",
   "privacy",
@@ -35,15 +39,19 @@ const RESERVED = new Set([
   "resumes",
   "settings",
   "share",
+  "sign-in",
+  "sign-up",
   "signin",
   "signup",
   "static",
   "status",
   "support",
+  "templates",
   "terms",
   "u",
   "user",
   "users",
+  "workspace",
   "www",
 ]);
 
