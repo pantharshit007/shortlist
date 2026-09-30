@@ -21,7 +21,7 @@ const stepsFor: Record<QuotaKind, (typeof aiRuns.$inferSelect)["step"][]> = {
 };
 
 // Calendar month in UTC.
-function periodStart(now = new Date()) {
+export function periodStart(now = new Date()) {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 }
 

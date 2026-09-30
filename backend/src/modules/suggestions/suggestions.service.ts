@@ -3,6 +3,8 @@ import type { z } from "zod";
 import { db } from "../../db/index.js";
 import { aiRuns } from "../../db/schema/index.js";
 import { generateStructured } from "../../lib/ai/generate.js";
+import { redact } from "../../lib/ai/redact.js";
+import { knownCostUsdMicros } from "../../lib/ai/pricing.js";
 import { ConflictError, NotFoundError } from "../../lib/errors.js";
 import { shortId } from "../../lib/ids.js";
 import { compileTex } from "../../lib/latex/compile.js";
@@ -35,7 +37,8 @@ const rules = `Rules you must follow:
 - Keep bullets to one or two lines, starting with a strong action verb, no first person.
 - Refer to items only by the ids given in the JSON. Propose only changes that clearly help.
 - Follow the conventions (spelling, date format, terminology) of the job's location when a job is given,
-  otherwise keep the resume's own.`;
+  otherwise keep the resume's own.
+- Text like [email 1] or [company 2] is a private placeholder. Copy it exactly; never guess what it stands for.`;
 
 function toOperation(raw: z.infer<typeof aiStructuredOutput>["operations"][number]) {
   const candidate =
@@ -69,6 +72,9 @@ function toResponse(run: typeof aiRuns.$inferSelect) {
     appliedVersionId: run.versionId,
     summary: stored.summary,
     operations: stored.operations as Operation[],
+    model: run.model,
+    byok: run.byok,
+    costUsdMicros: knownCostUsdMicros(run),
     createdAt: run.createdAt,
   };
 }
@@ -104,16 +110,18 @@ ${input.instructions ? `\nThe user adds: ${input.instructions}\n` : ""}
   }
 
   const isInline = input.type === "edit" && Boolean(input.targetIds?.length);
-  const { data, runId } = await generateStructured({
+  const redacted = redact(prompt, [content, profile]);
+  const { data: masked, runId } = await generateStructured({
     userId,
     step: input.type === "tailor" ? "rewrite" : isInline ? "inline_edit" : "chat_edit",
     tier: isInline ? "fast" : "smart",
     schema: aiStructuredOutput,
     system: `You are an expert resume editor for software engineers.\n${rules}`,
-    prompt,
+    prompt: redacted.text,
     resumeId,
     ...(jobId && { jobId }),
   });
+  const data = redacted.restore(masked);
 
   const facts = [factText(content), factText(profile)];
   const operations: Operation[] = data.operations.flatMap((raw) => {
@@ -125,6 +133,7 @@ ${input.instructions ? `\nThe user adds: ${input.instructions}\n` : ""}
 }
 
 async function codeSuggestion(userId: string, resumeId: string, input: CreateInput, texSource: string) {
+  const profile = (await getProfile(userId)).content;
   let prompt: string;
   let jobId: string | undefined;
 
@@ -137,7 +146,6 @@ async function codeSuggestion(userId: string, resumeId: string, input: CreateInp
   } else if (input.type === "tailor") {
     const job = await getJob(userId, input.jobId);
     jobId = job.id;
-    const profile = (await getProfile(userId)).content;
     prompt = `Tailor this LaTeX resume for the job. Keep the document's structure, macros and packages; change only content.
 ${input.instructions ? `The user adds: ${input.instructions}\n` : ""}
 <job_requirements>${JSON.stringify(job.parsed)}</job_requirements>
@@ -148,16 +156,19 @@ ${input.instructions ? `The user adds: ${input.instructions}\n` : ""}
 <latex>${texSource}</latex>`;
   }
 
-  const { data, runId } = await generateStructured({
+  // Code-mode resumes have no structured content, so the profile's sensitive values are masked in the source.
+  const redacted = redact(prompt, [profile]);
+  const { data: masked, runId } = await generateStructured({
     userId,
     step: input.type === "fix_compile" ? "fix_compile" : input.type === "tailor" ? "rewrite" : "chat_edit",
     tier: "smart",
     schema: aiCodeOutput,
     system: `You edit LaTeX resumes. Return the complete document.\n${rules}`,
-    prompt,
+    prompt: redacted.text,
     resumeId,
     ...(jobId && { jobId }),
   });
+  const data = redacted.restore(masked);
 
   // Every LaTeX suggestion is compiled before the user sees it.
   const compiled = await compileTex(data.texSource);

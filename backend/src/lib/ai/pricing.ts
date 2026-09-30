@@ -23,3 +23,7 @@ export function costUsdMicros(
     uncached * price.input + usage.cachedInputTokens * price.cachedInput + usage.outputTokens * price.output,
   );
 }
+
+// Null when tokens were used but nothing was charged: the model had no price when the run was logged.
+export const knownCostUsdMicros = (run: { costUsdMicros: number; inputTokens: number; outputTokens: number }) =>
+  run.costUsdMicros === 0 && run.inputTokens + run.outputTokens > 0 ? null : run.costUsdMicros;

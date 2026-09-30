@@ -17,6 +17,8 @@ export const bulletSchema = z.object({
 const linkSchema = z.object({
   label: z.string().trim().max(40),
   url: z.url(),
+  // Masked before the URL is sent to an AI model.
+  sensitive: z.boolean().optional(),
 });
 
 const entryBase = {
@@ -28,6 +30,8 @@ const entryBase = {
 const experienceEntry = z.object({
   ...entryBase,
   organization: shortText,
+  // Masks the organization name (e.g. under NDA) before content is sent to an AI model.
+  sensitive: z.boolean().optional(),
   role: shortText,
   location: shortText.optional(),
   start: yearMonth.optional(),
@@ -95,6 +99,11 @@ export const basicsSchema = z.object({
   phone: z.string().trim().max(30).optional(),
   location: shortText.optional(),
   links: z.array(linkSchema).max(10).default([]),
+  // Fields masked before content is sent to an AI model. Email and phone are always masked.
+  sensitive: z
+    .array(z.enum(["name", "location"]))
+    .max(2)
+    .optional(),
 });
 
 export const resumeContentSchema = z.object({

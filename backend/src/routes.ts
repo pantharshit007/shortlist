@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { adminRouter } from "./modules/admin/admin.routes.js";
 import { aiKeysRouter } from "./modules/ai-keys/ai-keys.routes.js";
+import { aiRunsRouter } from "./modules/ai-runs/ai-runs.routes.js";
 import { analyticsRouter } from "./modules/analytics/analytics.routes.js";
 import { billingRouter } from "./modules/billing/billing.routes.js";
 import { customTemplatesRouter } from "./modules/custom-templates/custom-templates.routes.js";
@@ -22,6 +23,7 @@ export const v1 = Router();
 
 v1.use(usersRouter);
 v1.use(aiKeysRouter);
+v1.use(aiRunsRouter);
 v1.use(profilesRouter);
 v1.use(templatesRouter);
 v1.use(customTemplatesRouter);

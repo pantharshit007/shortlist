@@ -42,6 +42,12 @@ export const suggestionResponse = z.object({
   appliedVersionId: z.uuid().nullable(),
   summary: z.string(),
   operations: z.array(operationResponse),
+  // Like "openai:gpt-5.4-mini".
+  model: z.string(),
+  // Run on the user's own API key.
+  byok: z.boolean(),
+  // Millionths of a US dollar; null when the model's price is unknown.
+  costUsdMicros: z.number().int().nullable(),
   createdAt: z.date(),
 });
 
