@@ -1,7 +1,7 @@
 # Shortlist API
 
-Express + TypeScript backend for the resume builder: auth, resumes and versions, LaTeX compilation,
-AI tailoring, share links, billing. The frontend lives in `../frontend`.
+Express 5 + TypeScript backend for Shortlist: auth, resumes and versions, LaTeX compilation, AI import and
+tailoring, share links and their analytics, billing and the admin dashboard. The frontend lives in `../frontend`.
 
 ## Run locally
 
@@ -16,8 +16,10 @@ pnpm dev                          # API on http://localhost:4000
 pnpm worker                       # optional: scheduled maintenance jobs
 ```
 
-Before OAuth apps are set up, use "Continue as guest" on the sign-in page (on by default in development).
-Without an AI key, AI endpoints return `AI_NOT_CONFIGURED`; everything else works.
+- Before OAuth apps are set up, use "Continue as guest" on the sign-in page (on by default in development).
+- Without an AI key, AI endpoints return `AI_NOT_CONFIGURED`; everything else works.
+- In development, LaTeX compiles inside the API process. Production uses the separate compiler service.
+- To open `/admin` locally, put your sign-in email in `ADMIN_EMAILS`.
 
 ## Scripts
 
@@ -34,6 +36,8 @@ Without an AI key, AI endpoints return `AI_NOT_CONFIGURED`; everything else work
 | `pnpm openapi`                                 | Regenerate `openapi.json` for the frontend's typed client |
 | `pnpm build` then `pnpm start`                 | Production build                                          |
 
+After changing any API schema, run `pnpm openapi` here and `pnpm api:types` in `../frontend`.
+
 ## Layout
 
 ```
@@ -42,13 +46,15 @@ src/
   app.ts               middleware + routes  compiler-server.ts isolated LaTeX compiler
   config/env.ts        validated env vars   openapi.ts         API spec from Zod schemas
   db/                  Drizzle schema, client, seed
-  lib/                 auth, ai, latex, storage, email, errors, rate limits, razorpay
-  middleware/          requireAuth, validate, rate limits, errors
+  jobs/                maintenance tasks the worker runs
+  lib/                 auth, ai (models, pricing), latex, storage, analytics (PostHog), razorpay, errors
+  middleware/          requireAuth, requireAdmin, validate, rate limits, request metrics, errors
   modules/<name>/      routes -> controller -> service, plus Zod schemas
   schemas/             resume content schema shared by every module
-  templates/           LaTeX templates (Developer, Jake's, Compact, Modern)
+  templates/           LaTeX templates (Developer, Jake's Resume, Compact, Modern)
 drizzle/               SQL migrations
 deploy/                Caddy block for the VPS's existing Caddy, backup script
+test/                  unit tests (Vitest)
 ```
 
 Services never touch `req`/`res`, so the same logic can be reused by the worker or a future MCP server.
@@ -60,68 +66,104 @@ version (`POST /v1/resumes/:id/versions`), not as action URLs.
 The full spec is served at `GET /v1/openapi.json` and committed as `openapi.json`. Auth is handled by Better Auth
 under `/api/auth/*` (session cookie). Errors always look like `{ "error": { "code", "message", "details" } }`.
 
-| Area                  | Endpoints                                                                                    |
-| --------------------- | -------------------------------------------------------------------------------------------- |
-| Account               | `GET/PATCH/DELETE /v1/me`, `GET /v1/me/data`, `GET /v1/usernames/:username`, `GET /v1/usage` |
-| Profile and templates | `GET/PUT /v1/profile`, `GET /v1/templates`                                                   |
-| Resumes               | `GET/POST /v1/resumes`, `GET/PATCH/DELETE /v1/resumes/:id`                                   |
-| Versions              | `GET/POST /v1/resumes/:id/versions`, `GET/PATCH /v1/resumes/:id/versions/:versionId`         |
-| Output                | `GET /v1/resumes/:id/pdf`, `/tex`, `/json-resume`, `POST /v1/previews`                       |
-| Import                | `POST /v1/uploads`, `POST /v1/imports`                                                       |
-| Jobs and AI           | `GET/POST /v1/jobs`, `POST /v1/resumes/:id/suggestions`, `GET /v1/resumes/:id/coverage`      |
-| Sharing               | `/v1/resumes/:id/share-links`, `/v1/share-links/:id`, `/v1/share-links/:id/stats`            |
-| Public                | `GET /v1/public/users/:username`, `/v1/public/users/:username/resumes/:slug` (+ `/pdf`)      |
-| Billing               | `POST /v1/checkouts`, `GET/DELETE /v1/subscription`, `POST /v1/webhooks/razorpay`            |
+| Area                  | Endpoints                                                                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Account               | `GET/PATCH/DELETE /v1/me`, `GET /v1/me/data`, `GET /v1/usernames/:username`, `GET /v1/usage`                                         |
+| Own AI key            | `GET/PUT/DELETE /v1/me/ai-key`                                                                                                       |
+| Profile and templates | `GET/PUT /v1/profile`, `GET /v1/templates`, `/v1/custom-templates`, `/v1/custom-templates/:id`                                       |
+| Resumes               | `GET/POST /v1/resumes`, `GET/PATCH/DELETE /v1/resumes/:id`                                                                           |
+| Versions              | `GET/POST /v1/resumes/:id/versions`, `GET/PATCH /v1/resumes/:id/versions/:versionId`                                                 |
+| Output                | `GET /v1/resumes/:id/pdf`, `/tex`, `/json-resume`, `POST /v1/previews`                                                               |
+| Import                | `POST /v1/uploads`, `GET /v1/uploads/:id`, `POST /v1/imports`                                                                        |
+| Jobs and AI           | `/v1/jobs`, `/v1/resumes/:id/suggestions`, `/v1/resumes/:id/suggestions/:id`, `/v1/resumes/:id/coverage`                             |
+| Sharing               | `/v1/resumes/:id/share-links`, `/v1/share-links/:id`, `/v1/share-links/:id/stats`, `GET /v1/analytics`                               |
+| Public                | `GET /v1/public/users/:username`, `/v1/public/users/:username/resumes/:slug` (+ `/pdf`)                                              |
+| Billing               | `POST /v1/checkouts`, `GET/DELETE /v1/subscription`, `POST /v1/webhooks/razorpay`                                                    |
+| Admin                 | `/v1/admin/overview`, `/users`, `/users/:id` (+ `/sessions`, `/subscriptions`), `/ai`, `/revenue`, `/content`, `/traffic`, `/system` |
+
+## Admin
+
+`/v1/admin/*` is open only to signed-in users whose email is in `ADMIN_EMAILS` and verified by their sign-in
+provider (`src/middleware/require-admin.ts`, tested in `test/admin.test.ts`). Admins can suspend and restore
+accounts (a suspended user can't start a session), sign a user out everywhere, and give a Season Pass or Pro for
+free. Plans paid through Razorpay are cancelled or refunded in Razorpay, not here, so nobody keeps being billed.
+
+The traffic report queries PostHog with HogQL using `POSTHOG_PERSONAL_API_KEY`, and caches results in memory for
+five minutes because PostHog rate-limits its query API. Admin actions are sent to PostHog as `admin_*` events.
 
 ## Credentials
 
 Every variable is listed in `.env.example`. Where to get them:
 
-| Variable                                                      | Source                                                                                                              |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `BETTER_AUTH_SECRET`, `BACKUP_ENCRYPTION_KEY`                 | `openssl rand -hex 32` (keep a copy of the backup key outside the server)                                           |
-| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `OPENROUTER_API_KEY` | Provider dashboard; set `AI_PROVIDER` to match                                                                      |
-| `GOOGLE_CLIENT_ID/SECRET`                                     | Google Cloud Console, OAuth client, redirect `<BETTER_AUTH_URL>/api/auth/callback/google`                           |
-| `GITHUB_CLIENT_ID/SECRET`                                     | GitHub Developer Settings, OAuth App, callback `<BETTER_AUTH_URL>/api/auth/callback/github`                         |
-| `CHATGPT_CLIENT_ID/SECRET`                                    | OpenAI platform console, Sign in with ChatGPT (beta), redirect `<BETTER_AUTH_URL>/api/auth/callback/chatgpt`        |
-| `R2_*`                                                        | Cloudflare dashboard, R2, bucket + API token with read/write on it                                                  |
-| `RAZORPAY_KEY_ID/SECRET`                                      | Razorpay dashboard, API keys                                                                                        |
-| `RAZORPAY_PRO_PLAN_ID`                                        | Razorpay dashboard, Subscriptions, create a monthly plan (₹129)                                                     |
-| `RAZORPAY_WEBHOOK_SECRET`                                     | Razorpay dashboard, Webhooks, URL `<BETTER_AUTH_URL>/v1/webhooks/razorpay` with the events listed in `.env.example` |
-| `JINA_API_KEY`                                                | Optional, jina.ai, raises the limit for fetching job posts by URL                                                   |
+| Variable                                                                  | Source                                                                                                                                      |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BETTER_AUTH_SECRET`, `AI_KEY_ENCRYPTION_SECRET`, `BACKUP_ENCRYPTION_KEY` | `openssl rand -hex 32`. Keep a copy of the backup key outside the server; never change the AI key secret once users have saved keys         |
+| `POSTGRES_PASSWORD`                                                       | `openssl rand -hex 24` (production only; Postgres reads it once, when its volume is first created)                                          |
+| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `OPENROUTER_API_KEY`             | Provider dashboard; set `AI_PROVIDER` to match                                                                                              |
+| `GOOGLE_CLIENT_ID/SECRET`                                                 | Google Cloud Console, OAuth client, redirect `<BETTER_AUTH_URL>/api/auth/callback/google`                                                   |
+| `GITHUB_CLIENT_ID/SECRET`                                                 | GitHub Developer Settings, OAuth App (one per environment), callback `<BETTER_AUTH_URL>/api/auth/callback/github`                           |
+| `CHATGPT_CLIENT_ID/SECRET`                                                | Partner access only for now: apply at openai.com/form/sign-in-with-chatgpt-interest, redirect `<BETTER_AUTH_URL>/api/auth/callback/chatgpt` |
+| `R2_*`                                                                    | Cloudflare dashboard, R2, bucket + Account API token with Object Read & Write on it                                                         |
+| `POSTHOG_KEY`, `POSTHOG_HOST`                                             | PostHog, Settings, Project, the project token and your region's ingest host                                                                 |
+| `POSTHOG_PERSONAL_API_KEY`, `POSTHOG_PROJECT_ID`                          | PostHog, Settings, Personal API keys, scopes `query:read` and `session_recording:read`; the ID is in the URL                                |
+| `ADMIN_EMAILS`                                                            | Comma-separated emails allowed into `/admin`                                                                                                |
+| `RAZORPAY_KEY_ID/SECRET`                                                  | Razorpay dashboard, API keys                                                                                                                |
+| `RAZORPAY_PRO_PLAN_ID`                                                    | Razorpay dashboard, Subscriptions, create a monthly plan (₹129)                                                                             |
+| `RAZORPAY_WEBHOOK_SECRET`                                                 | Razorpay dashboard, Webhooks, URL `<BETTER_AUTH_URL>/v1/webhooks/razorpay` with the events listed in `.env.example`                         |
+| `JINA_API_KEY`                                                            | Optional, jina.ai, raises the limit for fetching job posts by URL                                                                           |
 
 ## Deploy to the VPS
 
 The production stack (`docker-compose.prod.yml`) runs the API, the worker, the LaTeX compiler, Postgres and
-nightly encrypted backups. There is no Redis: rate limits count in memory, scheduled jobs use Postgres locks and
-webhook de-duplication is a Postgres table. HTTPS comes from the Caddy that already runs on the VPS.
+nightly encrypted backups. HTTPS comes from a Caddy that already runs on the VPS for another app; the API joins
+that Caddy's Docker network (`PROXY_NETWORK`) under the alias `shortlist-api`, and Postgres answers only to the
+alias `shortlist-postgres` so it can't be confused with another app's `postgres` on the shared network.
 
 The compiler runs untrusted LaTeX, so it holds no secrets, has no internet access (the TeX packages are
 downloaded when the image is built), runs as a non-root user on a read-only filesystem, and has CPU, memory and
 process limits. Postgres and the compiler are on internal networks only.
 
+First setup:
+
 1. Harden the server once: create a sudo user, log in with SSH keys, disable root and password login, allow only
-   ports 22, 80 and 443 (`ufw`), install `fail2ban` and `unattended-upgrades`, install Docker.
-2. Point DNS for `api.shortlist.co.in` at the server (an `A` record to its IP).
-3. On the server:
+   ports 22, 80 and 443 (`ufw`), install `fail2ban` and `unattended-upgrades`, install Docker. Add a swap file.
+2. Point DNS for `api.shortlist.co.in` at the server (an `A` record, DNS only if the domain is on Cloudflare).
+3. Clone only the backend:
    ```sh
-   git clone <repo> && cd resumebuilder/backend
-   cp .env.example .env.production   # fill in production values, NODE_ENV=production, STORAGE_DRIVER=r2
-   docker network ls                 # note the existing Caddy's network, e.g. pragati_default; set PROXY_NETWORK to it
+   git clone --filter=blob:none --sparse https://github.com/srvjha/resume-builder.git ~/shortlist
+   cd ~/shortlist && git sparse-checkout set backend && cd backend
+   ```
+4. Create `.env.production` from `.env.example` with production values (`NODE_ENV=production`,
+   `STORAGE_DRIVER=r2`, `FRONTEND_URL=https://shortlist.co.in`, `BETTER_AUTH_URL=https://api.shortlist.co.in`,
+   `COOKIE_DOMAIN=.shortlist.co.in`). Set `PROXY_NETWORK` to the existing Caddy's network from `docker network ls`.
+   Leave out `DATABASE_URL` and `COMPILER_URL`; the compose file sets them. Keep the file at `chmod 600`.
+5. Start it:
+   ```sh
    docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
    ```
-   The API container applies migrations and syncs templates on start.
-4. Add the block from `deploy/Caddyfile` to the existing Caddy's Caddyfile and reload that Caddy. It reaches the API
-   as `shortlist-api:4000` over the shared network and issues the HTTPS certificate.
-5. Set `FRONTEND_URL` to the deployed frontend, `BETTER_AUTH_URL` to `https://api.<domain>` and `COOKIE_DOMAIN`
-   to `.<domain>` so the frontend and API share the session cookie.
+   The API container applies migrations and syncs templates on every start.
+6. Append `deploy/Caddyfile` to the existing Caddy's Caddyfile, then validate and reload that Caddy:
+   ```sh
+   docker exec <caddy> caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+   docker exec <caddy> caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+   ```
+   Commit the Caddyfile change in the other app's repo so its deploys keep the block.
 
-Update: `git pull && docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build`.
+After that, every push to `main` that changes `backend/` deploys itself through
+`.github/workflows/deploy-backend.yml` (checks, then SSH, pull, rebuild and a health check).
+
+After editing `.env.production` on the server, recreate the containers so they read it (a plain `restart` keeps
+the old values):
+
+```sh
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --force-recreate api worker
+```
 
 ## Backups
 
 The `backup` service dumps Postgres every 24 hours, encrypts it with `BACKUP_ENCRYPTION_KEY` and uploads it to
-`backups/postgres/` in the R2 bucket. Add an R2 lifecycle rule to delete old backups (e.g. after 30 days).
+`backups/postgres/` in the R2 bucket. The admin dashboard's System page warns when the newest backup is more
+than two days old. Add an R2 lifecycle rule to delete old backups (for example after 30 days).
 
 Restore (test this once before launch):
 
