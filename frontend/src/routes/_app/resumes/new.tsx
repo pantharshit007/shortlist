@@ -14,6 +14,11 @@ import { z } from 'zod'
 import { PageHeader } from '@/components/app/page-header'
 import { PdfPreview } from '@/components/editor/pdf-preview'
 import {
+  CategoryFilter,
+  LoadMore,
+  useLoadMore,
+} from '@/components/templates/template-filters'
+import {
   BlankPageSheet,
   LatexSheet,
   ResumeSheet,
@@ -39,8 +44,8 @@ import type { CreateResumeBody, ResumeContent } from '@/lib/api/types'
 import { usePdfPreview } from '@/hooks/use-pdf-preview'
 import { apiUrl } from '@/lib/env'
 import { site } from '@/lib/site'
-import { blankLatex, templateCatalog } from '@/lib/templates'
-import type { TemplateId } from '@/lib/templates'
+import { blankLatex, inCategory, templateCatalog } from '@/lib/templates'
+import type { TemplateCategory, TemplateId } from '@/lib/templates'
 import { cn } from '@/lib/utils'
 
 const searchSchema = z.object({
@@ -88,13 +93,18 @@ type PickerOption = {
   value: string
   name: string
   note?: string
+  categories?: readonly string[]
   preview: React.ReactNode
 }
+
+// Two rows of the four-column picker.
+const pickerBatch = 8
 
 function layoutOptions(): PickerOption[] {
   return templateCatalog.map((template) => ({
     value: template.id,
     name: template.name,
+    categories: template.categories,
     preview: (
       <img
         src={`/templates/${template.id}.png`}
@@ -121,18 +131,39 @@ function TemplatePicker({
   description: string
   footer?: React.ReactNode
 }) {
+  const [category, setCategory] = useState<TemplateCategory>()
+  // Blank page and custom templates have no categories, so they only show under All.
+  const filtered = options.filter((option) =>
+    inCategory({ categories: option.categories ?? [] }, category),
+  )
+  const index = filtered.findIndex((option) => option.value === value)
+  const { limit, listRef, more } = useLoadMore<HTMLDivElement>(
+    pickerBatch,
+    category,
+    index + 1,
+  )
+  // A selection outside the filter stays pinned first, so it's never hidden.
+  const pinned =
+    index < 0 ? options.find((option) => option.value === value) : undefined
+  const shown = pinned
+    ? [pinned, ...filtered.slice(0, limit - 1)]
+    : filtered.slice(0, limit)
+  const total = filtered.length + (pinned ? 1 : 0)
+
   return (
     <FieldSet>
       <FieldLegend>Template</FieldLegend>
       <FieldDescription>{description}</FieldDescription>
+      <CategoryFilter value={category} onChange={setCategory} />
       <ToggleGroup
+        ref={listRef}
         type="single"
         value={value}
         onValueChange={(next) => next && onChange(next)}
         aria-label="Template"
         className="grid w-full grid-cols-2 gap-4 @xl:grid-cols-4"
       >
-        {options.map((option) => {
+        {shown.map((option) => {
           const selected = option.value === value
           return (
             <ToggleGroupItem
@@ -170,6 +201,9 @@ function TemplatePicker({
           )
         })}
       </ToggleGroup>
+      {total > pickerBatch && (
+        <LoadMore shown={limit} total={total} onClick={more} />
+      )}
       {footer}
     </FieldSet>
   )

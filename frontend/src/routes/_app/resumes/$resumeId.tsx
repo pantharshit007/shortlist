@@ -33,6 +33,7 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -57,7 +58,7 @@ import { queryKeys, resumeQuery } from '@/lib/api/queries'
 import type { ResumeContent, ResumeDetail } from '@/lib/api/types'
 import { panelStorage } from '@/lib/panel-storage'
 import { site } from '@/lib/site'
-import { templateCatalog } from '@/lib/templates'
+import { templateCatalog, templateCategories } from '@/lib/templates'
 import { cn } from '@/lib/utils'
 
 const focusKey = 'resume-editor-focus'
@@ -358,22 +359,32 @@ function ResumeEditor({
                 <SelectValue>{currentTemplate?.name}</SelectValue>
               </SelectTrigger>
               <SelectContent className="w-72">
-                <SelectGroup>
-                  {templateCatalog.map((template) => (
-                    <SelectItem
-                      key={template.id}
-                      value={template.id}
-                      textValue={template.name}
-                    >
-                      <span className="flex flex-col items-start">
-                        {template.name}
-                        <span className="text-xs text-muted-foreground">
-                          {template.description}
-                        </span>
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
+                {templateCategories.map((category) => {
+                  const templates = templateCatalog.filter(
+                    (template) => template.categories[0] === category.id,
+                  )
+                  return (
+                    templates.length > 0 && (
+                      <SelectGroup key={category.id}>
+                        <SelectLabel>{category.name}</SelectLabel>
+                        {templates.map((template) => (
+                          <SelectItem
+                            key={template.id}
+                            value={template.id}
+                            textValue={template.name}
+                          >
+                            <span className="flex flex-col items-start">
+                              {template.name}
+                              <span className="text-xs text-muted-foreground">
+                                {template.description}
+                              </span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    )
+                  )
+                })}
               </SelectContent>
             </Select>
           )}

@@ -226,7 +226,7 @@ export function TemplatesShowcase() {
           </Button>
         </div>
         <ul className="mt-10 grid grid-cols-2 gap-5 lg:grid-cols-4">
-          {templateCatalog.map((template) => (
+          {templateCatalog.slice(0, 4).map((template) => (
             <li key={template.id}>
               <Link
                 to="/templates"

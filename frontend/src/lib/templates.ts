@@ -1,4 +1,21 @@
+export const templateCategories = [
+  { id: 'software-engineering', name: 'Software engineering' },
+  { id: 'ai-ml', name: 'AI and ML' },
+  { id: 'data', name: 'Data' },
+  { id: 'product', name: 'Product' },
+  { id: 'design', name: 'Design' },
+  { id: 'students', name: 'Students and freshers' },
+  { id: 'banking', name: 'Banking' },
+  { id: 'finance', name: 'Finance and accounting' },
+  { id: 'consulting', name: 'Consulting' },
+  { id: 'marketing-sales', name: 'Marketing and sales' },
+  { id: 'executive', name: 'Executive' },
+] as const
+
+export type TemplateCategory = (typeof templateCategories)[number]['id']
+
 // Mirrors the backend's template registry; previews are real renders in public/templates.
+// The first category is the primary one, used to group templates in the editor.
 export const templateCatalog = [
   {
     id: 'developer',
@@ -6,26 +23,49 @@ export const templateCatalog = [
     description:
       'The Jake-style layout most developers use, with icons for your links.',
     fontSize: 10,
+    atsSafe: true,
+    categories: ['software-engineering', 'ai-ml', 'data'],
   },
   {
     id: 'jake',
     name: "Jake's Resume",
     description: 'Classic single-column layout, the standard for tech roles.',
     fontSize: 11,
+    atsSafe: true,
+    categories: ['software-engineering', 'students', 'ai-ml'],
   },
   {
     id: 'sb2nov',
     name: 'Compact',
     description: 'Denser layout that fits more on one page.',
     fontSize: 10,
+    atsSafe: true,
+    categories: ['software-engineering', 'students', 'data'],
   },
   {
     id: 'modern',
     name: 'Modern',
     description: 'Sans-serif type with teal section headings.',
     fontSize: 10,
+    atsSafe: true,
+    categories: ['software-engineering', 'product', 'design'],
   },
-] as const
+] as const satisfies readonly {
+  id: string
+  name: string
+  description: string
+  fontSize: number
+  atsSafe: boolean
+  categories: readonly [TemplateCategory, ...TemplateCategory[]]
+}[]
+
+export const categoryName = (id: TemplateCategory) =>
+  templateCategories.find((category) => category.id === id)?.name ?? id
+
+export const inCategory = (
+  template: { categories: readonly string[] },
+  category?: TemplateCategory,
+) => !category || template.categories.includes(category)
 
 export type TemplateId = (typeof templateCatalog)[number]['id']
 
