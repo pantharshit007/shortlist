@@ -829,7 +829,10 @@ export async function getSystem() {
         ),
       },
       { name: `Storage (${env.STORAGE_DRIVER})`, configured: true },
-      { name: "Razorpay", configured: Boolean(env.RAZORPAY_KEY_ID && env.RAZORPAY_WEBHOOK_SECRET) },
+      {
+        name: env.RAZORPAY_MODE === "test" ? "Razorpay (test mode)" : "Razorpay",
+        configured: Boolean(env.RAZORPAY_KEY_ID && env.RAZORPAY_WEBHOOK_SECRET),
+      },
       { name: "PostHog events", configured: Boolean(env.POSTHOG_KEY) },
       { name: "PostHog admin reads", configured: Boolean(env.POSTHOG_PERSONAL_API_KEY && env.POSTHOG_PROJECT_ID) },
       { name: "Jina Reader key", configured: Boolean(env.JINA_API_KEY) },
