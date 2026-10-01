@@ -17,6 +17,7 @@ const nav = [
   { to: '/templates', label: 'Templates' },
   { to: '/ats-checker', label: 'ATS checker' },
   { to: '/pricing', label: 'Pricing' },
+  { to: '/docs', label: 'Docs' },
 ] as const
 
 export function SiteHeader() {

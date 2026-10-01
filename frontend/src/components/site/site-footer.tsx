@@ -10,6 +10,7 @@ const columns = [
       { to: '/templates', label: 'Templates' },
       { to: '/ats-checker', label: 'ATS checker' },
       { to: '/pricing', label: 'Pricing' },
+      { to: '/docs', label: 'Docs' },
       { to: '/login', label: 'Sign in' },
     ],
   },
