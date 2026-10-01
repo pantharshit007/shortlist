@@ -116,7 +116,7 @@ ${input.instructions ? `\nThe user adds: ${input.instructions}\n` : ""}
     step: input.type === "tailor" ? "rewrite" : isInline ? "inline_edit" : "chat_edit",
     tier: isInline ? "fast" : "smart",
     schema: aiStructuredOutput,
-    system: `You are an expert resume editor for software engineers.\n${rules}`,
+    system: `You are an expert resume editor for every field, from software and data to finance, consulting, marketing and design. Use the vocabulary recruiters in the person's field expect.\n${rules}`,
     prompt: redacted.text,
     resumeId,
     ...(jobId && { jobId }),

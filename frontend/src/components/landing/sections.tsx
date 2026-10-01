@@ -214,7 +214,7 @@ export function TemplatesShowcase() {
               id="templates"
               className="text-3xl font-semibold tracking-tight sm:text-4xl"
             >
-              Templates recruiters in tech already expect
+              Templates recruiters in your field already expect
             </h2>
             <p className="mt-3 text-lg text-muted-foreground">
               Single column, clean type, and text an applicant tracking system

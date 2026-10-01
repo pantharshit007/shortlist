@@ -2,7 +2,7 @@
 
 # Shortlist
 
-Resume builder for Indian CS students and developers, at shortlist.co.in. `frontend/` is TanStack Start, `backend/` is Express + Postgres. Each has its own README with setup and scripts.
+Resume builder for students and professionals in every field (software, data, banking, finance, consulting, marketing, design and more), built in India, at shortlist.co.in. `frontend/` is TanStack Start, `backend/` is Express + Postgres. Each has its own README with setup and scripts.
 
 ## Conventions
 
