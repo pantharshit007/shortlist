@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { countryLabel } from '@/components/analytics/labels'
 import { ConfirmDialog } from '@/components/app/confirm-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -123,6 +124,23 @@ function LinkStats({ link }: { link: ShareLink }) {
           {data.lastViewedAt ? timeAgo(data.lastViewedAt) : 'Never'}
         </dd>
       </div>
+      {(data.places.length > 0 || data.countries.length > 0) && (
+        <div className="col-span-3">
+          <dt className="text-muted-foreground">Where</dt>
+          <dd className="break-words">
+            {data.places.length > 0
+              ? data.places
+                  .map(
+                    (p) =>
+                      `${[p.city, p.region, p.country && countryLabel(p.country)].filter(Boolean).join(', ')} (${p.views})`,
+                  )
+                  .join('; ')
+              : data.countries
+                  .map((c) => `${countryLabel(c.country)} (${c.views})`)
+                  .join(', ')}
+          </dd>
+        </div>
+      )}
       {data.topReferrers.length > 0 && (
         <div className="col-span-3">
           <dt className="text-muted-foreground">From</dt>
@@ -140,13 +158,25 @@ function LinkStats({ link }: { link: ShareLink }) {
   )
 }
 
-function LinkCard({ link, resumeId }: { link: ShareLink; resumeId: string }) {
+function LinkCard({
+  link,
+  resumeId,
+  headVersionId,
+}: {
+  link: ShareLink
+  resumeId: string
+  headVersionId: string | null
+}) {
   const queryClient = useQueryClient()
   const [confirmOff, setConfirmOff] = useState(false)
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.shareLinks(resumeId) })
   const update = useMutation({
-    mutationFn: (body: { showContact?: boolean; isListed?: boolean }) =>
+    mutationFn: (body: {
+      showContact?: boolean
+      isListed?: boolean
+      pinnedVersionId?: string | null
+    }) =>
       unwrap(
         api.PATCH('/v1/share-links/{shareLinkId}', {
           params: { path: { shareLinkId: link.id } },
@@ -234,6 +264,36 @@ function LinkCard({ link, resumeId }: { link: ShareLink; resumeId: string }) {
           checked={link.isListed}
           onChange={(isListed) => update.mutate({ isListed })}
         />
+        <SwitchField
+          id={`${link.id}-pinned`}
+          label="Pin this version"
+          description={
+            link.pinnedVersionId
+              ? 'Visitors see the version you pinned. Turn off to always show your latest edits.'
+              : 'Off: visitors always see your latest edits.'
+          }
+          checked={Boolean(link.pinnedVersionId)}
+          onChange={(pinned) =>
+            update.mutate({ pinnedVersionId: pinned ? headVersionId : null })
+          }
+        />
+        {link.pinnedVersionId &&
+          headVersionId &&
+          link.pinnedVersionId !== headVersionId && (
+            <p className="-mt-1 flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+              Your newer edits aren't on this link.
+              <Button
+                variant="link"
+                size="sm"
+                className="h-auto p-0"
+                onClick={() =>
+                  update.mutate({ pinnedVersionId: headVersionId })
+                }
+              >
+                Pin the current version
+              </Button>
+            </p>
+          )}
       </FieldGroup>
       <Button
         variant="ghost"
@@ -462,7 +522,12 @@ export function SharePanel({
           ) : (
             <ul className="flex flex-col gap-4">
               {links?.map((link) => (
-                <LinkCard key={link.id} link={link} resumeId={resumeId} />
+                <LinkCard
+                  key={link.id}
+                  link={link}
+                  resumeId={resumeId}
+                  headVersionId={headVersionId}
+                />
               ))}
             </ul>
           )}
