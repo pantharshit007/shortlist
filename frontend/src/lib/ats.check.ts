@@ -43,6 +43,9 @@ const report: AtsReport = {
     },
   ],
   keywords: null,
+  title: null,
+  parse: null,
+  knockouts: null,
   stats: { words: 0, bullets: 0, sections: [], quantifiedBullets: 0 },
 }
 

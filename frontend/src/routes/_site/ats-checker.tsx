@@ -20,6 +20,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { ApiError, api, errorMessage, unwrap } from '@/lib/api/client'
+import type { RequestBody } from '@/lib/api/types'
 import { useSession } from '@/lib/auth-client'
 import { formatDate } from '@/lib/format'
 import { site } from '@/lib/site'
@@ -40,11 +41,15 @@ const faqs = [
   },
   {
     q: 'Is this the score employers see?',
-    a: 'No. There is no universal ATS score. Every company uses different software, set up in its own way, and most never score resumes automatically. This score estimates how cleanly a typical ATS can read your resume and how easy it is for a recruiter to scan, so you know what to fix.',
+    a: 'No. There is no universal ATS score. Every company uses different software, set up in its own way. This score estimates how cleanly a typical ATS can read your resume and how easy it is for a recruiter to scan, so you know what to fix.',
+  },
+  {
+    q: 'Will an ATS reject my resume automatically?',
+    a: "Rarely. Real ATS software ranks applicants for each job instead of rejecting them. What filters candidates out is knockout questions on the application form (like location, work authorization or years of experience), recruiters searching for keywords, and per-job match tiers. So the useful goal is a resume that parses cleanly, matches the job's must-have skills, and answers its knockout requirements. This checker looks at all three.",
   },
   {
     q: 'Will you keep my resume?',
-    a: 'No. A PDF is read in your browser and only its text is sent to be checked. The text is scored and then discarded, and nothing is saved to an account.',
+    a: 'No. A PDF is read in your browser and only its text, with where each piece sits on the page, is sent to be checked. It is scored and then discarded, and nothing is saved to an account.',
   },
   {
     q: 'Why does my PDF show no text?',
@@ -52,7 +57,7 @@ const faqs = [
   },
   {
     q: 'How is the score worked out?',
-    a: 'With fixed rules, not AI, so the same resume always gets the same score. It looks at things like contact details, standard section headings, bullet length, numbers in your bullets and overall length. Add a job description to also see which of its keywords your resume is missing.',
+    a: 'With fixed rules, not AI, so the same resume always gets the same score. It looks at things like contact details, standard section headings, bullet length, numbers in your bullets and overall length. A PDF is also read the way an ATS parser reads it, to catch columns, contact details in the page header and icon fonts. Add a job description to see which of its must-have and other skills you are missing, how your title compares, and which requirements a recruiter will check. Skills are matched using data from O*NET and ESCO.',
   },
 ]
 
@@ -86,8 +91,16 @@ export const Route = createFileRoute('/_site/ats-checker')({
   component: AtsCheckerPage,
 })
 
+type TextItem = NonNullable<
+  RequestBody<'/v1/ats-reports', 'post'>['items']
+>[number]
+
+const maxParsedPages = 4
+const boldFont = /bold|black|heavy|semibold|demi/i
+
 // Same loading as PdfPages: pdf.js and its worker only load when someone picks a file.
-async function pdfText(file: File) {
+// The text runs of the first pages go to the server's parser, built exactly like backend parser/extract.ts.
+async function readPdf(file: File) {
   const pdfjs = await import('pdfjs-dist')
   const worker = await import('pdfjs-dist/build/pdf.worker.min.mjs?url')
   pdfjs.GlobalWorkerOptions.workerSrc = worker.default
@@ -95,18 +108,56 @@ async function pdfText(file: File) {
   try {
     const doc = await task.promise
     const pages: string[] = []
+    const items: TextItem[] = []
+    let size = { width: 0, height: 0 }
     for (let number = 1; number <= doc.numPages; number++) {
       const page = await doc.getPage(number)
-      const { items } = await page.getTextContent()
+      const { width, height } = page.getViewport({ scale: 1 })
+      if (number === 1) size = { width, height }
+      if (number <= maxParsedPages) await page.getOperatorList()
+      const content = await page.getTextContent()
       pages.push(
-        items
+        content.items
           .map((item) =>
             'str' in item ? item.str + (item.hasEOL ? '\n' : ' ') : '',
           )
           .join(''),
       )
+      if (number > maxParsedPages) continue
+      const fontNames = new Map<string, string>()
+      for (const run of content.items) {
+        if (!('str' in run) || !run.str.trim()) continue
+        if (!fontNames.has(run.fontName)) {
+          let real = ''
+          try {
+            real =
+              (page.commonObjs.get(run.fontName) as { name?: string }).name ??
+              ''
+          } catch {
+            // A font pdf.js never loaded has no name; it just isn't marked bold.
+          }
+          fontNames.set(run.fontName, real)
+        }
+        const fontName = fontNames.get(run.fontName)!
+        const runHeight =
+          run.height || Math.hypot(run.transform[2], run.transform[3])
+        items.push({
+          text: run.str.slice(0, 500),
+          x: run.transform[4],
+          y: height - run.transform[5] - runHeight,
+          width: run.width,
+          height: runHeight,
+          page: number,
+          fontName: fontName.slice(0, 200),
+          bold: boldFont.test(fontName),
+        })
+      }
     }
-    return pages.join('\n\n').trim()
+    return {
+      text: pages.join('\n\n').trim(),
+      items: items.slice(0, 6000),
+      page: size,
+    }
   } finally {
     await task.destroy()
   }
@@ -121,7 +172,9 @@ function checkError(error: unknown) {
 function AtsCheckerPage() {
   const { data: session } = useSession()
   const [tab, setTab] = useState<'pdf' | 'text'>('pdf')
-  const [file, setFile] = useState<{ name: string; text: string } | null>(null)
+  const [file, setFile] = useState<
+    ({ name: string } & Awaited<ReturnType<typeof readPdf>>) | null
+  >(null)
   const [fileError, setFileError] = useState<string | null>(null)
   const [reading, setReading] = useState(false)
   const [dragging, setDragging] = useState(false)
@@ -144,6 +197,8 @@ function AtsCheckerPage() {
         api.POST('/v1/ats-reports', {
           body: {
             text,
+            ...(tab === 'pdf' &&
+              file && { items: file.items, page: file.page }),
             ...(jobDescription.trim() && {
               jobDescription: jobDescription.trim(),
             }),
@@ -166,14 +221,14 @@ function AtsCheckerPage() {
     }
     setReading(true)
     try {
-      const extracted = await pdfText(next)
-      if (extracted.length < minChars) {
+      const extracted = await readPdf(next)
+      if (extracted.text.length < minChars) {
         setFileError(
           'We could not find text in this PDF. It may be scanned or saved as an image, which most ATS software cannot read either. Export it again from Word, Google Docs or LaTeX, or paste the text instead.',
         )
         return
       }
-      setFile({ name: next.name, text: extracted })
+      setFile({ name: next.name, ...extracted })
     } catch {
       setFileError(
         'We could not open this PDF. It may be damaged or password protected. Try another file, or paste the text instead.',
@@ -322,7 +377,7 @@ function AtsCheckerPage() {
               id="job-description"
               rows={5}
               maxLength={maxJobChars}
-              placeholder="Paste a job description to see which of its keywords you are missing"
+              placeholder="Paste a job description to see which of its skills and requirements you are missing"
               value={jobDescription}
               onChange={(event) => setJobDescription(event.target.value)}
             />
@@ -348,8 +403,8 @@ function AtsCheckerPage() {
                 aria-hidden
                 className="mt-0.5 size-4 shrink-0 text-primary"
               />
-              Your PDF is read in your browser. Only its text is sent, checked
-              and not stored.
+              Your PDF is read in your browser. Only its text and layout are
+              sent, checked and not stored.
             </p>
             {check.isError && (
               <p role="alert" className="text-sm text-destructive">
@@ -441,6 +496,26 @@ function AtsCheckerPage() {
             ))}
           </Accordion>
         </section>
+        <footer className="mt-16 flex flex-col gap-2 border-t pt-6 text-xs text-muted-foreground lg:-mx-24">
+          <p>
+            This product includes information from the O*NET 30.2 Database
+            (Technology Skills) by the U.S. Department of Labor, Employment and
+            Training Administration (USDOL/ETA). Used under the{' '}
+            <a
+              href="https://creativecommons.org/licenses/by/4.0/"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              CC BY 4.0
+            </a>{' '}
+            license. O*NET® is a trademark of USDOL/ETA. {site.name} has
+            modified all or some of this information. USDOL/ETA has not
+            approved, endorsed, or tested these modifications.
+          </p>
+          <p>
+            This service uses the ESCO classification of the European
+            Commission.
+          </p>
+        </footer>
       </div>
     </div>
   )

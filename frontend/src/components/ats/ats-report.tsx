@@ -1,4 +1,10 @@
-import { CircleCheckIcon, CircleXIcon, TriangleAlertIcon } from 'lucide-react'
+import {
+  CircleCheckIcon,
+  CircleDashedIcon,
+  CircleHelpIcon,
+  CircleXIcon,
+  TriangleAlertIcon,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import type { AtsCheckStatus, AtsReport as Report } from '@/lib/api/types'
 import { sortChecks } from '@/lib/ats'
@@ -68,8 +74,35 @@ function ScoreRing({ score, className }: { score: number; className: string }) {
   )
 }
 
-function StatusLabel({ status }: { status: AtsCheckStatus }) {
-  const { label, icon: Icon, className } = statuses[status]
+type Knockout = NonNullable<Report['knockouts']>[number]
+
+const knockoutStatuses: Record<
+  Knockout['status'],
+  { label: string; icon: typeof CircleCheckIcon; className: string }
+> = {
+  met: { ...statuses.pass, label: 'Met' },
+  'not-met': { ...statuses.fail, label: 'Not met' },
+  unclear: {
+    label: 'Unclear',
+    icon: CircleHelpIcon,
+    className: 'bg-muted text-foreground',
+  },
+  'not-on-resume': {
+    label: 'Not on your resume',
+    icon: CircleDashedIcon,
+    className: 'bg-highlight text-highlight-foreground',
+  },
+}
+
+function StatusLabel({
+  label,
+  icon: Icon,
+  className,
+}: {
+  label: string
+  icon: typeof CircleCheckIcon
+  className: string
+}) {
   return (
     <span
       className={cn(
@@ -86,11 +119,11 @@ function StatusLabel({ status }: { status: AtsCheckStatus }) {
 function KeywordList({
   title,
   words,
-  missing,
+  variant = 'secondary',
 }: {
   title: string
   words: string[]
-  missing?: boolean
+  variant?: 'secondary' | 'outline'
 }) {
   if (words.length === 0) return null
   return (
@@ -101,15 +134,37 @@ function KeywordList({
       <ul className="flex flex-wrap gap-1.5">
         {words.map((word) => (
           <li key={word}>
-            <Badge
-              variant={missing ? 'outline' : 'secondary'}
-              className="h-6 text-sm font-normal"
-            >
+            <Badge variant={variant} className="h-6 text-sm font-normal">
               {word}
             </Badge>
           </li>
         ))}
       </ul>
+    </div>
+  )
+}
+
+const titleLevels = {
+  exact: 'exact match',
+  close: 'close match',
+  none: 'no match',
+}
+
+function SectionHeading({
+  id,
+  title,
+  note,
+}: {
+  id: string
+  title: string
+  note?: string
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <h3 id={id} className="font-sans text-lg font-semibold">
+        {title}
+      </h3>
+      {note && <p className="text-sm text-muted-foreground">{note}</p>}
     </div>
   )
 }
@@ -124,7 +179,7 @@ export function AtsReport({
   aside?: React.ReactNode
 }) {
   const grade = grades[report.grade]
-  const { stats } = report
+  const { stats, keywords, parse } = report
   const toFix = report.categories.flatMap((category) =>
     sortChecks(category.checks)
       .filter((check) => check.status !== 'pass')
@@ -203,7 +258,7 @@ export function AtsReport({
                     className="flex flex-col gap-1.5 p-4 break-inside-avoid"
                   >
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <StatusLabel status={check.status} />
+                      <StatusLabel {...statuses[check.status]} />
                       <span className="font-medium">{check.label}</span>
                       <span className="text-sm text-muted-foreground">
                         {check.category}
@@ -224,28 +279,155 @@ export function AtsReport({
             )}
           </section>
 
-          {report.keywords && (
-            <section
-              aria-labelledby="ats-keywords"
-              className="flex flex-col gap-4"
-            >
-              <div className="flex flex-col gap-1">
-                <h3
-                  id="ats-keywords"
-                  className="font-sans text-lg font-semibold"
-                >
-                  Job keywords
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Add the missing ones only where they are true for you.
-                </p>
-              </div>
-              <KeywordList
-                title="Missing"
-                words={report.keywords.missing}
-                missing
+          {keywords && (
+            <section aria-labelledby="ats-job" className="flex flex-col gap-4">
+              <SectionHeading
+                id="ats-job"
+                title="Job match"
+                note="Add missing skills only where they are true for you."
               />
-              <KeywordList title="Found" words={report.keywords.matched} />
+              {report.title && (
+                <p className="text-sm">
+                  <span className="font-medium">Job title:</span>{' '}
+                  {report.title.jobTitle}.{' '}
+                  {report.title.best
+                    ? `${report.title.level === 'exact' ? 'On' : 'Closest on'} your resume: ${report.title.best} (${titleLevels[report.title.level]}).`
+                    : 'Not found on your resume.'}
+                </p>
+              )}
+              {keywords.mustHaveMissing.length > 0 && (
+                <div className="flex flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+                  <p className="flex items-center gap-2 font-medium text-destructive">
+                    <CircleXIcon aria-hidden className="size-4 shrink-0" />
+                    Must-have skills missing
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    The job lists these as required. Recruiters filter and
+                    search on them first.
+                  </p>
+                  <ul className="flex flex-wrap gap-1.5">
+                    {keywords.mustHaveMissing.map((word) => (
+                      <li key={word}>
+                        <Badge
+                          variant="outline"
+                          className="h-6 border-destructive/40 bg-card text-sm font-normal"
+                        >
+                          {word}
+                        </Badge>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <KeywordList
+                title="Other hard skills missing"
+                words={keywords.hard.missing.filter(
+                  (word) => !keywords.mustHaveMissing.includes(word),
+                )}
+                variant="outline"
+              />
+              <KeywordList
+                title="Hard skills found"
+                words={keywords.hard.matched}
+              />
+              {keywords.soft.matched.length + keywords.soft.missing.length >
+                0 && (
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium">Soft skills.</span>{' '}
+                  {keywords.soft.missing.length > 0 &&
+                    `Missing: ${keywords.soft.missing.join(', ')}. `}
+                  {keywords.soft.matched.length > 0 &&
+                    `Found: ${keywords.soft.matched.join(', ')}. `}
+                  These count for less; show them through what you did.
+                </p>
+              )}
+            </section>
+          )}
+
+          {report.knockouts && report.knockouts.length > 0 && (
+            <section
+              aria-labelledby="ats-knockouts"
+              className="flex flex-col gap-3"
+            >
+              <SectionHeading
+                id="ats-knockouts"
+                title="Requirements a recruiter will check"
+                note="Application forms often ask these as yes or no questions. These don't change your score."
+              />
+              <ul className="flex flex-col divide-y rounded-lg border bg-card">
+                {report.knockouts.map((knockout) => (
+                  <li
+                    key={`${knockout.id}-${knockout.label}`}
+                    className="flex flex-col gap-1.5 p-4 break-inside-avoid"
+                  >
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <StatusLabel {...knockoutStatuses[knockout.status]} />
+                      <span className="font-medium">{knockout.label}</span>
+                      {!knockout.required && (
+                        <span className="text-sm text-muted-foreground">
+                          Preferred
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      The job says: <q>{knockout.requirement}</q>
+                    </p>
+                    {knockout.evidence && (
+                      <p className="text-sm text-muted-foreground">
+                        {knockout.evidence}
+                      </p>
+                    )}
+                    <p className="text-sm">{knockout.advice}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {parse && (
+            <section
+              aria-labelledby="ats-parse"
+              className="flex flex-col gap-3"
+            >
+              <SectionHeading
+                id="ats-parse"
+                title="How an ATS reads it"
+                note={
+                  parse.parseRate === null
+                    ? 'Here is what a parser pulled out of your PDF.'
+                    : `An ATS parser read ${parse.fields.filter((field) => field.ok).length} of ${parse.fields.length} fields correctly.`
+                }
+              />
+              <ul className="grid gap-x-6 rounded-lg border bg-card p-4 text-sm @lg:grid-cols-2">
+                {parse.fields.map((field) => {
+                  const { icon: Icon, iconClassName } =
+                    statuses[field.ok ? 'pass' : 'fail']
+                  return (
+                    <li
+                      key={field.id}
+                      className="flex min-w-0 gap-2 py-1.5 break-inside-avoid"
+                    >
+                      <Icon
+                        aria-hidden
+                        className={cn('mt-0.5 size-4 shrink-0', iconClassName)}
+                      />
+                      <span className="sr-only">
+                        {field.ok ? 'Read correctly' : 'Missed'}:{' '}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="font-medium">{field.label}</span>
+                        <span className="block break-words text-muted-foreground">
+                          {field.found ?? 'Not found'}
+                          {!field.ok &&
+                            field.expected &&
+                            field.found !== field.expected &&
+                            ` (expected ${field.expected})`}
+                        </span>
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
             </section>
           )}
 
