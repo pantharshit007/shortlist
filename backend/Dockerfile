@@ -20,7 +20,8 @@ COPY package.json ./
 COPY drizzle ./drizzle
 USER node
 EXPOSE 4000
-CMD ["sh", "-c", "node dist/scripts/migrate.js && node dist/db/seed.js && node dist/server.js"]
+# exec hands PID 1 to node, so docker stop's SIGTERM reaches the server's graceful shutdown.
+CMD ["sh", "-c", "node dist/scripts/migrate.js && node dist/db/seed.js && exec node dist/server.js"]
 
 # LaTeX compiler. Holds no secrets and runs without network access in production.
 FROM base AS compiler
