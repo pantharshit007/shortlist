@@ -9,6 +9,7 @@ import {
   GoogleIcon,
 } from '@/components/auth/provider-icons'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { guestLoginEnabled, signIn, useSession } from '@/lib/auth-client'
@@ -32,20 +33,17 @@ function safeRedirect(path: string | undefined) {
     : '/workspace'
 }
 
-const allProviders = [
+const providers = [
   { id: 'google', name: 'Google', icon: GoogleIcon },
   { id: 'github', name: 'GitHub', icon: GitHubIcon },
   { id: 'chatgpt', name: 'ChatGPT', icon: ChatGPTIcon },
 ] as const
 
-type Provider = (typeof allProviders)[number]['id']
+type Provider = (typeof providers)[number]['id']
 
-// Sign in with ChatGPT is partner-only for now; show it once OpenAI issues this app a client.
-const providers = allProviders.filter(
-  (provider) =>
-    provider.id !== 'chatgpt' ||
-    import.meta.env.VITE_ENABLE_CHATGPT_LOGIN === 'true',
-)
+// Sign in with ChatGPT is partner-only for now; it shows as coming soon until OpenAI issues this app a client.
+const comingSoon = (provider: Provider) =>
+  provider === 'chatgpt' && import.meta.env.VITE_ENABLE_CHATGPT_LOGIN !== 'true'
 
 function LoginPage() {
   const { mode, redirect } = Route.useSearch()
@@ -122,7 +120,7 @@ function LoginPage() {
                   variant="outline"
                   size="lg"
                   onClick={() => withProvider(provider.id)}
-                  disabled={pending !== null}
+                  disabled={pending !== null || comingSoon(provider.id)}
                 >
                   {pending === provider.id ? (
                     <Spinner data-icon="inline-start" />
@@ -130,6 +128,9 @@ function LoginPage() {
                     <provider.icon data-icon="inline-start" />
                   )}
                   Continue with {provider.name}
+                  {comingSoon(provider.id) && (
+                    <Badge variant="secondary">Coming soon</Badge>
+                  )}
                 </Button>
               ))}
             </div>
