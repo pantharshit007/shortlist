@@ -4,17 +4,23 @@ FROM node:24-slim AS base
 RUN npm install -g pnpm@11.2.2
 WORKDIR /app
 
+# Production dependencies depend only on the lockfile, so code changes reuse this layer and everything after it.
+# The pnpm store outlives builds, so a lockfile change downloads only new packages.
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile --prod
+
 FROM base AS build
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 COPY tsconfig.json ./
 COPY src ./src
-RUN pnpm build && pnpm prune --prod
+RUN pnpm build
 
 # API and worker. The worker uses the same image with `node dist/worker.js`.
 FROM base AS api
 ENV NODE_ENV=production
-COPY --from=build /app/node_modules ./node_modules
+COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json ./
 COPY drizzle ./drizzle
@@ -39,11 +45,20 @@ RUN case "$TARGETARCH" in \
     | tar -xz -C /usr/local/bin tectonic \
   && tectonic --version
 ENV XDG_CACHE_HOME=/opt/tex-cache
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
+COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./
 # Download every TeX package the templates and common Overleaf resumes need, then go offline.
-RUN node dist/scripts/warm-tectonic.js && chmod -R a+rX /opt/tex-cache
+# Only what the warm-up imports is copied first, so other code changes don't rerun it; downloads
+# persist in a build cache so a template change only recompiles.
+COPY --from=build /app/dist/scripts/warm-tectonic.js ./dist/scripts/
+COPY --from=build /app/dist/lib/latex ./dist/lib/latex
+COPY --from=build /app/dist/schemas ./dist/schemas
+COPY --from=build /app/dist/templates ./dist/templates
+RUN --mount=type=cache,id=tectonic-downloads,target=/tmp/tex-downloads \
+  XDG_CACHE_HOME=/tmp/tex-downloads node dist/scripts/warm-tectonic.js \
+  && mkdir -p /opt/tex-cache && cp -a /tmp/tex-downloads/. /opt/tex-cache/ \
+  && chmod -R a+rX /opt/tex-cache
+COPY --from=build /app/dist ./dist
 ENV TECTONIC_ONLY_CACHED=true PORT=4100
 USER node
 EXPOSE 4100
