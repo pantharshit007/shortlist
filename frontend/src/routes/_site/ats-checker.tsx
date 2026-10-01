@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ShieldCheckIcon, UploadCloudIcon } from 'lucide-react'
+import { DownloadIcon, ShieldCheckIcon, UploadCloudIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { AtsReport } from '@/components/ats/ats-report'
 import {
@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { ApiError, api, errorMessage, unwrap } from '@/lib/api/client'
 import { useSession } from '@/lib/auth-client'
+import { formatDate } from '@/lib/format'
 import { site } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
@@ -184,223 +185,263 @@ function AtsCheckerPage() {
 
   const importRedirect = '/resumes/new?source=upload'
 
+  // The browser's own print-to-PDF: real, selectable text and no PDF library. The page title names the
+  // saved file, and dark mode would print light text on white paper, so both are switched for the print.
+  function downloadReport() {
+    const root = document.documentElement
+    const dark = root.classList.contains('dark')
+    const previousTitle = document.title
+    document.title = `ATS report, ${site.name}`
+    root.classList.remove('dark')
+    window.addEventListener(
+      'afterprint',
+      () => {
+        document.title = previousTitle
+        root.classList.toggle('dark', dark)
+      },
+      { once: true },
+    )
+    window.print()
+  }
+
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 lg:pt-20">
-      <div className="text-center">
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-          Free ATS resume checker
-        </h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          See how well a typical applicant tracking system and a recruiter's
-          quick scan will read your resume, with a list of concrete fixes. No
-          sign up needed.
-        </p>
+    <div className="px-5 pt-14 lg:pt-20">
+      <div className="mx-auto max-w-3xl">
+        <div className="text-center">
+          <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+            Free ATS resume checker
+          </h1>
+          <p className="mt-4 text-lg text-muted-foreground">
+            See how well a typical applicant tracking system and a recruiter's
+            quick scan will read your resume, with a list of concrete fixes. No
+            sign up needed.
+          </p>
+        </div>
+
+        <form
+          className="mt-10 flex flex-col gap-6 rounded-2xl border bg-card p-5 sm:p-7"
+          onSubmit={(event) => {
+            event.preventDefault()
+            if (text.length >= minChars && !pastedError) check.mutate()
+          }}
+        >
+          <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
+            <TabsList aria-label="How to add your resume">
+              <TabsTrigger value="pdf">Upload PDF</TabsTrigger>
+              <TabsTrigger value="text">Paste text</TabsTrigger>
+            </TabsList>
+            <TabsContent value="pdf" className="mt-2 flex flex-col gap-2">
+              <div
+                onDragOver={(event) => {
+                  event.preventDefault()
+                  setDragging(true)
+                }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={(event) => {
+                  event.preventDefault()
+                  setDragging(false)
+                  pickFile(event.dataTransfer.files[0])
+                }}
+                className={cn(
+                  'flex flex-col items-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors',
+                  dragging && 'border-primary bg-primary/5',
+                )}
+              >
+                <UploadCloudIcon
+                  aria-hidden
+                  className="size-8 text-muted-foreground"
+                />
+                <p aria-live="polite">
+                  {reading ? (
+                    <span className="text-muted-foreground">
+                      Reading your PDF…
+                    </span>
+                  ) : file ? (
+                    <>
+                      <span className="font-medium break-all">{file.name}</span>{' '}
+                      <span className="text-muted-foreground">
+                        ({file.text.split(/\s+/).length} words found)
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">
+                      Drop your resume PDF here, or choose a file
+                    </span>
+                  )}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={reading}
+                  onClick={() => fileInput.current?.click()}
+                >
+                  {reading && <Spinner data-icon="inline-start" />}
+                  {file ? 'Choose a different file' : 'Choose PDF'}
+                </Button>
+                <input
+                  ref={fileInput}
+                  type="file"
+                  aria-label="Choose a resume PDF"
+                  accept=".pdf,application/pdf"
+                  className="sr-only"
+                  onChange={(event) => {
+                    pickFile(event.target.files?.[0])
+                    event.target.value = ''
+                  }}
+                />
+              </div>
+              <FieldError>{fileError}</FieldError>
+            </TabsContent>
+            <TabsContent value="text" className="mt-2">
+              <Field data-invalid={Boolean(pastedError)}>
+                <FieldLabel htmlFor="resume-text">Resume text</FieldLabel>
+                <Textarea
+                  id="resume-text"
+                  rows={10}
+                  placeholder="Copy everything from your resume and paste it here"
+                  value={pasted}
+                  aria-invalid={Boolean(pastedError)}
+                  onChange={(event) => setPasted(event.target.value)}
+                />
+                {pastedError ? (
+                  <FieldError>{pastedError}</FieldError>
+                ) : (
+                  <FieldDescription>
+                    Plain text is fine. Keep the section headings.
+                  </FieldDescription>
+                )}
+              </Field>
+            </TabsContent>
+          </Tabs>
+
+          <Field>
+            <FieldLabel htmlFor="job-description">
+              Job description (optional)
+            </FieldLabel>
+            <Textarea
+              id="job-description"
+              rows={5}
+              maxLength={maxJobChars}
+              placeholder="Paste a job description to see which of its keywords you are missing"
+              value={jobDescription}
+              onChange={(event) => setJobDescription(event.target.value)}
+            />
+          </Field>
+
+          <div className="flex flex-col gap-3">
+            <Button
+              type="submit"
+              size="lg"
+              className="sm:self-start"
+              disabled={
+                check.isPending ||
+                reading ||
+                text.length < minChars ||
+                Boolean(pastedError)
+              }
+            >
+              {check.isPending && <Spinner data-icon="inline-start" />}
+              {check.isPending ? 'Checking…' : 'Check my resume'}
+            </Button>
+            <p className="flex gap-2 text-sm text-muted-foreground">
+              <ShieldCheckIcon
+                aria-hidden
+                className="mt-0.5 size-4 shrink-0 text-primary"
+              />
+              Your PDF is read in your browser. Only its text is sent, checked
+              and not stored.
+            </p>
+            {check.isError && (
+              <p role="alert" className="text-sm text-destructive">
+                {checkError(check.error)}
+              </p>
+            )}
+          </div>
+        </form>
       </div>
 
-      <form
-        className="mt-10 flex flex-col gap-6 rounded-2xl border bg-card p-5 sm:p-7"
-        onSubmit={(event) => {
-          event.preventDefault()
-          if (text.length >= minChars && !pastedError) check.mutate()
-        }}
-      >
-        <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-          <TabsList aria-label="How to add your resume">
-            <TabsTrigger value="pdf">Upload PDF</TabsTrigger>
-            <TabsTrigger value="text">Paste text</TabsTrigger>
-          </TabsList>
-          <TabsContent value="pdf" className="mt-2 flex flex-col gap-2">
-            <div
-              onDragOver={(event) => {
-                event.preventDefault()
-                setDragging(true)
-              }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={(event) => {
-                event.preventDefault()
-                setDragging(false)
-                pickFile(event.dataTransfer.files[0])
-              }}
-              className={cn(
-                'flex flex-col items-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors',
-                dragging && 'border-primary bg-primary/5',
-              )}
-            >
-              <UploadCloudIcon
-                aria-hidden
-                className="size-8 text-muted-foreground"
-              />
-              <p aria-live="polite">
-                {reading ? (
-                  <span className="text-muted-foreground">
-                    Reading your PDF…
-                  </span>
-                ) : file ? (
-                  <>
-                    <span className="font-medium break-all">{file.name}</span>{' '}
-                    <span className="text-muted-foreground">
-                      ({file.text.split(/\s+/).length} words found)
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-muted-foreground">
-                    Drop your resume PDF here, or choose a file
-                  </span>
-                )}
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={reading}
-                onClick={() => fileInput.current?.click()}
-              >
-                {reading && <Spinner data-icon="inline-start" />}
-                {file ? 'Choose a different file' : 'Choose PDF'}
-              </Button>
-              <input
-                ref={fileInput}
-                type="file"
-                aria-label="Choose a resume PDF"
-                accept=".pdf,application/pdf"
-                className="sr-only"
-                onChange={(event) => {
-                  pickFile(event.target.files?.[0])
-                  event.target.value = ''
-                }}
-              />
-            </div>
-            <FieldError>{fileError}</FieldError>
-          </TabsContent>
-          <TabsContent value="text" className="mt-2">
-            <Field data-invalid={Boolean(pastedError)}>
-              <FieldLabel htmlFor="resume-text">Resume text</FieldLabel>
-              <Textarea
-                id="resume-text"
-                rows={10}
-                placeholder="Copy everything from your resume and paste it here"
-                value={pasted}
-                aria-invalid={Boolean(pastedError)}
-                onChange={(event) => setPasted(event.target.value)}
-              />
-              {pastedError ? (
-                <FieldError>{pastedError}</FieldError>
-              ) : (
-                <FieldDescription>
-                  Plain text is fine. Keep the section headings.
-                </FieldDescription>
-              )}
-            </Field>
-          </TabsContent>
-        </Tabs>
-
-        <Field>
-          <FieldLabel htmlFor="job-description">
-            Job description (optional)
-          </FieldLabel>
-          <Textarea
-            id="job-description"
-            rows={5}
-            maxLength={maxJobChars}
-            placeholder="Paste a job description to see which of its keywords you are missing"
-            value={jobDescription}
-            onChange={(event) => setJobDescription(event.target.value)}
-          />
-        </Field>
-
-        <div className="flex flex-col gap-3">
-          <Button
-            type="submit"
-            size="lg"
-            className="sm:self-start"
-            disabled={
-              check.isPending ||
-              reading ||
-              text.length < minChars ||
-              Boolean(pastedError)
-            }
-          >
-            {check.isPending && <Spinner data-icon="inline-start" />}
-            {check.isPending ? 'Checking…' : 'Check my resume'}
-          </Button>
-          <p className="flex gap-2 text-sm text-muted-foreground">
-            <ShieldCheckIcon
-              aria-hidden
-              className="mt-0.5 size-4 shrink-0 text-primary"
-            />
-            Your PDF is read in your browser. Only its text is sent, checked and
-            not stored.
-          </p>
-          {check.isError && (
-            <p role="alert" className="text-sm text-destructive">
-              {checkError(check.error)}
-            </p>
-          )}
-        </div>
-      </form>
-
       {check.data && (
-        <section aria-labelledby="ats-result" className="mt-12">
-          <h2
-            id="ats-result"
-            ref={reportHeading}
-            tabIndex={-1}
-            className="mb-6 text-2xl font-semibold tracking-tight outline-none"
-          >
-            Your ATS report
-          </h2>
-          <div className="rounded-2xl border bg-card p-5 sm:p-7">
-            <AtsReport report={check.data} />
+        <section
+          aria-labelledby="ats-result"
+          data-print-root
+          className="mx-auto mt-12 max-w-6xl"
+        >
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+            <h2
+              id="ats-result"
+              ref={reportHeading}
+              tabIndex={-1}
+              className="text-2xl font-semibold tracking-tight outline-none"
+            >
+              Your ATS report
+            </h2>
+            <p className="hidden text-sm text-muted-foreground print:block">
+              Checked {formatDate(new Date())} at {site.displayDomain}
+              /ats-checker
+            </p>
           </div>
-
-          <div className="mt-6 flex flex-col gap-4 rounded-2xl border bg-muted/40 p-6 sm:flex-row sm:items-center sm:p-7">
-            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-              <h3 className="font-sans text-lg font-semibold">
-                Fix these in Shortlist
-              </h3>
-              <p className="text-muted-foreground">
-                Import this resume and the AI fixes these issues using only what
-                is already in it. You approve every change, and it comes out
-                typeset like LaTeX. Free to start.
-              </p>
-            </div>
-            <Button size="lg" asChild>
-              {session ? (
-                <Link to="/resumes/new" search={{ source: 'upload' }}>
-                  Import my resume
-                </Link>
-              ) : (
-                <Link
-                  to="/login"
-                  search={{ mode: 'signup', redirect: importRedirect }}
-                >
-                  Fix these in Shortlist
-                </Link>
-              )}
-            </Button>
+          <div className="rounded-2xl border bg-card p-5 sm:p-7 print:border-0 print:p-0">
+            <AtsReport
+              report={check.data}
+              aside={
+                <div data-print-hide className="flex flex-col gap-4">
+                  <Button variant="outline" onClick={downloadReport}>
+                    <DownloadIcon data-icon="inline-start" />
+                    Download PDF
+                  </Button>
+                  <div className="flex flex-col gap-3 rounded-xl bg-muted/50 p-4">
+                    <p className="font-sans font-semibold">
+                      Fix these in Shortlist
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Import this resume and the AI fixes these issues using
+                      only what is already in it. You approve every change. Free
+                      to start.
+                    </p>
+                    <Button asChild>
+                      {session ? (
+                        <Link to="/resumes/new" search={{ source: 'upload' }}>
+                          Import my resume
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/login"
+                          search={{ mode: 'signup', redirect: importRedirect }}
+                        >
+                          Fix these in Shortlist
+                        </Link>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              }
+            />
           </div>
         </section>
       )}
 
-      <section
-        aria-labelledby="ats-faq"
-        className="mt-24 grid gap-10 lg:-mx-24 lg:grid-cols-[1fr_1.4fr]"
-      >
-        <h2 id="ats-faq" className="text-3xl font-semibold tracking-tight">
-          Questions about ATS checks
-        </h2>
-        <Accordion type="single" collapsible>
-          {faqs.map((faq) => (
-            <AccordionItem key={faq.q} value={faq.q}>
-              <AccordionTrigger className="text-left font-sans text-base">
-                {faq.q}
-              </AccordionTrigger>
-              <AccordionContent className="text-base text-muted-foreground">
-                {faq.a}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </section>
+      <div className="mx-auto max-w-3xl">
+        <section
+          aria-labelledby="ats-faq"
+          className="mt-24 grid gap-10 lg:-mx-24 lg:grid-cols-[1fr_1.4fr]"
+        >
+          <h2 id="ats-faq" className="text-3xl font-semibold tracking-tight">
+            Questions about ATS checks
+          </h2>
+          <Accordion type="single" collapsible>
+            {faqs.map((faq) => (
+              <AccordionItem key={faq.q} value={faq.q}>
+                <AccordionTrigger className="text-left font-sans text-base">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-base text-muted-foreground">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </section>
+      </div>
     </div>
   )
 }

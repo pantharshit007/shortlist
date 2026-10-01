@@ -208,3 +208,19 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Printing a page with a report prints only the report (the ATS checker's Download PDF). */
+@media print {
+  body:has([data-print-root])
+    :not(:has([data-print-root])):not([data-print-root]):not(
+      [data-print-root] *
+    ) {
+    display: none !important;
+  }
+  [data-print-hide] {
+    display: none !important;
+  }
+  @page {
+    margin: 14mm;
+  }
+}
