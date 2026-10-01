@@ -23,8 +23,9 @@ export const Route = createFileRoute('/_site/privacy')({
           Files you upload to import a resume. These are deleted after 30 days.
         </li>
         <li>
-          Views of your share links: date, country, device type and referring
-          site. We never store IP addresses.
+          Views of your share links: date, approximate location (city, region
+          and country, as our hosting provider estimates it), device type and
+          referring site. We never store IP addresses.
         </li>
         <li>
           Payment records from Razorpay. We never see or store your card or UPI

@@ -5412,6 +5412,12 @@ export interface paths {
                   country: string
                   views: number
                 }[]
+                places: {
+                  city: string | null
+                  region: string | null
+                  country: string | null
+                  views: number
+                }[]
               }
             }
           }

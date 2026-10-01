@@ -14,7 +14,16 @@ export type Viewer = {
   userAgent: string;
   referrer?: string | undefined;
   country?: string | undefined;
+  region?: string | undefined;
+  city?: string | undefined;
 };
+
+// Headers anyone can set on a direct API call, so keep them short and plain.
+const place = (value: string | undefined) =>
+  value
+    ?.replace(/[^\p{L}\p{N} .,'-]/gu, "")
+    .trim()
+    .slice(0, 80) || null;
 
 async function resolveUser(username: string) {
   const columns = { id: users.id, username: users.username, name: users.name, image: users.image };
@@ -111,6 +120,8 @@ async function recordView(link: typeof shareLinks.$inferSelect, viewer: Viewer) 
     visitorHash,
     referrer,
     country: viewer.country?.slice(0, 2).toUpperCase() ?? null,
+    region: place(viewer.region),
+    city: place(viewer.city),
     device,
   });
   await db

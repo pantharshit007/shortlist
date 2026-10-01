@@ -35,6 +35,17 @@ function visitorHeaders() {
   if (userAgent) headers['x-share-user-agent'] = userAgent
   if (referrer) headers['x-share-referrer'] = referrer
   if (country) headers['cf-ipcountry'] = country
+  // Vercel's geo headers; the city is URL-encoded.
+  const region = getRequestHeader('x-vercel-ip-country-region')
+  const city = getRequestHeader('x-vercel-ip-city')
+  if (region) headers['x-share-region'] = region
+  if (city) {
+    try {
+      headers['x-share-city'] = decodeURIComponent(city)
+    } catch {
+      // A malformed header is simply left out.
+    }
+  }
   return headers
 }
 

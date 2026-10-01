@@ -16768,6 +16768,44 @@
                             ],
                             "additionalProperties": false
                           }
+                        },
+                        "places": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "city": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "region": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "country": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "views": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "city",
+                              "region",
+                              "country",
+                              "views"
+                            ],
+                            "additionalProperties": false
+                          }
                         }
                       },
                       "required": [
@@ -16776,7 +16814,8 @@
                         "lastViewedAt",
                         "viewsByDay",
                         "topReferrers",
-                        "countries"
+                        "countries",
+                        "places"
                       ],
                       "additionalProperties": false
                     }

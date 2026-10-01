@@ -20,6 +20,8 @@ function viewerFrom(req: Request) {
     userAgent: req.get("x-share-user-agent") ?? req.get("user-agent") ?? "",
     referrer: req.get("x-share-referrer"),
     country: req.get("cf-ipcountry"),
+    region: req.get("x-share-region"),
+    city: req.get("x-share-city"),
   };
 }
 

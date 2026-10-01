@@ -1,4 +1,4 @@
-import { and, count, countDistinct, desc, eq, gte, isNull, ne, sql } from "drizzle-orm";
+import { and, count, countDistinct, desc, eq, gte, isNotNull, isNull, ne, sql } from "drizzle-orm";
 import { env } from "../../config/env.js";
 import { db } from "../../db/index.js";
 import { linkViews, resumeVersions, shareLinks, users } from "../../db/schema/index.js";
@@ -154,7 +154,7 @@ export async function getShareLinkStats(userId: string, shareLinkId: string) {
   const recent = and(eq(linkViews.shareLinkId, link.id), gte(linkViews.viewedAt, since));
   const day = sql<string>`to_char(date_trunc('day', ${linkViews.viewedAt}), 'YYYY-MM-DD')`;
 
-  const [[unique], byDay, referrers, countries] = await Promise.all([
+  const [[unique], byDay, referrers, countries, places] = await Promise.all([
     db
       .select({ value: countDistinct(linkViews.visitorHash) })
       .from(linkViews)
@@ -174,6 +174,13 @@ export async function getShareLinkStats(userId: string, shareLinkId: string) {
       .groupBy(sql`1`)
       .orderBy(desc(count()))
       .limit(10),
+    db
+      .select({ city: linkViews.city, region: linkViews.region, country: linkViews.country, views: count() })
+      .from(linkViews)
+      .where(and(recent, isNotNull(linkViews.city)))
+      .groupBy(linkViews.city, linkViews.region, linkViews.country)
+      .orderBy(desc(count()))
+      .limit(10),
   ]);
 
   return {
@@ -183,5 +190,6 @@ export async function getShareLinkStats(userId: string, shareLinkId: string) {
     viewsByDay: byDay,
     topReferrers: referrers,
     countries,
+    places,
   };
 }

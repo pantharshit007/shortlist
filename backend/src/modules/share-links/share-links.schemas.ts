@@ -53,4 +53,12 @@ export const shareLinkStatsResponse = z.object({
   viewsByDay: z.array(z.object({ day: z.string(), views: z.number().int() })),
   topReferrers: z.array(z.object({ referrer: z.string(), views: z.number().int() })),
   countries: z.array(z.object({ country: z.string(), views: z.number().int() })),
+  places: z.array(
+    z.object({
+      city: z.string().nullable(),
+      region: z.string().nullable(),
+      country: z.string().nullable(),
+      views: z.number().int(),
+    }),
+  ),
 });

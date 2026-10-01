@@ -47,6 +47,9 @@ export const linkViews = pgTable(
     visitorHash: text(),
     referrer: text(),
     country: text(),
+    // Approximate place from the visitor's IP, as the hosting provider reports it; never the IP itself.
+    region: text(),
+    city: text(),
     device: text(),
   },
   (t) => [index().on(t.shareLinkId, t.viewedAt)],
