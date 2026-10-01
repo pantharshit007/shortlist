@@ -5042,6 +5042,20 @@ export interface paths {
           'application/json': {
             text: string
             jobDescription?: string
+            items?: {
+              text: string
+              x: number
+              y: number
+              width: number
+              height: number
+              page: number
+              fontName?: string
+              bold?: boolean
+            }[]
+            page?: {
+              width: number
+              height: number
+            }
           }
         }
       }
@@ -7158,7 +7172,44 @@ export interface components {
       keywords: {
         matched: string[]
         missing: string[]
+        hard: {
+          matched: string[]
+          missing: string[]
+        }
+        soft: {
+          matched: string[]
+          missing: string[]
+        }
+        mustHaveMissing: string[]
       } | null
+      title: {
+        jobTitle: string
+        best: string | null
+        /** @enum {string} */
+        level: 'exact' | 'close' | 'none'
+      } | null
+      parse: {
+        parseRate: number | null
+        fields: {
+          id: string
+          label: string
+          found: string | null
+          expected: string | null
+          ok: boolean
+        }[]
+      } | null
+      knockouts:
+        | {
+            id: string
+            label: string
+            requirement: string
+            required: boolean
+            /** @enum {string} */
+            status: 'met' | 'not-met' | 'unclear' | 'not-on-resume'
+            evidence: string | null
+            advice: string
+          }[]
+        | null
       stats: {
         words: number
         bullets: number

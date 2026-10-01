@@ -1,16 +1,19 @@
 import type { z } from "zod";
-import { emptyResumeContent, type ResumeContent } from "../../schemas/resume-content.js";
+import { compileTex } from "../../lib/latex/compile.js";
+import type { ResumeContent } from "../../schemas/resume-content.js";
 import { visibleContent } from "../../templates/latex.js";
-import { coverageReport } from "../coverage/coverage.js";
 import type { atsReport } from "./ats.schemas.js";
-import { ACTION_VERBS, CLICHES, IRREGULAR_VERBS, SECTION_HEADINGS, SKILLS } from "./words.js";
+import { findKnockouts } from "./knockouts.js";
+import { extractTextItems } from "./parser/extract.js";
+import { parseItems } from "./parser/parse.js";
+import { type Expected, parseQuality } from "./parser/quality.js";
+import type { ParseReport, TextItem } from "./parser/types.js";
+import { matchJob, titleMatch } from "./skills/match.js";
+import { ACTION_VERBS, CLICHES, IRREGULAR_VERBS, SECTION_HEADINGS } from "./words.js";
 
 type AtsReport = z.infer<typeof atsReport>;
 type Status = "pass" | "warn" | "fail";
 type Check = { id: string; label: string; status: Status; detail: string; fix: string | null; weight: number };
-
-// Must-haves count double. Job title is checked only when the job names one.
-export type AtsJob = { role: string | null; mustHave: string[]; keywords: string[] };
 
 type Facts = {
   text: string;
@@ -20,6 +23,9 @@ type Facts = {
   sections: string[];
   oddHeadings: string[];
   paragraphs: number;
+  // Headline and role lines, for matching the job's title.
+  titles: string[];
+  skillsText: string;
   // Known only for structured content.
   experienceEntries: number | null;
   undatedEntries: number;
@@ -155,10 +161,9 @@ function factsFromText(raw: string): Facts {
   }
 
   const text = raw.trim();
-  const header = lines
-    .filter((line) => line.trim())
-    .slice(0, 6)
-    .join("\n");
+  const headerLines = lines.filter((line) => line.trim()).slice(0, 6);
+  const header = headerLines.join("\n");
+  const plainIn = (id: string) => parsed.filter((line) => line.kind === "plain" && line.section === id);
   return {
     text,
     structured: false,
@@ -167,6 +172,15 @@ function factsFromText(raw: string): Facts {
     sections,
     oddHeadings,
     paragraphs,
+    titles: [
+      ...headerLines,
+      ...plainIn("experience")
+        .map((line) => line.text)
+        .filter((line) => countWords(line) <= 12),
+    ],
+    skillsText: plainIn("skills")
+      .map((line) => line.text)
+      .join("\n"),
     experienceEntries: null,
     undatedEntries: 0,
     contact: contactFromText(text, header),
@@ -187,6 +201,8 @@ function factsFromContent(full: ResumeContent): Facts {
   const sections: string[] = [];
   const oddHeadings: string[] = [];
   const urls = content.basics.links.map((link) => link.url);
+  const titles = content.basics.headline ? [content.basics.headline] : [];
+  const skills: string[] = [];
   let experienceEntries = 0;
   let undatedEntries = 0;
 
@@ -199,7 +215,9 @@ function factsFromContent(full: ResumeContent): Facts {
     if (canonical && !sections.includes(canonical)) sections.push(canonical);
 
     if (section.type === "skills") {
-      lines.push(...section.groups.map((group) => `${group.name}: ${group.items.join(", ")}`));
+      const groups = section.groups.map((group) => `${group.name}: ${group.items.join(", ")}`);
+      skills.push(...groups);
+      lines.push(...groups);
       continue;
     }
     if (section.type === "links") {
@@ -211,6 +229,7 @@ function factsFromContent(full: ResumeContent): Facts {
       section.type === "experience"
         ? section.entries.map((entry) => {
             experienceEntries++;
+            titles.push(entry.role);
             if (!entry.start) undatedEntries++;
             return join([entry.role, entry.organization, entry.location, entry.start, entry.end]);
           })
@@ -244,6 +263,8 @@ function factsFromContent(full: ResumeContent): Facts {
     sections,
     oddHeadings,
     paragraphs: bullets.filter((bullet) => countWords(bullet) > 60).length,
+    titles,
+    skillsText: skills.join("\n"),
     experienceEntries,
     undatedEntries,
     contact: {
@@ -326,6 +347,37 @@ function parsingChecks(facts: Facts): Check[] {
           years > 0 ? `${plural(years, "year")} found in dates.` : "No years found anywhere in the resume.",
           'Add month and year to every role and degree, for example "Jun 2023 - Present".',
         ),
+  ];
+}
+
+const PARSE_WEIGHTS: Record<string, number> = {
+  columns: 3,
+  density: 3,
+  glyphs: 2,
+  contact: 2,
+  sections: 2,
+  jobs: 2,
+  name: 2,
+};
+
+// What a parser read from the PDF replaces the text-based guesses about format.
+function parserChecks(facts: Facts, parse: ParseReport): Check[] {
+  const checks = parse.issues
+    // A missing email or phone already fails in Contact details; here it only counts when the PDF hides it.
+    .filter((issue) => issue.id !== "contact" || (facts.contact.email && facts.contact.phone))
+    .map((issue) => ({ ...issue, weight: PARSE_WEIGHTS[issue.id] ?? 1 }));
+  if (parse.parseRate === null) return checks;
+  const missed = parse.fields.filter((field) => !field.ok);
+  return [
+    check(
+      "parse-rate",
+      "Parse rate",
+      4,
+      band(parse.parseRate, 0.9, 0.7),
+      `A parser read ${parse.fields.length - missed.length} of ${parse.fields.length} fields correctly.`,
+      `It missed or misread: ${missed.map((field) => field.label).join(", ")}. Keep one column, plain headings, and each job's title, company and dates on its own lines.`,
+    ),
+    ...checks,
   ];
 }
 
@@ -561,94 +613,77 @@ function lengthChecks(facts: Facts): Check[] {
   return [check("word-count", "Length", 1, status, `${plural(words, "word")}, about ${plural(pages, "page")}.`, fix)];
 }
 
-const normalizePhrase = (value: string) =>
-  ` ${value
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, " ")
-    .trim()} `;
-const variantsOf = (term: string) =>
-  SKILLS.find((group) => group.some((name) => name.toLowerCase() === term.toLowerCase())) ?? [term];
+const list = (skills: string[], max = 6) => skills.slice(0, max).join(", ");
 
-// Sentence-ending periods would stop "React." matching "React"; dots inside "Node.js" stay.
-const forMatching = (text: string) => text.replace(/\.(?=\s|$)/g, " ");
+function jobMatch(facts: Facts, jobText: string) {
+  const { hard, soft, mustHave } = matchJob(facts.text, jobText, { skillsSection: facts.skillsText });
+  const isMust = (skill: string) => mustHave.includes(skill);
+  const mustHard = [...hard.matched, ...hard.missing].filter(isMust);
+  const mustMissing = hard.missing.filter(isMust);
+  const other = { matched: hard.matched.filter((s) => !isMust(s)), missing: hard.missing.filter((s) => !isMust(s)) };
+  const otherTotal = other.matched.length + other.missing.length;
+  const softTotal = soft.matched.length + soft.missing.length;
+  const checks: Check[] = [];
 
-function coveredTerms(terms: string[], text: string) {
-  const report = coverageReport(
-    { mustHave: [], niceToHave: [], keywords: terms },
-    { content: null, texSource: forMatching(text) },
-    emptyResumeContent,
-  );
-  return new Set(report.keywords.filter((k) => k.status === "covered").map((k) => k.requirement.toLowerCase()));
-}
+  if (mustHard.length > 0)
+    checks.push(
+      check(
+        "must-have",
+        "Must-have skills",
+        4,
+        mustMissing.length === 0 ? "pass" : "fail",
+        mustMissing.length === 0
+          ? `All ${plural(mustHard.length, "must-have skill")} found.`
+          : `Missing ${mustMissing.length} of ${plural(mustHard.length, "must-have skill")}: ${list(mustMissing, 10)}.`,
+        `Add the must-haves you really have to Skills and to the bullets where you used them: ${list(mustMissing, 10)}.`,
+      ),
+    );
+  if (otherTotal > 0)
+    checks.push(
+      check(
+        "hard-skills",
+        "Other hard skills",
+        3,
+        band(share(other.matched.length, otherTotal), 0.75, 0.5),
+        `${other.matched.length} of ${plural(otherTotal, "other hard skill")} in the job found.`,
+        `Add the ones you really have, in Skills and in your bullets: ${list(other.missing)}.`,
+      ),
+    );
+  if (softTotal > 0)
+    checks.push(
+      check(
+        "soft-skills",
+        "Soft skills",
+        1,
+        share(soft.matched.length, softTotal) >= 0.5 ? "pass" : "warn",
+        `${soft.matched.length} of ${plural(softTotal, "soft skill")} in the job found.`,
+        `Show these through what you did rather than listing them: ${list(soft.missing)}.`,
+      ),
+    );
 
-// Known skills mentioned in a pasted job description.
-export function skillsInJobDescription(jobDescription: string) {
-  const found = coveredTerms(SKILLS.flat(), jobDescription);
-  return SKILLS.filter((group) => group.some((name) => found.has(name.toLowerCase()))).map((group) => group[0]!);
-}
-
-function jobMatch(facts: Facts, job: AtsJob) {
-  const usable = (term: string) => term.trim() && term.split(/\s+/).length <= 4 && !/\d+\+?\s*years?/i.test(term);
-  const terms: { term: string; mustHave: boolean }[] = [];
-  for (const [list, mustHave] of [
-    [job.mustHave, true],
-    [job.keywords, false],
-  ] as const) {
-    for (const term of list.filter(usable).map((t) => t.trim())) {
-      if (!terms.some((t) => t.term.toLowerCase() === term.toLowerCase())) terms.push({ term, mustHave });
-    }
-  }
-  const covered = coveredTerms(
-    terms.flatMap((t) => variantsOf(t.term)),
-    facts.text,
-  );
-  const isCovered = (term: string) => variantsOf(term).some((name) => covered.has(name.toLowerCase()));
-  const matched = terms.filter((t) => isCovered(t.term));
-  const missing = terms.filter((t) => !isCovered(t.term)).sort((a, b) => Number(b.mustHave) - Number(a.mustHave));
-
-  const weight = (list: typeof terms) => list.reduce((sum, t) => sum + (t.mustHave ? 2 : 1), 0);
-  const mustHaves = terms.filter((t) => t.mustHave);
-  const checks: Check[] = [
-    check(
-      "keywords",
-      "Job keywords",
-      4,
-      band(share(weight(matched), weight(terms)), 0.75, 0.5),
-      `${matched.length} of ${terms.length} job keywords found` +
-        (mustHaves.length > 0
-          ? `, including ${matched.filter((t) => t.mustHave).length} of ${mustHaves.length} must-haves.`
-          : "."),
-      `Add the ones you really have, in Skills and in the bullets where you used them: ${missing
-        .slice(0, 6)
-        .map((t) => t.term)
-        .join(", ")}.`,
-    ),
-  ];
-
-  const seniority = new Set(["senior", "junior", "sr", "jr", "lead", "staff", "principal", "i", "ii", "iii"]);
-  const roleWords = normalizePhrase(job.role ?? "")
-    .trim()
-    .split(" ")
-    .filter((word) => word.length > 1 && !seniority.has(word));
-  if (roleWords.length > 0) {
-    const text = normalizePhrase(facts.text);
-    const phrase = text.includes(` ${roleWords.join(" ")} `);
-    const words = roleWords.every((word) => text.includes(` ${word}`));
+  const found = titleMatch(facts.titles, jobText);
+  const title = found.jobTitle ? { jobTitle: found.jobTitle, best: found.best, level: found.level } : null;
+  if (title)
     checks.push(
       check(
         "job-title",
         "Job title",
-        1,
-        phrase ? "pass" : words ? "warn" : "fail",
-        phrase ? `The title "${job.role}" appears in your resume.` : `The exact title "${job.role}" doesn't appear.`,
-        `Use the job's title where it is true, for example in your headline: "${job.role}". Recruiters often search by title.`,
+        2,
+        title.level === "exact" ? "pass" : title.level === "close" ? "warn" : "fail",
+        title.level === "exact"
+          ? `Your resume uses the job's title, "${title.jobTitle}".`
+          : title.level === "close"
+            ? `Closest on your resume: "${title.best}", a close match for "${title.jobTitle}".`
+            : `The job's title, "${title.jobTitle}", isn't on your resume.`,
+        `Use the job's title, ${title.jobTitle}, in your headline if it's true for you.`,
       ),
     );
-  }
+
   return {
     checks,
-    hasTerms: terms.length > 0,
-    keywords: { matched: matched.map((t) => t.term), missing: missing.map((t) => t.term) },
+    hasSkills: hard.matched.length + hard.missing.length + softTotal > 0,
+    keywords: { matched: hard.matched, missing: hard.missing, hard, soft, mustHaveMissing: mustMissing },
+    title,
   };
 }
 
@@ -664,23 +699,30 @@ const GRADES = [
 export function scoreResume(input: {
   text?: string | null;
   content?: ResumeContent | null;
-  job?: AtsJob | null;
+  jobText?: string | null | undefined;
+  // What a parser read from the resume's PDF; text-based format checks are used without it.
+  parse?: ParseReport | null;
 }): AtsReport {
   const facts = input.content ? factsFromContent(input.content) : factsFromText(input.text ?? "");
-  const match = input.job ? jobMatch(facts, input.job) : null;
-  // A job with no usable keywords is scored as if there were none, so it can't drag the score down.
-  const hasJob = Boolean(match?.hasTerms);
+  const { parse } = input;
+  const match = input.jobText ? jobMatch(facts, input.jobText) : null;
+  // A job with no skills found is scored as if there were none, so it can't drag the score down.
+  const hasJob = Boolean(match?.hasSkills);
   const weights = hasJob ? WEIGHTS.withJob : WEIGHTS.withoutJob;
 
   const groups = [
-    { id: "parsing", label: "Parsing and format", checks: parsingChecks(facts) },
+    { id: "parsing", label: "Parsing and format", checks: parse ? parserChecks(facts, parse) : parsingChecks(facts) },
     { id: "contact", label: "Contact details", checks: contactChecks(facts) },
-    { id: "sections", label: "Standard sections", checks: sectionChecks(facts) },
+    {
+      id: "sections",
+      label: "Standard sections",
+      // The parser's own headings check covers this.
+      checks: sectionChecks(facts).filter((c) => !parse || c.id !== "headings"),
+    },
     { id: "impact", label: "Impact and content", checks: impactChecks(facts) },
     { id: "length", label: "Length", checks: lengthChecks(facts) },
     ...(hasJob && match ? [{ id: "job", label: "Job match", checks: match.checks }] : []),
   ] as const;
-
   const losses: { label: string; lost: number }[] = [];
   const categories = groups.map((group) => {
     const maxScore = weights[group.id as keyof typeof weights];
@@ -711,7 +753,15 @@ export function scoreResume(input: {
     grade: grade.grade,
     summary: `${grade.text} ${top.length > 0 ? `Fix first: ${top.join(", ")}.` : "Nothing major to fix."}`,
     categories,
-    keywords: match ? (hasJob ? match.keywords : { matched: [], missing: [] }) : null,
+    keywords: match?.keywords ?? null,
+    title: match?.title ?? null,
+    parse: parse ? { parseRate: parse.parseRate, fields: parse.fields } : null,
+    knockouts: input.jobText
+      ? findKnockouts(input.jobText, {
+          text: facts.text,
+          ...(input.content && { content: visibleContent(input.content) }),
+        })
+      : null,
     stats: {
       words: facts.words,
       bullets: facts.bullets.length,
@@ -719,4 +769,24 @@ export function scoreResume(input: {
       quantifiedBullets: facts.bullets.filter(isQuantified).length,
     },
   };
+}
+
+export function parsePdfItems(items: TextItem[], page: { width: number; height: number }, expected?: Expected) {
+  try {
+    return parseQuality(parseItems(items, page), { items, page, expected });
+  } catch {
+    return null;
+  }
+}
+
+// Compiles the resume as it downloads and reads it back like an ATS. Any failure means scoring without it.
+export async function parseTex(tex: string, expected?: Expected) {
+  try {
+    const compiled = await compileTex(tex);
+    if (!compiled.ok) return null;
+    const { items, pageWidth, pageHeight } = await extractTextItems(new Uint8Array(compiled.pdf));
+    return parsePdfItems(items, { width: pageWidth, height: pageHeight }, expected);
+  } catch {
+    return null;
+  }
 }

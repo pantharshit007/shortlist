@@ -1,37 +1,66 @@
 import { Router } from "express";
 import { track, trackServer } from "../../lib/analytics.js";
-import { ConflictError, NotFoundError } from "../../lib/errors.js";
+import { NotFoundError } from "../../lib/errors.js";
 import { sendData } from "../../lib/http.js";
 import { atsLimiter } from "../../middleware/rate-limit.js";
 import { currentUser, requireAuth } from "../../middleware/require-auth.js";
 import { validated } from "../../middleware/validate.js";
+import type { ResumeContent } from "../../schemas/resume-content.js";
+import { visibleContent } from "../../templates/latex.js";
 import { getJob } from "../jobs/jobs.service.js";
+import { texForVersion } from "../pdfs/pdfs.service.js";
 import { resumeParams } from "../resumes/resumes.schemas.js";
 import { getResume } from "../resumes/resumes.service.js";
 import { atsReport, createAtsReportBody, createResumeAtsReportBody } from "./ats.schemas.js";
-import { scoreResume, skillsInJobDescription, texToText } from "./scoring.js";
+import type { Expected } from "./parser/quality.js";
+import { parsePdfItems, parseTex, scoreResume, texToText } from "./scoring.js";
 
 export const atsRouter = Router();
+
+const PARSED_KINDS = new Set(["experience", "education", "skills", "projects"]);
+
+// What the parser should read back from a structured resume: only what the template prints.
+function expectedFields(content: ResumeContent): Expected {
+  const { basics, sections } = visibleContent(content);
+  const shown = sections.filter(
+    (s) => (s.type === "skills" ? s.groups : s.type === "links" ? s.links : s.entries).length,
+  );
+  return {
+    name: basics.name || undefined,
+    email: basics.email,
+    phone: basics.phone,
+    sectionKinds: [...new Set(shown.map((s) => s.type).filter((type) => PARSED_KINDS.has(type)))],
+    jobs: shown.flatMap((s) =>
+      s.type === "experience" ? s.entries.map((e) => ({ title: e.role, company: e.organization })) : [],
+    ),
+  };
+}
+
+// LaTeX source has no fields, so only the email and phone found in its text are checked.
+function expectedFromText(text: string): Expected | undefined {
+  const email = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/.exec(text)?.[0];
+  const phone = /\+?\d[\d ().-]{8,16}\d/.exec(text.replace(/[\w.+-]+@\S+/g, " "))?.[0];
+  return email || phone ? { email, phone } : undefined;
+}
 
 atsRouter.post(
   "/resumes/:resumeId/ats-reports",
   requireAuth,
   ...validated({ params: resumeParams, body: createResumeAtsReportBody }, async (req, res) => {
     const userId = currentUser(req).id;
-    const { head } = await getResume(userId, req.params.resumeId);
+    const resume = await getResume(userId, req.params.resumeId);
+    const { head } = resume;
     if (!head) throw new NotFoundError("Version");
     const job = req.body.jobId ? await getJob(userId, req.body.jobId) : null;
-    if (job && !job.parsed) throw new ConflictError("This job hasn't been analysed yet");
+    const text = head.texSource && texToText(head.texSource);
     const report = scoreResume({
       content: head.content,
-      text: head.texSource && texToText(head.texSource),
-      job: job?.parsed
-        ? {
-            role: job.parsed.role,
-            mustHave: job.parsed.mustHave,
-            keywords: [...job.parsed.niceToHave, ...job.parsed.keywords],
-          }
-        : null,
+      text,
+      jobText: job?.rawText,
+      parse: await parseTex(
+        texForVersion(resume, head),
+        head.content ? expectedFields(head.content) : expectedFromText(text ?? ""),
+      ),
     });
     track(userId, "ats_report_created", { source: "resume", score: report.score, withJob: Boolean(job) });
     sendData(res, atsReport, report);
@@ -43,10 +72,11 @@ atsRouter.post(
   "/ats-reports",
   atsLimiter,
   ...validated({ body: createAtsReportBody }, (req, res) => {
-    const { text, jobDescription } = req.body;
+    const { text, jobDescription, items, page } = req.body;
     const report = scoreResume({
       text,
-      job: jobDescription ? { role: null, mustHave: [], keywords: skillsInJobDescription(jobDescription) } : null,
+      jobText: jobDescription,
+      parse: items && page ? parsePdfItems(items, page) : null,
     });
     trackServer("ats_report_created", {
       source: "public",
