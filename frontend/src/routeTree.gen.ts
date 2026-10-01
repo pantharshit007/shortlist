@@ -22,6 +22,7 @@ import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppWorkspaceRouteImport } from './routes/_app/workspace'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as SiteAtsCheckerRouteImport } from './routes/_site/ats-checker'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
 import { Route as SitePrivacyRouteImport } from './routes/_site/privacy'
 import { Route as SiteTemplatesRouteImport } from './routes/_site/templates'
@@ -101,6 +102,11 @@ const AppWorkspaceRoute = AppWorkspaceRouteImport.update({
 const SiteIndexRoute = SiteIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteAtsCheckerRoute = SiteAtsCheckerRouteImport.update({
+  id: '/ats-checker',
+  path: '/ats-checker',
   getParentRoute: () => SiteRoute,
 } as any)
 const SitePricingRoute = SitePricingRouteImport.update({
@@ -201,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
   '/workspace': typeof AppWorkspaceRoute
+  '/ats-checker': typeof SiteAtsCheckerRoute
   '/pricing': typeof SitePricingRoute
   '/privacy': typeof SitePrivacyRoute
   '/templates': typeof SiteTemplatesRoute
@@ -230,6 +237,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
   '/workspace': typeof AppWorkspaceRoute
+  '/ats-checker': typeof SiteAtsCheckerRoute
   '/pricing': typeof SitePricingRoute
   '/privacy': typeof SitePrivacyRoute
   '/templates': typeof SiteTemplatesRoute
@@ -262,6 +270,7 @@ export interface FileRoutesById {
   '/_app/profile': typeof AppProfileRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/workspace': typeof AppWorkspaceRoute
+  '/_site/ats-checker': typeof SiteAtsCheckerRoute
   '/_site/pricing': typeof SitePricingRoute
   '/_site/privacy': typeof SitePrivacyRoute
   '/_site/templates': typeof SiteTemplatesRoute
@@ -295,6 +304,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/workspace'
+    | '/ats-checker'
     | '/pricing'
     | '/privacy'
     | '/templates'
@@ -324,6 +334,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/workspace'
+    | '/ats-checker'
     | '/pricing'
     | '/privacy'
     | '/templates'
@@ -355,6 +366,7 @@ export interface FileRouteTypes {
     | '/_app/profile'
     | '/_app/settings'
     | '/_app/workspace'
+    | '/_site/ats-checker'
     | '/_site/pricing'
     | '/_site/privacy'
     | '/_site/templates'
@@ -475,6 +487,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof SiteIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/ats-checker': {
+      id: '/_site/ats-checker'
+      path: '/ats-checker'
+      fullPath: '/ats-checker'
+      preLoaderRoute: typeof SiteAtsCheckerRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/pricing': {
@@ -658,6 +677,7 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface SiteRouteChildren {
+  SiteAtsCheckerRoute: typeof SiteAtsCheckerRoute
   SitePricingRoute: typeof SitePricingRoute
   SitePrivacyRoute: typeof SitePrivacyRoute
   SiteTemplatesRoute: typeof SiteTemplatesRoute
@@ -666,6 +686,7 @@ interface SiteRouteChildren {
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
+  SiteAtsCheckerRoute: SiteAtsCheckerRoute,
   SitePricingRoute: SitePricingRoute,
   SitePrivacyRoute: SitePrivacyRoute,
   SiteTemplatesRoute: SiteTemplatesRoute,

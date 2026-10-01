@@ -39,7 +39,14 @@ function LandingPage() {
             </Button>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">
-            Unlimited resumes, free. No card needed.
+            Unlimited resumes, free. No card needed. Already have one?{' '}
+            <Link
+              to="/ats-checker"
+              className="font-medium text-foreground underline underline-offset-2 hover:text-primary"
+            >
+              Check its ATS score
+            </Link>
+            .
           </p>
         </div>
         <HeroDemo />

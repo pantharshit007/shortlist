@@ -1,8 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { ArrowUpIcon, PlusIcon, SparklesIcon, XIcon } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  ArrowUpIcon,
+  PlusIcon,
+  RotateCwIcon,
+  SparklesIcon,
+  TargetIcon,
+  WandSparklesIcon,
+  XIcon,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { AtsReport } from '@/components/ats/ats-report'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -39,6 +49,7 @@ import {
   suggestionsQuery,
 } from '@/lib/api/queries'
 import type { ResumeContent, Suggestion } from '@/lib/api/types'
+import { fixInstruction } from '@/lib/ats'
 import { panelStorage } from '@/lib/panel-storage'
 import { CoverageReport } from './coverage-report'
 import { SuggestionReview } from './suggestion-review'
@@ -130,6 +141,83 @@ export function NewJobForm({
   )
 }
 
+const noJob = 'none'
+
+// With optional, the picker offers "no job" and hides the new job form behind a button.
+function JobPicker({
+  id,
+  value,
+  onChange,
+  optional,
+}: {
+  id: string
+  value: string | null
+  onChange: (jobId: string | null) => void
+  optional?: boolean
+}) {
+  const { data: jobs } = useQuery(jobsQuery)
+  const [adding, setAdding] = useState(false)
+  const hasJobs = jobs && jobs.length > 0
+
+  if (optional && !hasJobs && !adding) {
+    return (
+      <Button
+        id={id}
+        variant="outline"
+        size="sm"
+        className="self-start"
+        onClick={() => setAdding(true)}
+      >
+        <PlusIcon data-icon="inline-start" />
+        Add a job
+      </Button>
+    )
+  }
+  if (!hasJobs || adding) {
+    return (
+      <NewJobForm
+        onCreated={(jobId) => {
+          onChange(jobId)
+          setAdding(false)
+        }}
+      />
+    )
+  }
+  return (
+    <div className="flex gap-2">
+      <Select
+        value={value ?? (optional ? noJob : undefined)}
+        onValueChange={(next) => onChange(next === noJob ? null : next)}
+      >
+        <SelectTrigger id={id} className="min-w-0 flex-1">
+          <SelectValue placeholder="Choose a job" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {optional && (
+              <SelectItem value={noJob}>No job, general check</SelectItem>
+            )}
+            {jobs.map((job) => (
+              <SelectItem key={job.id} value={job.id}>
+                {[job.role, job.company].filter(Boolean).join(' at ') ||
+                  'Untitled job'}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <Button
+        variant="outline"
+        size="icon"
+        aria-label="Add a new job"
+        onClick={() => setAdding(true)}
+      >
+        <PlusIcon />
+      </Button>
+    </div>
+  )
+}
+
 type SuggestBody =
   | { type: 'tailor'; jobId: string; instructions?: string }
   | { type: 'edit'; instruction: string }
@@ -163,9 +251,9 @@ export function AiPanel({
   texSource: string | null
   hasUnsavedChanges: boolean
 }) {
-  const { data: jobs } = useQuery(jobsQuery)
   const [jobId, setJobId] = useState<string | null>(initialJobId)
-  const [addingJob, setAddingJob] = useState(false)
+  const [atsJobId, setAtsJobId] = useState<string | null>(initialJobId)
+  const [atsOpen, setAtsOpen] = useState(false)
   const [instructions, setInstructions] = useState('')
   const [request, setRequest] = useState('')
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null)
@@ -227,6 +315,25 @@ export function AiPanel({
     onError: (error) => toast.error(aiErrorMessage(error)),
   })
 
+  const ats = useMutation({
+    mutationFn: (forJob: string | null) =>
+      unwrap(
+        api.POST('/v1/resumes/{resumeId}/ats-reports', {
+          params: { path: { resumeId } },
+          body: forJob ? { jobId: forJob } : {},
+        }),
+      ),
+  })
+  const checkAts = () => {
+    setAtsOpen(true)
+    ats.mutate(atsJobId)
+  }
+  const startSuggestion = (next: SuggestBody) => {
+    setAtsOpen(false)
+    suggest.mutate(next)
+  }
+  const atsFix = ats.data ? fixInstruction(ats.data) : null
+
   useEffect(() => {
     if (!open) return
     if (mode === 'fix' && !suggestion && !suggest.isPending)
@@ -244,12 +351,16 @@ export function AiPanel({
   const reviewing = suggestion !== null
   const title = reviewing
     ? 'Review changes'
-    : mode === 'fix'
-      ? 'Fix the LaTeX'
-      : 'Improve with AI'
+    : atsOpen
+      ? 'ATS score'
+      : mode === 'fix'
+        ? 'Fix the LaTeX'
+        : 'Improve with AI'
   const description = reviewing
     ? 'Nothing changes until you apply. Uncheck anything you want to keep as it is.'
-    : 'Suggestions only use what is already in your resume and profile.'
+    : atsOpen
+      ? "How well a typical ATS and a recruiter's quick scan will read your last saved version. Each company's ATS differs, so treat it as a guide."
+      : 'Suggestions only use what is already in your resume and profile.'
 
   const body = (
     <>
@@ -296,6 +407,79 @@ export function AiPanel({
             >
               Try again
             </Button>
+          </div>
+        ) : atsOpen ? (
+          <div className="flex flex-col gap-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-ml-2 self-start"
+              onClick={() => setAtsOpen(false)}
+            >
+              <ArrowLeftIcon data-icon="inline-start" />
+              Back
+            </Button>
+            {ats.isPending ? (
+              <div
+                className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground"
+                aria-live="polite"
+              >
+                <Spinner className="size-6" />
+                <p>Checking your resume…</p>
+              </div>
+            ) : ats.isError ? (
+              <div role="alert" className="flex flex-col gap-3">
+                <p className="text-muted-foreground">
+                  {aiErrorMessage(ats.error)}
+                </p>
+                <Button className="self-start" onClick={checkAts}>
+                  Try again
+                </Button>
+              </div>
+            ) : (
+              ats.data && (
+                <>
+                  <AtsReport report={ats.data} />
+                  <div className="flex flex-col gap-2 border-t pt-4">
+                    {atsFix ? (
+                      <Button
+                        onClick={() =>
+                          startSuggestion({ type: 'edit', instruction: atsFix })
+                        }
+                      >
+                        <WandSparklesIcon data-icon="inline-start" />
+                        Fix with AI
+                      </Button>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Nothing left to fix. Nice work.
+                      </p>
+                    )}
+                    {ats.variables && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          const forJob = ats.variables as string
+                          setJobId(forJob)
+                          startSuggestion({ type: 'tailor', jobId: forJob })
+                        }}
+                      >
+                        <TargetIcon data-icon="inline-start" />
+                        Tailor to this job
+                      </Button>
+                    )}
+                    <Button variant="ghost" onClick={checkAts}>
+                      <RotateCwIcon data-icon="inline-start" />
+                      Check again
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      You review every AI change before it's applied. Check
+                      again after saving to see the new score.
+                    </p>
+                  </div>
+                </>
+              )
+            )}
           </div>
         ) : (
           <div className="flex flex-col gap-8">
@@ -345,44 +529,7 @@ export function AiPanel({
               <FieldGroup className="gap-4">
                 <Field>
                   <FieldLabel htmlFor="job">Job</FieldLabel>
-                  {jobs && jobs.length > 0 && !addingJob ? (
-                    <div className="flex gap-2">
-                      <Select
-                        value={jobId ?? undefined}
-                        onValueChange={setJobId}
-                      >
-                        <SelectTrigger id="job" className="min-w-0 flex-1">
-                          <SelectValue placeholder="Choose a job" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {jobs.map((job) => (
-                              <SelectItem key={job.id} value={job.id}>
-                                {[job.role, job.company]
-                                  .filter(Boolean)
-                                  .join(' at ') || 'Untitled job'}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        aria-label="Add a new job"
-                        onClick={() => setAddingJob(true)}
-                      >
-                        <PlusIcon />
-                      </Button>
-                    </div>
-                  ) : (
-                    <NewJobForm
-                      onCreated={(id) => {
-                        setJobId(id)
-                        setAddingJob(false)
-                      }}
-                    />
-                  )}
+                  <JobPicker id="job" value={jobId} onChange={setJobId} />
                   <FieldDescription>
                     Jobs you add are saved on the{' '}
                     <Link to="/jobs" className="underline underline-offset-2">
@@ -447,11 +594,38 @@ export function AiPanel({
                 ))}
               </div>
             </section>
+
+            <section aria-labelledby="ai-ats" className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <h3 id="ai-ats" className="font-sans text-base font-semibold">
+                  Test your resume
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Scores how well a typical ATS and a recruiter's quick scan
+                  will read it, with a list of fixes. A rule based check, so
+                  it's instant.
+                </p>
+              </div>
+              <Field>
+                <FieldLabel htmlFor="ats-job">
+                  Check keywords for a job (optional)
+                </FieldLabel>
+                <JobPicker
+                  id="ats-job"
+                  value={atsJobId}
+                  onChange={setAtsJobId}
+                  optional
+                />
+              </Field>
+              <Button variant="outline" onClick={checkAts}>
+                Check ATS score
+              </Button>
+            </section>
           </div>
         )}
       </div>
 
-      {!reviewing && !suggest.isPending && (
+      {!reviewing && !suggest.isPending && !atsOpen && (
         <form
           className="shrink-0 border-t p-3"
           onSubmit={(event) => {

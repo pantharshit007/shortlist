@@ -15,6 +15,7 @@ import { useSession } from '@/lib/auth-client'
 
 const nav = [
   { to: '/templates', label: 'Templates' },
+  { to: '/ats-checker', label: 'ATS checker' },
   { to: '/pricing', label: 'Pricing' },
 ] as const
 
