@@ -50,6 +50,95 @@ export const templateCatalog = [
     atsSafe: true,
     categories: ['software-engineering', 'product', 'design'],
   },
+  {
+    id: 'ml-research',
+    name: 'Research',
+    description:
+      'Serif CV with numbered, citation-style publications for ML and research roles.',
+    fontSize: 11,
+    atsSafe: true,
+    categories: ['ai-ml', 'data'],
+  },
+  {
+    id: 'data-analyst',
+    name: 'Analyst',
+    description:
+      'Dense sans-serif layout with a key and value skills block for data work.',
+    fontSize: 10,
+    atsSafe: true,
+    categories: ['data', 'ai-ml'],
+  },
+  {
+    id: 'product-manager',
+    name: 'Product',
+    description: 'Roomy, outcome-first layout with square bullets for PMs.',
+    fontSize: 11,
+    atsSafe: true,
+    categories: ['product'],
+  },
+  {
+    id: 'designer',
+    name: 'Designer',
+    description:
+      'Two-column layout with a sidebar for UI/UX designers. Columns can trip up some ATS.',
+    fontSize: 10,
+    atsSafe: false,
+    categories: ['design', 'product'],
+  },
+  {
+    id: 'campus',
+    name: 'Campus',
+    description:
+      'Placement format with education first and a degree, score and year table.',
+    fontSize: 10,
+    atsSafe: true,
+    categories: ['students', 'software-engineering'],
+  },
+  {
+    id: 'banking',
+    name: 'Investment Banking',
+    description:
+      'Dense one-page Wall Street layout: serif type, education first, dates on the right.',
+    fontSize: 10,
+    atsSafe: true,
+    categories: ['banking', 'finance', 'students'],
+  },
+  {
+    id: 'finance',
+    name: 'Finance & Accounting',
+    description:
+      'Classic serif with navy headings and your certifications near the top.',
+    fontSize: 11,
+    atsSafe: true,
+    categories: ['finance', 'banking'],
+  },
+  {
+    id: 'consulting',
+    name: 'Consulting',
+    description:
+      'Clean one-page layout with ruled headings for impact-first bullets.',
+    fontSize: 11,
+    atsSafe: true,
+    categories: ['consulting', 'finance', 'product'],
+  },
+  {
+    id: 'marketing',
+    name: 'Marketing & Sales',
+    description:
+      'Friendly sans-serif with a warm accent, a tagline and a summary up top.',
+    fontSize: 11,
+    atsSafe: true,
+    categories: ['marketing-sales'],
+  },
+  {
+    id: 'executive',
+    name: 'Executive',
+    description:
+      'Elegant Garamond layout with a summary, core competencies and board roles.',
+    fontSize: 11,
+    atsSafe: true,
+    categories: ['executive', 'consulting', 'finance'],
+  },
 ] as const satisfies readonly {
   id: string
   name: string
