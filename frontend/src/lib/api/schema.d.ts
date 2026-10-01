@@ -4964,6 +4964,116 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/v1/resumes/{resumeId}/ats-reports': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Estimate how well an ATS and recruiter scan read the latest version, with fixes */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          resumeId: string
+        }
+        cookie?: never
+      }
+      requestBody?: {
+        content: {
+          'application/json': {
+            /** Format: uuid */
+            jobId?: string
+          }
+        }
+      }
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: components['schemas']['AtsReport']
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v1/ats-reports': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Estimate how well an ATS reads pasted resume text (not stored, 10 per 10 minutes) */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: {
+        content: {
+          'application/json': {
+            text: string
+            jobDescription?: string
+          }
+        }
+      }
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': {
+              data: components['schemas']['AtsReport']
+            }
+          }
+        }
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['Error']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/v1/resumes/{resumeId}/share-links': {
     parameters: {
       query?: never
@@ -7024,6 +7134,36 @@ export interface components {
         code: string
         message: string
         details?: unknown
+      }
+    }
+    AtsReport: {
+      score: number
+      /** @enum {string} */
+      grade: 'excellent' | 'good' | 'fair' | 'poor'
+      summary: string
+      categories: {
+        id: string
+        label: string
+        score: number
+        maxScore: number
+        checks: {
+          id: string
+          label: string
+          /** @enum {string} */
+          status: 'pass' | 'warn' | 'fail'
+          detail: string
+          fix: string | null
+        }[]
+      }[]
+      keywords: {
+        matched: string[]
+        missing: string[]
+      } | null
+      stats: {
+        words: number
+        bullets: number
+        sections: string[]
+        quantifiedBullets: number
       }
     }
   }

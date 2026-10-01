@@ -16,6 +16,7 @@ const RESERVED = new Set([
   "api",
   "app",
   "assets",
+  "ats-checker",
   "auth",
   "billing",
   "blog",

@@ -17,6 +17,7 @@ import {
   createAdminSubscriptionBody,
   updateAdminUserBody,
 } from "./modules/admin/admin.schemas.js";
+import { atsReport, createAtsReportBody, createResumeAtsReportBody } from "./modules/ats/ats.schemas.js";
 import { coverageQuery, coverageResponse } from "./modules/coverage/coverage.routes.js";
 import { checkoutResponse, createCheckoutBody, subscriptionResponse } from "./modules/billing/billing.schemas.js";
 import { createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
@@ -363,6 +364,24 @@ const paths: ZodOpenApiPathsObject = {
       params: resumeParams,
       query: coverageQuery,
       response: coverageResponse,
+    }),
+  },
+  "/v1/resumes/{resumeId}/ats-reports": {
+    post: op({
+      summary: "Estimate how well an ATS and recruiter scan read the latest version, with fixes",
+      tag: "ATS",
+      params: resumeParams,
+      body: createResumeAtsReportBody,
+      response: atsReport,
+    }),
+  },
+  "/v1/ats-reports": {
+    post: op({
+      summary: "Estimate how well an ATS reads pasted resume text (not stored, 10 per 10 minutes)",
+      tag: "ATS",
+      auth: false,
+      body: createAtsReportBody,
+      response: atsReport,
     }),
   },
   "/v1/resumes/{resumeId}/share-links": {
