@@ -30,9 +30,15 @@ export function SiteFooter() {
         <div className="flex flex-col gap-3">
           <Logo />
           <p className="max-w-xs text-sm text-muted-foreground">
-            Resumes for students and developers in India. Typeset like LaTeX,
-            tailored to every job.
+            Resumes for every field, typeset like LaTeX and tailored to every
+            job. Built in India.
           </p>
+          <a
+            href={`mailto:${site.contactEmail}`}
+            className="w-fit text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {site.contactEmail}
+          </a>
         </div>
         {columns.map((column) => (
           <div key={column.title} className="flex flex-col gap-3">

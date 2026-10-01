@@ -49,6 +49,11 @@ export const Route = createFileRoute('/_site/terms')({
         your account at any time from Settings. We may suspend accounts that
         break these terms.
       </p>
+      <h2>Contact</h2>
+      <p>
+        Questions about these terms, billing or your account:{' '}
+        <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
+      </p>
     </LegalPage>
   ),
 })

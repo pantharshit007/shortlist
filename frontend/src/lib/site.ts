@@ -6,4 +6,6 @@ export const site = {
   url: import.meta.env.VITE_SITE_URL ?? 'http://localhost:3000',
   // Shown in marketing copy for example share links.
   displayDomain: 'shortlist.co.in',
+  // Routed to the team's inbox by Cloudflare Email Routing.
+  contactEmail: 'support@shortlist.co.in',
 }

@@ -67,8 +67,9 @@ export const Route = createFileRoute('/_site/privacy')({
       </p>
       <h2>Contact</h2>
       <p>
-        Questions about your data can be sent to the email address listed on
-        this site.
+        Questions about your data, or a request to see or delete it: email{' '}
+        <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>. You can
+        also export or delete everything yourself from Settings.
       </p>
     </LegalPage>
   ),
