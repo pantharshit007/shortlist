@@ -23,6 +23,7 @@ import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppWorkspaceRouteImport } from './routes/_app/workspace'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SiteAtsCheckerRouteImport } from './routes/_site/ats-checker'
+import { Route as SiteDocsRouteRouteImport } from './routes/_site/docs/route'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
 import { Route as SitePrivacyRouteImport } from './routes/_site/privacy'
 import { Route as SiteTemplatesRouteImport } from './routes/_site/templates'
@@ -38,6 +39,8 @@ import { Route as AppMyTemplatesCustomTemplateIdRouteImport } from './routes/_ap
 import { Route as AppMyTemplatesNewRouteImport } from './routes/_app/my-templates/new'
 import { Route as AppResumesResumeIdRouteImport } from './routes/_app/resumes/$resumeId'
 import { Route as AppResumesNewRouteImport } from './routes/_app/resumes/new'
+import { Route as SiteDocsIndexRouteImport } from './routes/_site/docs/index'
+import { Route as SiteDocsSlugRouteImport } from './routes/_site/docs/$slug'
 import { Route as AppAdminUsersIndexRouteImport } from './routes/_app/admin/users/index'
 import { Route as AppAdminUsersUserIdRouteImport } from './routes/_app/admin/users/$userId'
 
@@ -107,6 +110,11 @@ const SiteIndexRoute = SiteIndexRouteImport.update({
 const SiteAtsCheckerRoute = SiteAtsCheckerRouteImport.update({
   id: '/ats-checker',
   path: '/ats-checker',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteDocsRouteRoute = SiteDocsRouteRouteImport.update({
+  id: '/docs',
+  path: '/docs',
   getParentRoute: () => SiteRoute,
 } as any)
 const SitePricingRoute = SitePricingRouteImport.update({
@@ -185,6 +193,16 @@ const AppResumesNewRoute = AppResumesNewRouteImport.update({
   path: '/resumes/new',
   getParentRoute: () => AppRoute,
 } as any)
+const SiteDocsIndexRoute = SiteDocsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SiteDocsRouteRoute,
+} as any)
+const SiteDocsSlugRoute = SiteDocsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => SiteDocsRouteRoute,
+} as any)
 const AppAdminUsersIndexRoute = AppAdminUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
@@ -200,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
   '/admin': typeof AppAdminRouteRouteWithChildren
+  '/docs': typeof SiteDocsRouteRouteWithChildren
   '/$username/$slug': typeof UsernameSlugRoute
   '/analytics': typeof AppAnalyticsRoute
   '/dashboard': typeof AppDashboardRoute
@@ -222,8 +241,10 @@ export interface FileRoutesByFullPath {
   '/my-templates/new': typeof AppMyTemplatesNewRoute
   '/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/resumes/new': typeof AppResumesNewRoute
+  '/docs/$slug': typeof SiteDocsSlugRoute
   '/admin/': typeof AppAdminIndexRoute
   '/my-templates/': typeof AppMyTemplatesIndexRoute
+  '/docs/': typeof SiteDocsIndexRoute
   '/admin/users/$userId': typeof AppAdminUsersUserIdRoute
   '/admin/users/': typeof AppAdminUsersIndexRoute
 }
@@ -252,8 +273,10 @@ export interface FileRoutesByTo {
   '/my-templates/new': typeof AppMyTemplatesNewRoute
   '/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/resumes/new': typeof AppResumesNewRoute
+  '/docs/$slug': typeof SiteDocsSlugRoute
   '/admin': typeof AppAdminIndexRoute
   '/my-templates': typeof AppMyTemplatesIndexRoute
+  '/docs': typeof SiteDocsIndexRoute
   '/admin/users/$userId': typeof AppAdminUsersUserIdRoute
   '/admin/users': typeof AppAdminUsersIndexRoute
 }
@@ -263,6 +286,7 @@ export interface FileRoutesById {
   '/_site': typeof SiteRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/admin': typeof AppAdminRouteRouteWithChildren
+  '/_site/docs': typeof SiteDocsRouteRouteWithChildren
   '/$username/$slug': typeof UsernameSlugRoute
   '/_app/analytics': typeof AppAnalyticsRoute
   '/_app/dashboard': typeof AppDashboardRoute
@@ -286,8 +310,10 @@ export interface FileRoutesById {
   '/_app/my-templates/new': typeof AppMyTemplatesNewRoute
   '/_app/resumes/$resumeId': typeof AppResumesResumeIdRoute
   '/_app/resumes/new': typeof AppResumesNewRoute
+  '/_site/docs/$slug': typeof SiteDocsSlugRoute
   '/_app/admin/': typeof AppAdminIndexRoute
   '/_app/my-templates/': typeof AppMyTemplatesIndexRoute
+  '/_site/docs/': typeof SiteDocsIndexRoute
   '/_app/admin/users/$userId': typeof AppAdminUsersUserIdRoute
   '/_app/admin/users/': typeof AppAdminUsersIndexRoute
 }
@@ -297,6 +323,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/admin'
+    | '/docs'
     | '/$username/$slug'
     | '/analytics'
     | '/dashboard'
@@ -319,8 +346,10 @@ export interface FileRouteTypes {
     | '/my-templates/new'
     | '/resumes/$resumeId'
     | '/resumes/new'
+    | '/docs/$slug'
     | '/admin/'
     | '/my-templates/'
+    | '/docs/'
     | '/admin/users/$userId'
     | '/admin/users/'
   fileRoutesByTo: FileRoutesByTo
@@ -349,8 +378,10 @@ export interface FileRouteTypes {
     | '/my-templates/new'
     | '/resumes/$resumeId'
     | '/resumes/new'
+    | '/docs/$slug'
     | '/admin'
     | '/my-templates'
+    | '/docs'
     | '/admin/users/$userId'
     | '/admin/users'
   id:
@@ -359,6 +390,7 @@ export interface FileRouteTypes {
     | '/_site'
     | '/login'
     | '/_app/admin'
+    | '/_site/docs'
     | '/$username/$slug'
     | '/_app/analytics'
     | '/_app/dashboard'
@@ -382,8 +414,10 @@ export interface FileRouteTypes {
     | '/_app/my-templates/new'
     | '/_app/resumes/$resumeId'
     | '/_app/resumes/new'
+    | '/_site/docs/$slug'
     | '/_app/admin/'
     | '/_app/my-templates/'
+    | '/_site/docs/'
     | '/_app/admin/users/$userId'
     | '/_app/admin/users/'
   fileRoutesById: FileRoutesById
@@ -496,6 +530,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteAtsCheckerRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/docs': {
+      id: '/_site/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof SiteDocsRouteRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/pricing': {
       id: '/_site/pricing'
       path: '/pricing'
@@ -601,6 +642,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppResumesNewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_site/docs/': {
+      id: '/_site/docs/'
+      path: '/'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof SiteDocsIndexRouteImport
+      parentRoute: typeof SiteDocsRouteRoute
+    }
+    '/_site/docs/$slug': {
+      id: '/_site/docs/$slug'
+      path: '/$slug'
+      fullPath: '/docs/$slug'
+      preLoaderRoute: typeof SiteDocsSlugRouteImport
+      parentRoute: typeof SiteDocsRouteRoute
+    }
     '/_app/admin/users/': {
       id: '/_app/admin/users/'
       path: '/users'
@@ -676,7 +731,22 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface SiteDocsRouteRouteChildren {
+  SiteDocsSlugRoute: typeof SiteDocsSlugRoute
+  SiteDocsIndexRoute: typeof SiteDocsIndexRoute
+}
+
+const SiteDocsRouteRouteChildren: SiteDocsRouteRouteChildren = {
+  SiteDocsSlugRoute: SiteDocsSlugRoute,
+  SiteDocsIndexRoute: SiteDocsIndexRoute,
+}
+
+const SiteDocsRouteRouteWithChildren = SiteDocsRouteRoute._addFileChildren(
+  SiteDocsRouteRouteChildren,
+)
+
 interface SiteRouteChildren {
+  SiteDocsRouteRoute: typeof SiteDocsRouteRouteWithChildren
   SiteAtsCheckerRoute: typeof SiteAtsCheckerRoute
   SitePricingRoute: typeof SitePricingRoute
   SitePrivacyRoute: typeof SitePrivacyRoute
@@ -686,6 +756,7 @@ interface SiteRouteChildren {
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
+  SiteDocsRouteRoute: SiteDocsRouteRouteWithChildren,
   SiteAtsCheckerRoute: SiteAtsCheckerRoute,
   SitePricingRoute: SitePricingRoute,
   SitePrivacyRoute: SitePrivacyRoute,

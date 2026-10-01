@@ -224,3 +224,37 @@
     margin: 14mm;
   }
 }
+
+/* Tables inside docs articles: scroll sideways on small screens instead of widening the page. */
+@layer components {
+  .docs-table {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+  }
+  .docs-table table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  .docs-table th,
+  .docs-table td {
+    padding: 0.625rem 0.875rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+  }
+  .docs-table th {
+    background: var(--muted);
+    font-weight: 600;
+  }
+  .docs-table tr:last-child td {
+    border-bottom: 0;
+  }
+  .docs-table td:first-child {
+    font-weight: 500;
+    white-space: nowrap;
+  }
+}
