@@ -761,6 +761,21 @@ export const docs: DocPage[] = [
         ),
       },
       {
+        id: 'detailed-analytics',
+        title: 'Detailed analytics',
+        body: (
+          <p>
+            With the Season Pass or Pro, the <b>Analytics</b> page also shows
+            which weekdays and hours your links get opened, in your time zone,
+            and compares your links side by side: views, how often someone
+            opened the same link again on the same day, its top source and its
+            views per day. <b>Download CSV</b> saves every view in the chosen
+            range. Visitors stay anonymous: we can't tell you who opened a link
+            or which company they work for.
+          </p>
+        ),
+      },
+      {
         id: 'turn-off',
         title: 'Turn a link off',
         body: (
