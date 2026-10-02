@@ -3,6 +3,7 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   CodeIcon,
   FilePlusIcon,
+  SparklesIcon,
   FileUpIcon,
   UploadCloudIcon,
   UserRoundIcon,
@@ -37,7 +38,11 @@ import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ApiError, api, errorMessage, unwrap } from '@/lib/api/client'
-import { customTemplatesQuery, profileQuery } from '@/lib/api/queries'
+import {
+  customTemplatesQuery,
+  profileQuery,
+  usageQuery,
+} from '@/lib/api/queries'
 import type { CreateResumeBody, ResumeContent } from '@/lib/api/types'
 import { usePdfPreview } from '@/hooks/use-pdf-preview'
 import { apiUrl } from '@/lib/env'
@@ -49,7 +54,7 @@ import { cn } from '@/lib/utils'
 const searchSchema = z.object({
   template: z.string().optional(),
   customTemplate: z.string().optional(),
-  source: z.enum(['blank', 'profile', 'upload', 'tex']).optional(),
+  source: z.enum(['blank', 'profile', 'upload', 'tex', 'ai']).optional(),
 })
 
 export const Route = createFileRoute('/_app/resumes/new')({
@@ -58,7 +63,7 @@ export const Route = createFileRoute('/_app/resumes/new')({
   component: NewResumePage,
 })
 
-type Source = 'profile' | 'upload' | 'tex' | 'blank'
+type Source = 'profile' | 'upload' | 'ai' | 'tex' | 'blank'
 
 const sources = [
   {
@@ -72,6 +77,12 @@ const sources = [
     icon: FileUpIcon,
     title: 'Import a file',
     body: 'PDF, .tex or text file',
+  },
+  {
+    id: 'ai',
+    icon: SparklesIcon,
+    title: 'Write with AI',
+    body: 'From a few notes, no resume needed',
   },
   {
     id: 'tex',
@@ -114,6 +125,15 @@ function NewResumePage() {
   const [texSource, setTexSource] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [pastedText, setPastedText] = useState('')
+  const [role, setRole] = useState('')
+  const [notes, setNotes] = useState('')
+  const { data: usage } = useQuery(usageQuery)
+  // Free gets one draft per account; paid plans a monthly allowance; an own AI key has no limit.
+  const draftsLeft = usage
+    ? usage.ownAiKey
+      ? Infinity
+      : Math.max(0, usage.draft.limit - usage.draft.used)
+    : 1
   const [texChoice, setTexChoice] = useState<'code' | 'form'>('code')
   const [saveToProfile, setSaveToProfile] = useState(true)
   const [dragging, setDragging] = useState(false)
@@ -134,7 +154,7 @@ function NewResumePage() {
     (source === 'upload' && isTexFile && texChoice === 'code')
 
   const previewInput =
-    source === 'upload' && imported
+    (source === 'upload' || source === 'ai') && imported
       ? { content: imported, templateId }
       : source === 'upload' && makesCodeResume && fileTex
         ? { texSource: fileTex }
@@ -166,6 +186,14 @@ function NewResumePage() {
         api.POST('/v1/imports', { body: { uploadId: body.data.id } }),
       )
       return result.content
+    }
+    if (source === 'ai') {
+      const draft = await unwrap(
+        api.POST('/v1/resume-drafts', {
+          body: { role: role.trim(), notes: notes.trim() },
+        }),
+      )
+      return draft.content
     }
     const result = await unwrap(
       api.POST('/v1/imports', { body: { text: pastedText } }),
@@ -201,7 +229,7 @@ function NewResumePage() {
           mode: 'code',
           source: { type: 'tex', texSource: tex },
         }
-      } else if (source === 'upload') {
+      } else if (source === 'upload' || source === 'ai') {
         const content = imported ?? (await importContent())
         if (saveToProfile && !hasProfile) {
           await unwrap(api.PUT('/v1/profile', { body: { content } }))
@@ -266,12 +294,17 @@ function NewResumePage() {
       ? texSource.trim().length > 0
       : source === 'upload'
         ? Boolean(file) || pastedText.trim().length >= 20
-        : source === 'profile'
-          ? hasProfile
-          : !blankStart.startsWith('custom:') || Boolean(customTemplate)
+        : source === 'ai'
+          ? role.trim().length >= 2 &&
+            notes.trim().length >= 40 &&
+            draftsLeft > 0
+          : source === 'profile'
+            ? hasProfile
+            : !blankStart.startsWith('custom:') || Boolean(customTemplate)
 
   // A PDF or text resume is read by the AI first, then reviewed with a live preview.
-  const readsFirst = source === 'upload' && !makesCodeResume
+  const readsFirst =
+    (source === 'upload' && !makesCodeResume) || source === 'ai'
   const busy = create.isPending || read.isPending
 
   function pickFile(next: File | undefined) {
@@ -307,18 +340,21 @@ function NewResumePage() {
             'grid items-start gap-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]',
         )}
       >
-        {source === 'upload' && imported ? (
+        {(source === 'upload' || source === 'ai') && imported ? (
           <section
             aria-labelledby="review"
             className="@container flex flex-col gap-6"
           >
             <div className="flex flex-col gap-2">
               <h2 id="review" className="text-2xl font-semibold tracking-tight">
-                We read your resume
+                {source === 'ai'
+                  ? "Here's your first draft"
+                  : 'We read your resume'}
               </h2>
               <p className="text-muted-foreground">
-                Check it in the preview. Nothing is saved until you create the
-                resume, and you can edit everything afterwards.
+                {source === 'ai'
+                  ? 'Written only from your notes. Check it in the preview, then create it and add anything missing in the editor.'
+                  : 'Check it in the preview. Nothing is saved until you create the resume, and you can edit everything afterwards.'}
               </p>
             </div>
             <dl className="grid gap-3 rounded-lg border bg-card p-4 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-6">
@@ -431,7 +467,7 @@ function NewResumePage() {
                   type="single"
                   value={source}
                   onValueChange={(value) => value && setSource(value as Source)}
-                  className="grid w-full auto-rows-fr grid-cols-2 gap-3 @xl:grid-cols-4"
+                  className="grid w-full auto-rows-fr grid-cols-2 gap-3 @xl:grid-cols-3 @2xl:grid-cols-5"
                   aria-label="Start from"
                 >
                   {sources.map((option) => (
@@ -452,6 +488,67 @@ function NewResumePage() {
                   ))}
                 </ToggleGroup>
               </FieldSet>
+
+              {source === 'ai' && (
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="draft-role">
+                      Role you're applying for
+                    </FieldLabel>
+                    <Input
+                      id="draft-role"
+                      autoComplete="off"
+                      placeholder="Backend Engineer"
+                      value={role}
+                      onChange={(event) => setRole(event.target.value)}
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="draft-notes">
+                      About you, in your own words
+                    </FieldLabel>
+                    <Textarea
+                      id="draft-notes"
+                      rows={9}
+                      placeholder={`Final year B.Tech CSE at NIT Trichy, CGPA 8.4, graduating 2026\nIntern at Swiggy, summer 2025: made order tracking faster with Redis, p95 800ms to 200ms\nCollege fest app in React Native, 3,000 students registered with it\nWon Smart India Hackathon 2024\nJava, Python, React, Node, SQL, Docker`}
+                      value={notes}
+                      onChange={(event) => setNotes(event.target.value)}
+                    />
+                    <FieldDescription>
+                      Write it the way you'd tell a friend: where you study,
+                      internships, projects, numbers and skills. Rough notes are
+                      fine. The AI turns them into a resume and only uses what
+                      you write.
+                    </FieldDescription>
+                  </Field>
+                  {draftsLeft === 0 ? (
+                    <Alert>
+                      <SparklesIcon />
+                      <AlertTitle>
+                        You've used your free AI-written resume
+                      </AlertTitle>
+                      <AlertDescription>
+                        Season Pass and Pro include more, or add your own AI key
+                        in Settings for unlimited.{' '}
+                        <Link
+                          to="/pricing"
+                          className="underline underline-offset-4"
+                        >
+                          See plans
+                        </Link>
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    usage &&
+                    !usage.ownAiKey &&
+                    usage.plan === 'free' && (
+                      <p className="text-sm text-muted-foreground">
+                        Your account includes one free AI-written resume.
+                      </p>
+                    )
+                  )}
+                </FieldGroup>
+              )}
 
               {source === 'upload' && (
                 <div className="flex flex-col gap-4">
@@ -643,7 +740,8 @@ function NewResumePage() {
                 />
               ) : (
                 !makesCodeResume &&
-                source !== 'upload' && (
+                source !== 'upload' &&
+                source !== 'ai' && (
                   <TemplatePicker
                     value={templateId}
                     onChange={(value) => setTemplateId(value as TemplateId)}
@@ -658,8 +756,12 @@ function NewResumePage() {
                   {busy && <Spinner data-icon="inline-start" />}
                   {readsFirst
                     ? read.isPending
-                      ? 'Reading your resume…'
-                      : 'Read my resume'
+                      ? source === 'ai'
+                        ? 'Writing your resume…'
+                        : 'Reading your resume…'
+                      : source === 'ai'
+                        ? 'Write my resume'
+                        : 'Read my resume'
                     : 'Create resume'}
                 </Button>
                 {read.isPending && (

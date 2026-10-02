@@ -289,6 +289,10 @@ export interface paths {
                                     used: number;
                                     limit: number;
                                 };
+                                draft: {
+                                    used: number;
+                                    limit: number;
+                                };
                             };
                         };
                     };
@@ -1094,7 +1098,7 @@ export interface paths {
                                     id: string;
                                     createdAt: string;
                                     /** @enum {string} */
-                                    step: "import" | "jd_parse" | "plan" | "rewrite" | "verify" | "inline_edit" | "chat_edit" | "fix_compile";
+                                    step: "import" | "jd_parse" | "plan" | "rewrite" | "verify" | "inline_edit" | "chat_edit" | "fix_compile" | "draft";
                                     /** @enum {string} */
                                     status: "succeeded" | "failed";
                                     model: string;
@@ -4337,6 +4341,224 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/resume-drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Write resume content from the user's notes with AI */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        role: string;
+                        notes: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                content: {
+                                    basics: {
+                                        name: string;
+                                        headline?: string;
+                                        /** Format: email */
+                                        email?: string;
+                                        phone?: string;
+                                        location?: string;
+                                        /** @default [] */
+                                        links: {
+                                            label: string;
+                                            /** Format: uri */
+                                            url: string;
+                                            sensitive?: boolean;
+                                        }[];
+                                        sensitive?: ("name" | "location")[];
+                                    };
+                                    sections: ({
+                                        id: string;
+                                        title: string;
+                                        /** @default false */
+                                        hidden: boolean;
+                                        /** @constant */
+                                        type: "experience";
+                                        entries: {
+                                            id: string;
+                                            /** @default false */
+                                            hidden: boolean;
+                                            /** @default [] */
+                                            bullets: {
+                                                id: string;
+                                                text: string;
+                                                /** @default false */
+                                                hidden: boolean;
+                                            }[];
+                                            organization: string;
+                                            sensitive?: boolean;
+                                            role: string;
+                                            location?: string;
+                                            start?: string;
+                                            end?: string | "present";
+                                        }[];
+                                    } | {
+                                        id: string;
+                                        title: string;
+                                        /** @default false */
+                                        hidden: boolean;
+                                        /** @constant */
+                                        type: "education";
+                                        entries: {
+                                            id: string;
+                                            /** @default false */
+                                            hidden: boolean;
+                                            /** @default [] */
+                                            bullets: {
+                                                id: string;
+                                                text: string;
+                                                /** @default false */
+                                                hidden: boolean;
+                                            }[];
+                                            institution: string;
+                                            degree?: string;
+                                            field?: string;
+                                            location?: string;
+                                            start?: string;
+                                            end?: string | "present";
+                                            score?: string;
+                                        }[];
+                                    } | {
+                                        id: string;
+                                        title: string;
+                                        /** @default false */
+                                        hidden: boolean;
+                                        /** @constant */
+                                        type: "projects";
+                                        entries: {
+                                            id: string;
+                                            /** @default false */
+                                            hidden: boolean;
+                                            /** @default [] */
+                                            bullets: {
+                                                id: string;
+                                                text: string;
+                                                /** @default false */
+                                                hidden: boolean;
+                                            }[];
+                                            name: string;
+                                            /** Format: uri */
+                                            url?: string;
+                                            /** @default [] */
+                                            links: {
+                                                label: string;
+                                                /** Format: uri */
+                                                url: string;
+                                                sensitive?: boolean;
+                                            }[];
+                                            /** @default [] */
+                                            technologies: string[];
+                                            start?: string;
+                                            end?: string | "present";
+                                        }[];
+                                    } | {
+                                        id: string;
+                                        title: string;
+                                        /** @default false */
+                                        hidden: boolean;
+                                        /** @constant */
+                                        type: "skills";
+                                        groups: {
+                                            id: string;
+                                            name: string;
+                                            items: string[];
+                                        }[];
+                                    } | {
+                                        id: string;
+                                        title: string;
+                                        /** @default false */
+                                        hidden: boolean;
+                                        /** @constant */
+                                        type: "list";
+                                        entries: {
+                                            id: string;
+                                            /** @default false */
+                                            hidden: boolean;
+                                            /** @default [] */
+                                            bullets: {
+                                                id: string;
+                                                text: string;
+                                                /** @default false */
+                                                hidden: boolean;
+                                            }[];
+                                            title: string;
+                                            subtitle?: string;
+                                            date?: string;
+                                            /** Format: uri */
+                                            url?: string;
+                                        }[];
+                                    } | {
+                                        id: string;
+                                        title: string;
+                                        /** @default false */
+                                        hidden: boolean;
+                                        /** @constant */
+                                        type: "summary";
+                                        /** @default  */
+                                        text: string;
+                                    } | {
+                                        id: string;
+                                        title: string;
+                                        /** @default false */
+                                        hidden: boolean;
+                                        /** @constant */
+                                        type: "links";
+                                        links: {
+                                            label: string;
+                                            /** Format: uri */
+                                            url: string;
+                                            sensitive?: boolean;
+                                        }[];
+                                    })[];
+                                };
+                                /** Format: uuid */
+                                aiRunId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/imports": {
         parameters: {
             query?: never;
@@ -6336,6 +6558,10 @@ export interface paths {
                                         used: number;
                                         limit: number;
                                     };
+                                    draft: {
+                                        used: number;
+                                        limit: number;
+                                    };
                                 };
                                 subscriptions: {
                                     /** Format: uuid */
@@ -6481,6 +6707,10 @@ export interface paths {
                                         limit: number;
                                     };
                                     import: {
+                                        used: number;
+                                        limit: number;
+                                    };
+                                    draft: {
                                         used: number;
                                         limit: number;
                                     };
@@ -6727,6 +6957,10 @@ export interface paths {
                                         limit: number;
                                     };
                                     import: {
+                                        used: number;
+                                        limit: number;
+                                    };
+                                    draft: {
                                         used: number;
                                         limit: number;
                                     };
