@@ -355,7 +355,7 @@ function TrafficReport({ data }: { data: TrafficData }) {
         {data.compiles.requests === 0 ? (
           <EmptyNote>No compiles recorded in this period.</EmptyNote>
         ) : (
-          <StatGrid>
+          <StatGrid className="lg:grid-cols-5">
             <Stat
               label="Compiles"
               value={formatNumber(data.compiles.requests)}
@@ -368,6 +368,11 @@ function TrafficReport({ data }: { data: TrafficData }) {
               label="Compile time"
               value={`${formatNumber(data.compiles.compileP50Ms)} ms`}
               hint={`Slowest 5%: ${formatNumber(data.compiles.compileP95Ms)} ms`}
+            />
+            <Stat
+              label="Wait in the editor"
+              value={`${formatNumber(data.compiles.seenP50Ms)} ms`}
+              hint={`Edit to PDF on screen. Slowest 5%: ${formatNumber(data.compiles.seenP95Ms)} ms`}
             />
             <Stat
               label="Cache lookup"

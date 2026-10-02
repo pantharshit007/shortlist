@@ -7431,6 +7431,8 @@ export interface paths {
                                         compileP50Ms: number;
                                         compileP95Ms: number;
                                         lookupP50Ms: number;
+                                        seenP50Ms: number;
+                                        seenP95Ms: number;
                                     };
                                     recordings: {
                                         id: string;

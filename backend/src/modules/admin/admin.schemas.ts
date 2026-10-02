@@ -261,6 +261,9 @@ const trafficData = z.object({
     compileP50Ms: int,
     compileP95Ms: int,
     lookupP50Ms: int,
+    // What users wait in the editor, edit to PDF on screen; 0 until browsers report it.
+    seenP50Ms: int,
+    seenP95Ms: int,
   }),
   recordings: z.array(
     z.object({

@@ -66,7 +66,7 @@ async function traffic(days: number, timeZone: string) {
       values,
     ).then(rows);
 
-  const [totals, byDay, pages, referrers, countries, devices, browsers, events, api, recordings, compiles] =
+  const [totals, byDay, pages, referrers, countries, devices, browsers, events, api, recordings, compiles, previews] =
     await Promise.all([
       hogql(
         `SELECT
@@ -139,6 +139,12 @@ async function traffic(days: number, timeZone: string) {
        )`,
         values,
       ),
+      // Sent by the browser: from an edit to the new PDF on screen, including the debounce.
+      hogql(
+        `SELECT quantile(0.5)(toFloat(properties.duration_ms)), quantile(0.95)(toFloat(properties.duration_ms))
+         FROM events WHERE event = 'preview_shown' AND timestamp >= now() - toIntervalDay({days})`,
+        values,
+      ),
     ]);
 
   const [current = []] = totals;
@@ -179,6 +185,8 @@ async function traffic(days: number, timeZone: string) {
       compileP50Ms: Math.round(num(p50)),
       compileP95Ms: Math.round(num(p95)),
       lookupP50Ms: Math.round(num(lookup)),
+      seenP50Ms: Math.round(num(previews[0]?.[0])),
+      seenP95Ms: Math.round(num(previews[0]?.[1])),
     }))(compiles[0]),
     recordings: recordings.results.map((recording) => ({
       id: recording.id,

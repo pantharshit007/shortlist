@@ -23628,6 +23628,16 @@
                                       "type": "integer",
                                       "minimum": -9007199254740991,
                                       "maximum": 9007199254740991
+                                    },
+                                    "seenP50Ms": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "seenP95Ms": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
                                     }
                                   },
                                   "required": [
@@ -23635,7 +23645,9 @@
                                     "cacheHitRate",
                                     "compileP50Ms",
                                     "compileP95Ms",
-                                    "lookupP50Ms"
+                                    "lookupP50Ms",
+                                    "seenP50Ms",
+                                    "seenP95Ms"
                                   ],
                                   "additionalProperties": false
                                 },
