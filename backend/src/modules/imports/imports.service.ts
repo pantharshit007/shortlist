@@ -2,6 +2,7 @@ import { generateStructured } from "../../lib/ai/generate.js";
 import { readUpload } from "../uploads/uploads.service.js";
 import { assertAiQuota } from "../usage/quotas.js";
 import { extractionSchema, normalizeExtraction } from "./extraction.js";
+import { pdfLinks } from "./pdf-links.js";
 import { track } from "../../lib/analytics.js";
 
 const system = `You extract resumes into structured JSON.
@@ -15,6 +16,8 @@ Rules:
   links such as LeetCode or Codeforces), list (achievements, certifications, positions of responsibility,
   anything else).
 - The headline is only a short title under the name. A paragraph about the person is a summary section.
+- In list sections, every item is its own entry. For an item written as "Name - description" (or with a colon or
+  long dash), put the name in title and the description in subtitle; otherwise the whole item is the title.
 - Keep the source's section order and titles.
 - Fill every field; use null or [] when something doesn't apply.`;
 
@@ -32,6 +35,10 @@ export async function createImport(
     const { upload, body } = await readUpload(userId, input.uploadId);
     if (upload.kind === "pdf") {
       files.push({ data: body, mediaType: "application/pdf", filename: upload.fileName });
+      const links = await pdfLinks(new Uint8Array(body));
+      if (links.length) {
+        prompt += `\n\nThese links are hidden behind text in the PDF. Each shows the words it sits on (or its line, for an icon), then where it points. Put each URL in the url or links field of the item it belongs to, or in basics.links for profile links:\n${links.map((l) => `- "${l.text}" -> ${l.url}`).join("\n")}`;
+      }
     } else {
       const label = upload.kind === "tex" ? texLabel : "text";
       prompt = `Extract this resume from its ${label}:\n\n<resume>\n${body.toString("utf8")}\n</resume>`;
