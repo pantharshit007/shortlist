@@ -1,6 +1,6 @@
 import type { ResumeContent, ResumeSection } from "../schemas/resume-content.js";
 import { renderSections } from "./classic-body.js";
-import { dateRange, joinNonEmpty, tex, texUrl, visibleContent } from "./latex.js";
+import { contactParts, dateRange, joinNonEmpty, tex, texUrl, visibleContent } from "./latex.js";
 import { applyLayout, nameGap, type ResumeLayout } from "./layout.js";
 import { bullets, bundleFont, displayUrl } from "./shared-tech.js";
 
@@ -14,6 +14,8 @@ const preamble = String.raw`\documentclass[a4paper,10pt]{article}
 \usepackage{enumitem}
 \usepackage{paracol}
 \usepackage[hidelinks]{hyperref}
+\usepackage{fontawesome5}
+\usepackage{accsupp}
 \usepackage{fontspec}
 ${bundleFont("FiraSans")}
 \newfontface\light{FiraSans-Light.otf}
@@ -108,12 +110,7 @@ function sidebarSection(s: ResumeSection): string {
 }
 
 function contact(basics: ResumeContent["basics"]) {
-  const parts = [
-    basics.email ? sideLink(`mailto:${basics.email}`, tex(basics.email)) : undefined,
-    tex(basics.phone),
-    tex(basics.location),
-    ...basics.links.map((l) => lines([`\\textbf{${tex(l.label)}}`, sideLink(l.url, breakable(l.url))])),
-  ].filter(Boolean);
+  const parts = contactParts(basics);
   if (parts.length === 0) return "";
   return `\\section{Contact}\n${parts.map((p) => `\\sideEntry{${p}}`).join("\n")}`;
 }
