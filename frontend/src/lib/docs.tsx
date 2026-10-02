@@ -734,10 +734,10 @@ export const docs: DocPage[] = [
             <li>
               <b>Phone and email</b>: hidden by default, so strangers can't
               scrape them. Choose <b>Shown</b> to show them to everyone. On
-              Season Pass or Pro, <b>With password</b> lets anyone read the
-              resume but only people with the contact password see your phone
-              and email, on the page and in the PDF. If your plan ends, they
-              stay hidden.
+              Season Pass or Pro, <b>Password</b> lets anyone read the resume
+              but only people with the contact password see your phone and
+              email, on the page and in the PDF. If your plan ends, they stay
+              hidden.
             </li>
             <li>
               <b>List on my public profile</b>: show it on your profile page, or

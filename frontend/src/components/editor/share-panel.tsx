@@ -147,15 +147,20 @@ function ContactField({
         value={value}
         onValueChange={(mode) => mode && onChange(mode as ContactMode)}
       >
-        <ToggleGroupItem value="shown" className="flex-1">
+        <ToggleGroupItem value="shown" className="min-w-0 flex-1 shrink">
           Shown
         </ToggleGroupItem>
-        <ToggleGroupItem value="hidden" className="flex-1">
+        <ToggleGroupItem value="hidden" className="min-w-0 flex-1 shrink">
           Hidden
         </ToggleGroupItem>
-        <ToggleGroupItem value="password" className="flex-1" disabled={!paid}>
+        <ToggleGroupItem
+          value="password"
+          // Locked on Free: dim the label only, so the button keeps its border.
+          className="min-w-0 flex-1 shrink disabled:text-muted-foreground disabled:opacity-100"
+          disabled={!paid}
+        >
           <LockIcon data-icon="inline-start" />
-          With password
+          Password
         </ToggleGroupItem>
       </ToggleGroup>
       <FieldDescription>{description}</FieldDescription>
