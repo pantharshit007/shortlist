@@ -2880,6 +2880,8 @@ export interface paths {
                             fontSize?: 10 | 11 | 12;
                         };
                         archived?: boolean;
+                        /** @enum {string} */
+                        mode?: "structured" | "code";
                     };
                 };
             };

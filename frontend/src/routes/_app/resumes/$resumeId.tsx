@@ -19,6 +19,7 @@ import { LayoutMenu } from '@/components/editor/layout-menu'
 import { HistoryPanel } from '@/components/editor/history-panel'
 import { SharePanel } from '@/components/editor/share-panel'
 import { UnsavedChangesGuard } from '@/components/app/unsaved-changes-guard'
+import { ConfirmDialog } from '@/components/app/confirm-dialog'
 import { SaveTemplateDialog } from '@/components/templates/save-template-dialog'
 import { LatexEditor } from '@/components/editor/latex-editor'
 import type { LatexEditorHandle } from '@/components/editor/latex-editor'
@@ -43,7 +44,9 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Spinner } from '@/components/ui/spinner'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import {
   Tooltip,
   TooltipContent,
@@ -274,6 +277,31 @@ function ResumeEditor({
     onError: (error) => toast.error(errorMessage(error)),
   })
 
+  const [confirmToForm, setConfirmToForm] = useState(false)
+  // The new head comes back from the server, which remounts the editor in the other mode.
+  const switchMode = useMutation({
+    mutationFn: (mode: ResumeDetail['mode']) =>
+      unwrap(
+        api.PATCH('/v1/resumes/{resumeId}', {
+          params: { path: { resumeId: resume.id } },
+          body: { mode },
+        }),
+      ),
+    onSuccess: (_, mode) => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.resume(resume.id),
+      })
+      void queryClient.invalidateQueries({ queryKey: ['resumes'] })
+      void queryClient.invalidateQueries({ queryKey: ['usage'] })
+      toast.success(
+        mode === 'code'
+          ? 'Switched to LaTeX. You can switch back anytime.'
+          : 'Switched to the form editor.',
+      )
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  })
+
   const editorPane =
     structured && content ? (
       <div className="mx-auto max-w-3xl p-4 sm:p-6">
@@ -344,6 +372,32 @@ function ResumeEditor({
           <SaveStatus state={saveState} />
         </div>
         <div className="ml-auto flex items-center gap-2">
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="sm"
+            aria-label="Editor"
+            className="hidden md:flex"
+            value={resume.mode}
+            disabled={switchMode.isPending || saveState !== 'saved'}
+            onValueChange={(mode) => {
+              if (mode === 'code') switchMode.mutate('code')
+              else if (mode === 'structured') setConfirmToForm(true)
+            }}
+          >
+            <ToggleGroupItem value="structured">
+              {switchMode.isPending && !structured && (
+                <Spinner data-icon="inline-start" />
+              )}
+              Form
+            </ToggleGroupItem>
+            <ToggleGroupItem value="code">
+              {switchMode.isPending && structured && (
+                <Spinner data-icon="inline-start" />
+              )}
+              LaTeX
+            </ToggleGroupItem>
+          </ToggleGroup>
           {structured && (
             <Select
               value={templateId}
@@ -548,6 +602,14 @@ function ResumeEditor({
         onOpenChange={setHistoryOpen}
         resumeId={resume.id}
         headVersionId={headVersionId}
+      />
+      <ConfirmDialog
+        open={confirmToForm}
+        onOpenChange={setConfirmToForm}
+        title="Switch back to the form editor?"
+        description="AI reads your LaTeX back into form fields, so your edits are kept. It takes about 10 seconds. Custom formatting from your code isn't kept, and the LaTeX version stays in your history."
+        confirmLabel="Switch to form"
+        onConfirm={() => switchMode.mutate('structured')}
       />
       <SharePanel
         open={shareOpen}
