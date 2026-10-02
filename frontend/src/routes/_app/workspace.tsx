@@ -63,6 +63,8 @@ function templateName(id: string | null) {
 function WorkspacePage() {
   const [view, setView] = useState<'active' | 'archived'>('active')
   const resumes = useQuery(resumesQuery(view === 'archived'))
+  // Loads the other list too, so switching between Active and Archived shows it at once.
+  useQuery(resumesQuery(view !== 'archived'))
   const { data: usage } = useQuery(usageQuery)
   const { data: profile } = useQuery(profileQuery)
   const profileEmpty = profile && !profile.updatedAt
