@@ -138,3 +138,30 @@ describe("normalizeExtraction bullets", () => {
     ]);
   });
 });
+
+describe("normalizeExtraction list items", () => {
+  it("turns untitled achievement bullets into their own items", () => {
+    const content = normalizeExtraction({
+      basics: { name: "A", headline: null, email: null, phone: null, location: null, links: [] },
+      sections: [
+        {
+          type: "list",
+          title: "Achievements & Open Source",
+          text: null,
+          groups: [],
+          links: [],
+          entries: [
+            entry({ bullets: ["• Codeforces rated 1490", "Ranked 2495 in Meta Hacker Cup"] }),
+            entry({ title: "CopilotKit", subtitle: "Fixed markdown styles", url: "github.com/CopilotKit/pull/1" }),
+          ],
+        },
+      ],
+    });
+    const list = content.sections[0];
+    expect(list?.type === "list" && list.entries.map((e) => [e.title, e.subtitle, e.url])).toEqual([
+      ["Codeforces rated 1490", undefined, undefined],
+      ["Ranked 2495 in Meta Hacker Cup", undefined, undefined],
+      ["CopilotKit", "Fixed markdown styles", "https://github.com/CopilotKit/pull/1"],
+    ]);
+  });
+});

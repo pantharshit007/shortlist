@@ -156,17 +156,23 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
       return {
         ...base,
         type: "list",
-        entries: e
-          .filter((x) => clean(x.title) || clean(x.name))
-          .map((x) => ({
-            id: shortId(),
-            hidden: false,
-            title: clean(x.title) ?? clean(x.name)!,
-            subtitle: clean(x.subtitle),
-            date: clean(x.date),
-            url: url(x.url),
-            bullets: bullets(x.bullets),
-          })),
+        entries: e.flatMap((x): Extract<ResumeSection, { type: "list" }>["entries"] => {
+          const title = clean(x.title) ?? clean(x.name);
+          // Achievements often come back as bullets with no title; each one is its own item.
+          if (!title)
+            return bullets(x.bullets).map((b) => ({ id: shortId(), hidden: false, title: b.text, bullets: [] }));
+          return [
+            {
+              id: shortId(),
+              hidden: false,
+              title,
+              subtitle: clean(x.subtitle),
+              date: clean(x.date),
+              url: url(x.url),
+              bullets: bullets(x.bullets),
+            },
+          ];
+        }),
       };
   }
 }
