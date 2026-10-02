@@ -25,6 +25,7 @@ export function move<T>(items: T[], index: number, delta: number): T[] {
 }
 
 export const sectionPresets = [
+  { type: 'summary', title: 'Summary' },
   { type: 'experience', title: 'Experience' },
   { type: 'education', title: 'Education' },
   { type: 'projects', title: 'Projects' },
@@ -49,6 +50,8 @@ export function createSection(
       }
     case 'links':
       return { ...base, type, links: [] }
+    case 'summary':
+      return { ...base, type, text: '' }
     case 'experience':
       return { ...base, type, entries: [createEntry(type)] }
     case 'education':

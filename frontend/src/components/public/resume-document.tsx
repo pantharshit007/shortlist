@@ -100,6 +100,16 @@ function Section({ section }: { section: ResumeSection }) {
           </div>
         </section>
       )
+    case 'summary':
+      if (!section.text) return null
+      return (
+        <section className="flex flex-col gap-2">
+          {title}
+          <p className="text-[0.95rem]">
+            <Rich text={section.text} />
+          </p>
+        </section>
+      )
     case 'links':
       if (section.links.length === 0) return null
       return (

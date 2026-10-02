@@ -21,8 +21,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Field, FieldLabel } from '@/components/ui/field'
+import { Field, FieldDescription, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import type { ResumeSection } from '@/lib/api/types'
 import { cn } from '@/lib/utils'
 import { BulletsEditor } from './bullets-editor'
@@ -384,6 +385,39 @@ function EntriesEditor({
   )
 }
 
+const SUMMARY_MAX = 1000
+
+function SummaryEditor({
+  section,
+  onChange,
+}: {
+  section: Extract<ResumeSection, { type: 'summary' }>
+  onChange: (section: ResumeSection) => void
+}) {
+  return (
+    <Field>
+      <FieldLabel htmlFor={`${section.id}-text`} className="sr-only">
+        {section.title}
+      </FieldLabel>
+      <Textarea
+        id={`${section.id}-text`}
+        value={section.text}
+        rows={4}
+        maxLength={SUMMARY_MAX}
+        placeholder="Two or three lines on who you are, what you are best at and what you want next."
+        className="min-h-24 resize-none field-sizing-content"
+        onChange={(event) => onChange({ ...section, text: event.target.value })}
+      />
+      <FieldDescription className="flex justify-between gap-4">
+        <span>Wrap words in **double asterisks** to make them bold.</span>
+        <span className="tabular-nums">
+          {section.text.length}/{SUMMARY_MAX}
+        </span>
+      </FieldDescription>
+    </Field>
+  )
+}
+
 function SkillsEditor({
   section,
   onChange,
@@ -550,6 +584,8 @@ export function SectionEditor({
       </div>
       {section.type === 'skills' ? (
         <SkillsEditor section={section} onChange={onChange} />
+      ) : section.type === 'summary' ? (
+        <SummaryEditor section={section} onChange={onChange} />
       ) : section.type === 'links' ? (
         <LinksEditor
           idPrefix={section.id}

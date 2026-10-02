@@ -13,6 +13,7 @@ const fieldLabels: Record<string, string> = {
   start: 'Start date',
   end: 'End date',
   items: '',
+  text: '',
 }
 // Not text: ids, visibility, AI masking flags, and children compared on their own.
 const skipped = new Set([

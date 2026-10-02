@@ -486,6 +486,16 @@ export interface paths {
                         /** @default false */
                         hidden: boolean
                         /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text: string
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
                         type: 'links'
                         links: {
                           label: string
@@ -672,6 +682,16 @@ export interface paths {
                     /** @default false */
                     hidden?: boolean
                     /** @constant */
+                    type: 'summary'
+                    /** @default  */
+                    text?: string
+                  }
+                | {
+                    id: string
+                    title: string
+                    /** @default false */
+                    hidden?: boolean
+                    /** @constant */
                     type: 'links'
                     links: {
                       label: string
@@ -836,6 +856,16 @@ export interface paths {
                           /** Format: uri */
                           url?: string
                         }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text: string
                       }
                     | {
                         id: string
@@ -1468,6 +1498,16 @@ export interface paths {
                         /** @default false */
                         hidden: boolean
                         /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text: string
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
                         type: 'links'
                         links: {
                           label: string
@@ -1677,6 +1717,16 @@ export interface paths {
                           /** Format: uri */
                           url?: string
                         }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text: string
                       }
                     | {
                         id: string
@@ -1921,6 +1971,16 @@ export interface paths {
                           /** Format: uri */
                           url?: string
                         }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text: string
                       }
                     | {
                         id: string
@@ -2208,6 +2268,16 @@ export interface paths {
                           /** @default false */
                           hidden?: boolean
                           /** @constant */
+                          type: 'summary'
+                          /** @default  */
+                          text?: string
+                        }
+                      | {
+                          id: string
+                          title: string
+                          /** @default false */
+                          hidden?: boolean
+                          /** @constant */
                           type: 'links'
                           links: {
                             label: string
@@ -2422,6 +2492,16 @@ export interface paths {
                             /** Format: uri */
                             url?: string
                           }[]
+                        }
+                      | {
+                          id: string
+                          title: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @constant */
+                          type: 'summary'
+                          /** @default  */
+                          text: string
                         }
                       | {
                           id: string
@@ -2661,6 +2741,16 @@ export interface paths {
                             /** Format: uri */
                             url?: string
                           }[]
+                        }
+                      | {
+                          id: string
+                          title: string
+                          /** @default false */
+                          hidden: boolean
+                          /** @constant */
+                          type: 'summary'
+                          /** @default  */
+                          text: string
                         }
                       | {
                           id: string
@@ -3024,6 +3114,16 @@ export interface paths {
                         /** @default false */
                         hidden?: boolean
                         /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text?: string
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden?: boolean
+                        /** @constant */
                         type: 'links'
                         links: {
                           label: string
@@ -3212,6 +3312,16 @@ export interface paths {
                           /** Format: uri */
                           url?: string
                         }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text: string
                       }
                     | {
                         id: string
@@ -3436,6 +3546,16 @@ export interface paths {
                         /** @default false */
                         hidden: boolean
                         /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text: string
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
                         type: 'links'
                         links: {
                           label: string
@@ -3645,6 +3765,16 @@ export interface paths {
                           /** Format: uri */
                           url?: string
                         }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text: string
                       }
                     | {
                         id: string
@@ -3997,6 +4127,16 @@ export interface paths {
                           /** Format: uri */
                           url?: string
                         }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden?: boolean
+                        /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text?: string
                       }
                     | {
                         id: string
@@ -4385,6 +4525,16 @@ export interface paths {
                           /** Format: uri */
                           url?: string
                         }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text: string
                       }
                     | {
                         id: string
@@ -5678,6 +5828,16 @@ export interface paths {
                           /** Format: uri */
                           url?: string
                         }[]
+                      }
+                    | {
+                        id: string
+                        title: string
+                        /** @default false */
+                        hidden: boolean
+                        /** @constant */
+                        type: 'summary'
+                        /** @default  */
+                        text: string
                       }
                     | {
                         id: string
