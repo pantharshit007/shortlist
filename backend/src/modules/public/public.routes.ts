@@ -12,6 +12,14 @@ export const publicRouter = Router();
 
 publicRouter.use("/public", publicLimiter);
 
+function decoded(value: string | undefined) {
+  try {
+    return value && decodeURIComponent(value);
+  } catch {
+    return undefined;
+  }
+}
+
 // The frontend renders share pages server-side, so it forwards the visitor's own details in these headers.
 function viewerFrom(req: Request) {
   return {
@@ -21,7 +29,7 @@ function viewerFrom(req: Request) {
     referrer: req.get("x-share-referrer"),
     country: req.get("cf-ipcountry"),
     region: req.get("x-share-region"),
-    city: req.get("x-share-city"),
+    city: decoded(req.get("x-share-city")),
   };
 }
 
