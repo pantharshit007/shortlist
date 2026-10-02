@@ -280,11 +280,15 @@ function Report({ data }: { data: Analytics }) {
                 className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3 text-sm"
               >
                 <p className="min-w-0">
-                  <span className="font-medium">{view.resumeTitle}</span>{' '}
+                  <span className="text-muted-foreground">Someone opened </span>
+                  <span className="font-medium">{view.resumeTitle}</span>
                   <span className="text-muted-foreground">
-                    opened from {referrerLabel(view.referrer)}
-                    {view.country && `, ${countryLabel(view.country)}`}
-                    {view.device && `, on ${view.device}`}
+                    {' '}
+                    {view.referrer && view.referrer !== 'direct'
+                      ? `via ${referrerLabel(view.referrer)}`
+                      : 'directly'}
+                    {view.country && ` · ${countryLabel(view.country)}`}
+                    {view.device && ` · ${view.device}`}
                   </span>
                 </p>
                 <time

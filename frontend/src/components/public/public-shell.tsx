@@ -40,6 +40,13 @@ export function PublicShell({
         >
           Make yours free on {site.name}
         </Link>
+        <p className="mx-auto mt-3 max-w-md px-4 text-xs">
+          The owner of a shared resume sees roughly where and on what device it
+          was opened, never your name.{' '}
+          <Link to="/privacy" className="underline underline-offset-4">
+            Privacy
+          </Link>
+        </p>
       </footer>
     </div>
   )
