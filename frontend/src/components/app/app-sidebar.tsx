@@ -5,6 +5,7 @@ import {
   ChartColumnIcon,
   ChevronsUpDownIcon,
   FileTextIcon,
+  GaugeIcon,
   LayoutDashboardIcon,
   LayoutTemplateIcon,
   LogOutIcon,
@@ -62,6 +63,13 @@ const nav = [
     label: 'Workspace',
     icon: FileTextIcon,
     match: ['/workspace', '/resumes'],
+  },
+  {
+    to: '/workspace',
+    search: { ats: true },
+    label: 'Check your ATS score',
+    icon: GaugeIcon,
+    match: [],
   },
   {
     to: '/my-templates',
@@ -140,14 +148,17 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {nav.map((item) => (
-                <SidebarMenuItem key={item.to}>
+                <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton
                     asChild
                     isActive={item.match.some((prefix) =>
                       pathname.startsWith(prefix),
                     )}
                   >
-                    <Link to={item.to}>
+                    <Link
+                      to={item.to}
+                      search={'search' in item ? item.search : {}}
+                    >
                       <item.icon />
                       <span>{item.label}</span>
                     </Link>

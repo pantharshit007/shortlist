@@ -73,6 +73,7 @@ export const Route = createFileRoute('/_app/resumes/$resumeId')({
   validateSearch: z.object({
     tailor: z.string().optional(),
     created: z.boolean().optional(),
+    ats: z.boolean().optional(),
   }),
   head: () => ({ meta: [{ title: `Editor | ${site.name}` }] }),
   component: EditorRoute,
@@ -81,9 +82,9 @@ export const Route = createFileRoute('/_app/resumes/$resumeId')({
 function EditorRoute() {
   const { resumeId } = Route.useParams()
   const { data: resume, isPending, error } = useQuery(resumeQuery(resumeId))
-  const { tailor } = Route.useSearch()
+  const { tailor, ats } = Route.useSearch()
   // Lives above the editor so the AI panel stays open when applied changes remount it.
-  const [aiOpen, setAiOpen] = useState(Boolean(tailor))
+  const [aiOpen, setAiOpen] = useState(Boolean(tailor || ats))
   // Autosaves move the head too, so only a head this editor didn't save (restore, AI changes) remounts it.
   const [ownHeads] = useState(() => new Set<string>())
   const [editorKey, setEditorKey] = useState<string | null>(null)
@@ -193,7 +194,7 @@ function ResumeEditor({
   const [layoutSettings, setLayoutSettings] = useState(resume.layout)
   const [saveState, setSaveState] = useState<SaveState>('saved')
   const [pane, setPane] = useState<'edit' | 'preview'>('edit')
-  const { tailor, created } = Route.useSearch()
+  const { tailor, created, ats } = Route.useSearch()
   const navigate = useNavigate()
   // A resume made in this visit offers "save as template" on the way out, once it has edits.
   const [editedSinceCreate, setEditedSinceCreate] = useState(false)
@@ -337,6 +338,7 @@ function ResumeEditor({
       content={content}
       texSource={structured ? null : texSource}
       hasUnsavedChanges={saveState !== 'saved'}
+      checkAtsOnOpen={Boolean(ats)}
     />
   )
 

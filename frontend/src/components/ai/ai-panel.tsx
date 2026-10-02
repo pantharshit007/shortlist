@@ -240,6 +240,7 @@ export function AiPanel({
   content,
   texSource,
   hasUnsavedChanges,
+  checkAtsOnOpen = false,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -250,6 +251,7 @@ export function AiPanel({
   content: ResumeContent | null
   texSource: string | null
   hasUnsavedChanges: boolean
+  checkAtsOnOpen?: boolean
 }) {
   const [jobId, setJobId] = useState<string | null>(initialJobId)
   const [atsJobId, setAtsJobId] = useState<string | null>(initialJobId)
@@ -333,6 +335,11 @@ export function AiPanel({
     suggest.mutate(next)
   }
   const atsFix = ats.data ? fixInstruction(ats.data) : null
+  // Arriving from "Check your ATS score" runs the check once, straight away.
+  useEffect(() => {
+    if (checkAtsOnOpen) checkAts()
+    // Only on the first render.
+  }, [])
 
   useEffect(() => {
     if (!open) return
