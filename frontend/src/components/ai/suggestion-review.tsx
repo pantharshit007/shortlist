@@ -30,36 +30,60 @@ export function SuggestionReview({
 }) {
   const queryClient = useQueryClient()
   const { data: usage } = useQuery(usageQuery)
-  // Anything that might add facts the user never gave starts unchecked.
-  const [accepted, setAccepted] = useState<Set<string>>(
-    () =>
-      new Set(
-        suggestion.operations
-          .filter((op) => op.flags.length === 0)
-          .map((op) => op.id),
-      ),
-  )
+  // Anything that might add facts the user never gave starts unchecked, and "Apply all" leaves it out.
+  const safeIds = suggestion.operations
+    .filter((op) => op.flags.length === 0)
+    .map((op) => op.id)
+  const flaggedCount = suggestion.operations.length - safeIds.length
+  const [accepted, setAccepted] = useState<Set<string>>(() => new Set(safeIds))
+  const [reviewing, setReviewing] = useState(false)
+
+  const refresh = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.resume(resumeId) })
+    queryClient.invalidateQueries({ queryKey: queryKeys.versions(resumeId) })
+  }
+
+  // Runs after this component unmounts, so it can't be a mutation hook here.
+  const undo = (fromVersionId: string) =>
+    unwrap(
+      api.POST('/v1/resumes/{resumeId}/versions', {
+        params: { path: { resumeId } },
+        body: { kind: 'restore', fromVersionId },
+      }),
+    ).then(
+      () => {
+        refresh()
+        toast.success('Changes undone. They are still in history.')
+      },
+      (error) => toast.error(errorMessage(error)),
+    )
 
   const apply = useMutation({
-    mutationFn: () =>
+    mutationFn: (ids: string[]) =>
       unwrap(
         api.POST('/v1/resumes/{resumeId}/versions', {
           params: { path: { resumeId } },
           body: {
             kind: 'ai',
             suggestionId: suggestion.id,
-            acceptedOperationIds: [...accepted],
+            acceptedOperationIds: ids,
           },
         }),
       ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resume(resumeId) })
-      queryClient.invalidateQueries({ queryKey: queryKeys.versions(resumeId) })
+    onSuccess: (version, ids) => {
+      refresh()
       queryClient.invalidateQueries({
         queryKey: queryKeys.suggestions(resumeId),
       })
+      const { parentId } = version
       toast.success(
-        `${accepted.size} ${accepted.size === 1 ? 'change' : 'changes'} applied`,
+        `${ids.length} ${ids.length === 1 ? 'change' : 'changes'} applied`,
+        parentId
+          ? {
+              duration: 8000,
+              action: { label: 'Undo', onClick: () => undo(parentId) },
+            }
+          : undefined,
       )
       onApplied()
     },
@@ -119,19 +143,75 @@ export function SuggestionReview({
       return next
     })
 
+  const header = (suggestion.summary || cost) && (
+    <div className="flex flex-col gap-2 pb-4">
+      {suggestion.summary && (
+        <p className="flex items-start gap-2 text-sm">
+          <SparklesIcon
+            aria-hidden
+            className="mt-0.5 size-4 shrink-0 text-primary"
+          />
+          {suggestion.summary}
+        </p>
+      )}
+      {cost}
+    </div>
+  )
+
+  if (!reviewing) {
+    const count = suggestion.operations.length
+    return (
+      <div className="flex min-h-0 flex-1 flex-col">
+        {header}
+        <p className="text-sm font-medium">
+          {count} {count === 1 ? 'change' : 'changes'} ready
+        </p>
+        <ul className="mt-2 flex min-h-0 flex-1 list-disc flex-col gap-1 overflow-y-auto pr-1 pl-5 text-sm text-muted-foreground">
+          {suggestion.operations.map((op) => (
+            <li key={op.id} className="break-words">
+              <OperationTitle op={op} content={content} />
+            </li>
+          ))}
+        </ul>
+        {flaggedCount > 0 && (
+          <p className="mt-3 flex items-start gap-1.5 text-xs text-destructive">
+            <AlertTriangleIcon
+              aria-hidden
+              className="mt-0.5 size-3.5 shrink-0"
+            />
+            {safeIds.length > 0
+              ? `Apply all leaves out ${flaggedCount} ${flaggedCount === 1 ? 'change that may add a fact' : 'changes that may add facts'} you never gave. Review to include ${flaggedCount === 1 ? 'it' : 'them'}.`
+              : 'These changes may add facts you never gave. Review them before applying.'}
+          </p>
+        )}
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t pt-4">
+          {safeIds.length > 0 && (
+            <Button
+              onClick={() => apply.mutate(safeIds)}
+              disabled={apply.isPending}
+            >
+              {apply.isPending && <Spinner data-icon="inline-start" />}
+              Apply all
+            </Button>
+          )}
+          <Button
+            variant={safeIds.length > 0 ? 'outline' : 'default'}
+            onClick={() => setReviewing(true)}
+            disabled={apply.isPending}
+          >
+            Review changes
+          </Button>
+          <Button variant="ghost" onClick={onDiscard}>
+            Discard
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {(suggestion.summary || cost) && (
-        <div className="flex flex-col gap-2 pb-4">
-          {suggestion.summary && (
-            <p className="flex items-start gap-2 text-sm">
-              <SparklesIcon className="mt-0.5 size-4 shrink-0 text-primary" />
-              {suggestion.summary}
-            </p>
-          )}
-          {cost}
-        </div>
-      )}
+      {header}
 
       <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
         {suggestion.operations.map((op) => {
@@ -179,7 +259,7 @@ export function SuggestionReview({
 
       <div className="flex items-center gap-2 border-t pt-4">
         <Button
-          onClick={() => apply.mutate()}
+          onClick={() => apply.mutate([...accepted])}
           disabled={accepted.size === 0 || apply.isPending}
         >
           {apply.isPending && <Spinner data-icon="inline-start" />}

@@ -350,14 +350,14 @@ export function AiPanel({
 
   const reviewing = suggestion !== null
   const title = reviewing
-    ? 'Review changes'
+    ? 'Suggested changes'
     : atsOpen
       ? 'ATS score'
       : mode === 'fix'
         ? 'Fix the LaTeX'
         : 'Improve with AI'
   const description = reviewing
-    ? 'Nothing changes until you apply. Uncheck anything you want to keep as it is.'
+    ? 'Nothing changes until you apply. You can undo from History.'
     : atsOpen
       ? "How well a typical ATS and a recruiter's quick scan will read your last saved version. Each company's ATS differs, so treat it as a guide."
       : 'Suggestions only use what is already in your resume and profile.'
@@ -473,8 +473,8 @@ export function AiPanel({
                       Check again
                     </Button>
                     <p className="text-xs text-muted-foreground">
-                      You review every AI change before it's applied. Check
-                      again after saving to see the new score.
+                      Nothing changes until you apply it. Check again after
+                      saving to see the new score.
                     </p>
                   </div>
                 </>
@@ -651,7 +651,7 @@ export function AiPanel({
             />
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs text-muted-foreground">
-                You review every change before it's applied
+                Nothing changes until you apply it
               </span>
               <Button
                 type="submit"
