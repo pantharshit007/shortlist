@@ -1,5 +1,5 @@
 import type { ResumeContent, ResumeSection } from "../schemas/resume-content.js";
-import { contactParts, dateRange, tex, texRich, texUrl, visibleContent } from "./latex.js";
+import { compactList, contactParts, dateRange, tex, texRich, texUrl, visibleContent } from "./latex.js";
 import { applyLayout, nameGap, type ResumeLayout } from "./layout.js";
 
 // The Jake's Resume variant popular with Indian developers: small-caps name, icon header,
@@ -149,6 +149,7 @@ function renderSection(s: ResumeSection): string {
     }
     case "list": {
       if (s.entries.length === 0) return "";
+      if (s.entries.every((e) => e.bullets.length === 0)) return section(s.title, compactList(s.entries));
       const entries = s.entries.map((e) => {
         const title = e.url ? link(e.url, e.title) : `\\textbf{${tex(e.title)}}`;
         const subtitle = e.subtitle ? ` $|$ \\emph{${tex(e.subtitle)}}` : "";

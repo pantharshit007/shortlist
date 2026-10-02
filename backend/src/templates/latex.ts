@@ -66,6 +66,27 @@ export function visibleContent(content: ResumeContent): ResumeContent {
   };
 }
 
+type ListEntry = Extract<ResumeContent["sections"][number], { type: "list" }>["entries"][number];
+
+// Achievements and certifications without bullets of their own read best as one tight bulleted list:
+// "Name, a dash, description" with the name bold (and linked), or the item as plain text when it is one sentence.
+export function compactList(entries: ListEntry[]) {
+  const items = entries.map((e) => {
+    // A linked name stays bold (underlines collide with the next line here); a linked sentence gets a link icon.
+    const title = !e.url
+      ? e.subtitle
+        ? `\\textbf{${texRich(e.title)}}`
+        : texRich(e.title)
+      : e.subtitle
+        ? `\\href{${texUrl(e.url)}}{\\textbf{${texRich(e.title)}}}`
+        : `${texRich(e.title)}\\,\\href{${texUrl(e.url)}}{${icon("\\faLink")}}`;
+    const subtitle = e.subtitle ? ` -- ${texRich(e.subtitle)}` : "";
+    const date = e.date ? ` (${tex(e.date)})` : "";
+    return `  \\item \\small{${title}${subtitle}${date}}`;
+  });
+  return `\\begin{itemize}[leftmargin=0.15in, itemsep=1pt, parsep=0pt, topsep=2pt]\n${items.join("\n")}\n\\end{itemize}`;
+}
+
 // fontawesome5 has no X logo yet, so x.com links keep the bird.
 const linkIcons: [RegExp, string][] = [
   [/linkedin/, "\\faLinkedin"],

@@ -1,5 +1,5 @@
 import type { ResumeSection } from "../schemas/resume-content.js";
-import { dateRange, joinNonEmpty, tex, texRich, texUrl } from "./latex.js";
+import { compactList, dateRange, joinNonEmpty, tex, texRich, texUrl } from "./latex.js";
 
 // Section bodies shared by the templates. Each template defines these macros in its preamble:
 // \resumeSubheading{title}{right}{subtitle}{right-sub}, \resumeProjectHeading{left}{right},
@@ -87,6 +87,8 @@ export function renderSections(sections: ResumeSection[]) {
         return `\\section{${tex(section.title)}}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n\\small{\\item{${links}}}\n\\end{itemize}`;
       }
       if (section.entries.length === 0) return "";
+      if (section.type === "list" && section.entries.every((e) => e.bullets.length === 0))
+        return `\\section{${tex(section.title)}}\n${compactList(section.entries)}`;
       return `\\section{${tex(section.title)}}\n\\resumeSubHeadingListStart\n${renderSectionBody(section)}\n\\resumeSubHeadingListEnd`;
     })
     .filter(Boolean)

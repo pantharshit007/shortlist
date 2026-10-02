@@ -78,15 +78,15 @@ describe("templates hide content", () => {
 // sha256 of each template's sample render before layouts existed. The default layout must not change a byte;
 // if the sample or a template changes on purpose, update the hash.
 const beforeLayouts: Record<string, string> = {
-  developer: "0fc52d4d70fdb652f3cb1fb91e69e0e32c2f051a34bd26bdcc3460da6678b689",
-  jake: "848e14028696399f74e06f29953b00b1914b24965644071de57ca52161b78736",
-  modern: "9bc7ee57f6a60a8bc7cca944f87d7d6a0822332efee7d376c69cc5147a5eacb8",
-  sb2nov: "73aecf19979e2d095c4ebe42926e1b6187ea369ac76df6cd87161cb4b678f809",
-  "ml-research": "f6f76c0fac80d4cf52eb7e606f2570609976f37a1024a93c7aa74e1734b72a7c",
-  "data-analyst": "3996ab2e00140599e42fac80df52c8be6a8aed2a6dcb2336d6dc86a3f189c576",
-  "product-manager": "44df207ce4e739632ec4951045e2dd79209d8c3b3328037e337468af7b17097c",
+  developer: "468091223c5dc9aa1e6a8507bf7019940c13021b16993b6a984f70889a7b7eb8",
+  jake: "4e7af6b01e20d855ccf5bcd541d4a4814c26a72cbcae3a77e9fa4af6c9b6f70b",
+  modern: "7efc6edd2ecd754d193ce24be6174649e305f3af7c39b4e284ea727f7b008119",
+  sb2nov: "1ce48352bb666a983bc617a82dccf8054881d903c204b47eef6ecee767c6f986",
+  "ml-research": "e7b651bb55b643dcfd121d39b7ad5b18af863d366db1c5956203e808d02f111c",
+  "data-analyst": "0fa331493ea00451d4c4e8e933d6e35cc95d4b6e4e5d7c2ab5c13fa45af81ec2",
+  "product-manager": "1648ed4180e49953eb51d8f69f5c876ac545d9b9b0374a9fb4907ebe9d4def73",
   designer: "ed718e22634f76d8f6df87c6219fc0fe4c93b3293d1a3375883200be476277c3",
-  campus: "e33a623ba1ddd53c298ffb3429abc38763702518b2365c0a06e6624620e9ea67",
+  campus: "3287410966c8ab5bea26c77ca803fc0e4e396236a7fcd6c4e02fb62afd2a58f6",
   banking: "d2129a2b48d7b013ebc12096fc6b5cbfe7186a0e793eace52d4baa3f0e2ceac6",
   finance: "c28d86dc8ca4b7dd9beb89b52ddc09a9661660f57e017a1a7ece960866338174",
   consulting: "82a1c70442a1dd4e92774596ea392119f4d3737ae781d79fa0cc75dafe8a52eb",
