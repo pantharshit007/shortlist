@@ -16,6 +16,7 @@ export const analyticsQuery = z.object({
 });
 
 const breakdown = z.array(z.object({ label: z.string(), views: z.number().int() }));
+const viewsByDay = z.array(z.object({ day: z.string(), views: z.number().int() }));
 
 export const analyticsResponse = z.object({
   days: z.number().int(),
@@ -25,7 +26,7 @@ export const analyticsResponse = z.object({
     previousViews: z.number().int(),
     previousUniqueVisitors: z.number().int(),
   }),
-  viewsByDay: z.array(z.object({ day: z.string(), views: z.number().int() })),
+  viewsByDay,
   links: z.array(
     z.object({
       id: z.uuid(),
@@ -53,3 +54,40 @@ export const analyticsResponse = z.object({
     }),
   ),
 });
+
+// Season Pass and Pro only.
+export const insightsResponse = z.object({
+  days: z.number().int(),
+  // Seven rows, Monday first, of 24 hourly view counts in the requested time zone.
+  heatmap: z.array(z.array(z.number().int()).length(24)).length(7),
+  places: z.array(
+    z.object({
+      city: z.string(),
+      region: z.string().nullable(),
+      country: z.string().nullable(),
+      views: z.number().int(),
+    }),
+  ),
+  links: z.array(
+    z.object({
+      id: z.uuid(),
+      views: z.number().int(),
+      // Opens beyond the first by the same visitor on the same day; the visitor hash changes daily.
+      repeatOpens: z.number().int(),
+      viewsByDay,
+    }),
+  ),
+});
+
+export const viewExportResponse = z.array(
+  z.object({
+    viewedAt: z.date(),
+    resumeTitle: z.string(),
+    slug: z.string(),
+    referrer: z.string().nullable(),
+    country: z.string().nullable(),
+    region: z.string().nullable(),
+    city: z.string().nullable(),
+    device: z.string().nullable(),
+  }),
+);

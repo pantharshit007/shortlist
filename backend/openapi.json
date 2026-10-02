@@ -3544,6 +3544,310 @@
         }
       }
     },
+    "/v1/analytics/insights": {
+      "get": {
+        "summary": "Opening times, cities and per-link activity (Season Pass and Pro)",
+        "tags": [
+          "Share links"
+        ],
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "schema": {
+              "default": "30",
+              "type": "string",
+              "enum": [
+                "7",
+                "30",
+                "90"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "timeZone",
+            "schema": {
+              "default": "Asia/Kolkata",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "days": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "heatmap": {
+                          "minItems": 7,
+                          "maxItems": 7,
+                          "type": "array",
+                          "items": {
+                            "minItems": 24,
+                            "maxItems": 24,
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            }
+                          }
+                        },
+                        "places": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "city": {
+                                "type": "string"
+                              },
+                              "region": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "country": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "views": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "city",
+                              "region",
+                              "country",
+                              "views"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "links": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "views": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "repeatOpens": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "viewsByDay": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "day": {
+                                      "type": "string"
+                                    },
+                                    "views": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "day",
+                                    "views"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "views",
+                              "repeatOpens",
+                              "viewsByDay"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "days",
+                        "heatmap",
+                        "places",
+                        "links"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/analytics/views": {
+      "get": {
+        "summary": "Every view in the range, for export (Season Pass and Pro)",
+        "tags": [
+          "Share links"
+        ],
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "schema": {
+              "default": "30",
+              "type": "string",
+              "enum": [
+                "7",
+                "30",
+                "90"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "timeZone",
+            "schema": {
+              "default": "Asia/Kolkata",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "viewedAt": {
+                            "type": "string"
+                          },
+                          "resumeTitle": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": "string"
+                          },
+                          "referrer": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "country": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "region": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "city": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "device": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "viewedAt",
+                          "resumeTitle",
+                          "slug",
+                          "referrer",
+                          "country",
+                          "region",
+                          "city",
+                          "device"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/custom-templates": {
       "get": {
         "summary": "List your templates",

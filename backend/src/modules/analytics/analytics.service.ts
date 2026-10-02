@@ -1,4 +1,4 @@
-import { and, count, countDistinct, desc, eq, gte, isNull, lt, sql } from "drizzle-orm";
+import { and, count, countDistinct, desc, eq, gte, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { linkViews, resumes, shareLinks } from "../../db/schema/index.js";
 
@@ -102,4 +102,104 @@ export async function getAnalytics(userId: string, days: number, timeZone: strin
     devices,
     recentViews,
   };
+}
+
+type HourCount = { weekday: number; hour: number; views: number };
+type LinkDayCount = { linkId: string; day: string; views: number };
+type LinkTotal = { linkId: string; views: number; repeatOpens: number };
+
+// Fills the gaps SQL leaves out: empty hours of the week and days a link had no views.
+export function shapeInsights(keys: string[], hours: HourCount[], linkDays: LinkDayCount[], linkTotals: LinkTotal[]) {
+  const heatmap = Array.from({ length: 7 }, () => Array<number>(24).fill(0));
+  // ISO weekday: 1 is Monday.
+  for (const { weekday, hour, views } of hours) heatmap[weekday - 1]![hour]! += views;
+  const links = linkTotals.map(({ linkId, views, repeatOpens }) => {
+    const byDay = new Map(linkDays.filter((row) => row.linkId === linkId).map((row) => [row.day, row.views]));
+    return { id: linkId, views, repeatOpens, viewsByDay: keys.map((day) => ({ day, views: byDay.get(day) ?? 0 })) };
+  });
+  return { heatmap, links };
+}
+
+export async function getInsights(userId: string, days: number, timeZone: string) {
+  const now = new Date();
+  const inRange = and(
+    eq(shareLinks.userId, userId),
+    isNull(shareLinks.deletedAt),
+    gte(linkViews.viewedAt, new Date(now.getTime() - days * DAY_MS)),
+  );
+  const local = sql`${linkViews.viewedAt} at time zone ${timeZone}`;
+
+  const [hours, linkDays, linkTotals, places] = await Promise.all([
+    db
+      .select({
+        weekday: sql<number>`extract(isodow from ${local})::int`,
+        hour: sql<number>`extract(hour from ${local})::int`,
+        views: count(),
+      })
+      .from(linkViews)
+      .innerJoin(shareLinks, eq(linkViews.shareLinkId, shareLinks.id))
+      .where(inRange)
+      .groupBy(sql`1`, sql`2`),
+    db
+      .select({ linkId: linkViews.shareLinkId, day: sql<string>`to_char(${local}, 'YYYY-MM-DD')`, views: count() })
+      .from(linkViews)
+      .innerJoin(shareLinks, eq(linkViews.shareLinkId, shareLinks.id))
+      .where(inRange)
+      .groupBy(sql`1`, sql`2`),
+    db
+      .select({
+        linkId: linkViews.shareLinkId,
+        views: count(),
+        repeatOpens: sql<number>`count(${linkViews.visitorHash}) - count(distinct ${linkViews.visitorHash})`.mapWith(
+          Number,
+        ),
+      })
+      .from(linkViews)
+      .innerJoin(shareLinks, eq(linkViews.shareLinkId, shareLinks.id))
+      .where(inRange)
+      .groupBy(linkViews.shareLinkId)
+      .orderBy(desc(count())),
+    db
+      .select({
+        city: sql<string>`${linkViews.city}`,
+        region: linkViews.region,
+        country: linkViews.country,
+        views: count(),
+      })
+      .from(linkViews)
+      .innerJoin(shareLinks, eq(linkViews.shareLinkId, shareLinks.id))
+      .where(and(inRange, isNotNull(linkViews.city)))
+      .groupBy(linkViews.city, linkViews.region, linkViews.country)
+      .orderBy(desc(count()))
+      .limit(10),
+  ]);
+
+  return { days, places, ...shapeInsights(dayKeys(days, timeZone, now), hours, linkDays, linkTotals) };
+}
+
+// ponytail: capped at 5000 rows, plenty for one person's links over 90 days; page it if that ever binds.
+export async function exportViews(userId: string, days: number) {
+  return db
+    .select({
+      viewedAt: linkViews.viewedAt,
+      resumeTitle: resumes.title,
+      slug: shareLinks.slug,
+      referrer: linkViews.referrer,
+      country: linkViews.country,
+      region: linkViews.region,
+      city: linkViews.city,
+      device: linkViews.device,
+    })
+    .from(linkViews)
+    .innerJoin(shareLinks, eq(linkViews.shareLinkId, shareLinks.id))
+    .innerJoin(resumes, eq(shareLinks.resumeId, resumes.id))
+    .where(
+      and(
+        eq(shareLinks.userId, userId),
+        isNull(shareLinks.deletedAt),
+        gte(linkViews.viewedAt, new Date(Date.now() - days * DAY_MS)),
+      ),
+    )
+    .orderBy(desc(linkViews.viewedAt))
+    .limit(5000);
 }

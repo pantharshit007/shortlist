@@ -24,7 +24,12 @@ import { createImportBody, importResponse } from "./modules/imports/imports.sche
 import { usageResponse } from "./modules/usage/usage.routes.js";
 import { aiKeyResponse, putAiKeyBody } from "./modules/ai-keys/ai-keys.schemas.js";
 import { aiRunListResponse } from "./modules/ai-runs/ai-runs.routes.js";
-import { analyticsQuery, analyticsResponse } from "./modules/analytics/analytics.schemas.js";
+import {
+  analyticsQuery,
+  analyticsResponse,
+  insightsResponse,
+  viewExportResponse,
+} from "./modules/analytics/analytics.schemas.js";
 import {
   createCustomTemplateBody,
   customTemplateDetail,
@@ -177,6 +182,22 @@ const paths: ZodOpenApiPathsObject = {
       tag: "Share links",
       query: analyticsQuery,
       response: analyticsResponse,
+    }),
+  },
+  "/v1/analytics/insights": {
+    get: op({
+      summary: "Opening times, cities and per-link activity (Season Pass and Pro)",
+      tag: "Share links",
+      query: analyticsQuery,
+      response: insightsResponse,
+    }),
+  },
+  "/v1/analytics/views": {
+    get: op({
+      summary: "Every view in the range, for export (Season Pass and Pro)",
+      tag: "Share links",
+      query: analyticsQuery,
+      response: viewExportResponse,
     }),
   },
   "/v1/custom-templates": {
