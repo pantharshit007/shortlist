@@ -24,6 +24,17 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       // Light by default; ThemeProvider updates it when a visitor switches theme.
       { name: 'theme-color', content: '#eef0eb' },
       { property: 'og:site_name', content: site.name },
+      { property: 'og:type', content: 'website' },
+      // Link previews (WhatsApp, LinkedIn, X) show the homepage's first screen instead of whatever image comes first.
+      { property: 'og:image', content: `${site.url}/og.png` },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      {
+        property: 'og:image:alt',
+        content: `${site.name}: your resume, rewritten for every job you apply to`,
+      },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:image', content: `${site.url}/og.png` },
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
