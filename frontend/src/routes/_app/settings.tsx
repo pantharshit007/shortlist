@@ -584,7 +584,7 @@ function SettingsPage() {
         }
         className="gap-6"
       >
-        <TabsList>
+        <TabsList className="max-w-full justify-start overflow-x-auto">
           <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="billing">Plan and billing</TabsTrigger>
           <TabsTrigger value="ai">AI provider</TabsTrigger>
