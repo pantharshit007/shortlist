@@ -165,3 +165,25 @@ describe("normalizeExtraction list items", () => {
     ]);
   });
 });
+
+describe("normalizeExtraction link labels", () => {
+  it("names a link by its site when the label is a URL", () => {
+    const content = normalizeExtraction({
+      basics: {
+        name: "A",
+        headline: null,
+        email: null,
+        phone: null,
+        location: null,
+        links: [
+          { label: "https://x.com/aarav", url: "https://x.com/aarav" },
+          { label: "linkedin.com/in/aarav", url: "linkedin.com/in/aarav" },
+          { label: "aarav.dev", url: "https://aarav.dev" },
+          { label: "My Blog", url: "https://blog.aarav.dev" },
+        ],
+      },
+      sections: [],
+    });
+    expect(content.basics.links.map((l) => l.label)).toEqual(["X", "LinkedIn", "Portfolio", "My Blog"]);
+  });
+});

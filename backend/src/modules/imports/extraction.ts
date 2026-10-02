@@ -65,10 +65,28 @@ const url = (value: string | null | undefined) => {
   // PDFs often give only a link's words ("Live", "GitHub"); keep it only if it has a real domain.
   return z.url().safeParse(withScheme).success && new URL(withScheme).hostname.includes(".") ? withScheme : undefined;
 };
+const siteNames: [RegExp, string][] = [
+  [/linkedin\./, "LinkedIn"],
+  [/github\./, "GitHub"],
+  [/gitlab\./, "GitLab"],
+  [/(twitter|x)\.com/, "X"],
+  [/leetcode\./, "LeetCode"],
+  [/codeforces\./, "Codeforces"],
+  [/codechef\./, "CodeChef"],
+  [/kaggle\./, "Kaggle"],
+  [/behance\./, "Behance"],
+  [/dribbble\./, "Dribbble"],
+  [/medium\.com/, "Medium"],
+];
+// A label that is itself a URL prints the whole address on the resume; show the site's name instead.
+const linkLabel = (label: string, u: string) =>
+  /:\/\/|^www\.|\.(com|in|io|dev|org|me)\b/i.test(label)
+    ? (siteNames.find(([pattern]) => pattern.test(u))?.[1] ?? "Portfolio")
+    : label.trim().slice(0, 40);
 const links = (items: { label: string; url: string }[]) =>
   items.flatMap((item) => {
     const u = url(item.url);
-    return u && clean(item.label) ? [{ label: item.label.trim().slice(0, 40), url: u }] : [];
+    return u && clean(item.label) ? [{ label: linkLabel(item.label, u), url: u }] : [];
   });
 // The source's own bullet glyphs ("• Built X", "- Built X"); templates draw their own bullet.
 // A dash only counts when a space follows, and "*" is left alone since "**bold**" starts with it.
