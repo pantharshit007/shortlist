@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { errorMessage } from '@/lib/api/client'
-import { downloadFile } from '@/lib/download'
+import { downloadFile, fetchFile } from '@/lib/download'
 
 export function DownloadMenu({
   resumeId,
@@ -31,6 +31,20 @@ export function DownloadMenu({
         `/v1/resumes/${resumeId}/${path}`,
         `${title.trim() || 'resume'}.${extension}`,
       )
+    } catch (error) {
+      toast.error(errorMessage(error))
+    }
+  }
+  async function copyLatex() {
+    try {
+      // A promised ClipboardItem keeps Safari's copy permission across the fetch.
+      const text = fetchFile(`/v1/resumes/${resumeId}/tex`)
+        .then((response) => response.text())
+        .then((tex) => new Blob([tex], { type: 'text/plain' }))
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'text/plain': text }),
+      ])
+      toast.success('LaTeX code copied')
     } catch (error) {
       toast.error(errorMessage(error))
     }
@@ -86,6 +100,15 @@ export function DownloadMenu({
               </span>
             </DropdownMenuItem>
           ))}
+          <DropdownMenuItem
+            onSelect={copyLatex}
+            className="flex-col items-start gap-0"
+          >
+            Copy LaTeX code
+            <span className="text-xs text-muted-foreground">
+              Paste it straight into Overleaf
+            </span>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
