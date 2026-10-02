@@ -5,6 +5,7 @@ import {
   LoadMore,
   useLoadMore,
 } from '@/components/templates/template-filters'
+import { TemplatePreview } from '@/components/templates/template-preview'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -103,14 +104,20 @@ function TemplatesPage() {
                 id={template.id}
                 className="flex scroll-mt-24 flex-col gap-4"
               >
-                <img
-                  src={`/templates/${template.id}.png`}
-                  alt={`${template.name} template with a sample resume`}
-                  width={1020}
-                  height={1320}
-                  loading={index < 3 ? 'eager' : 'lazy'}
-                  className="aspect-17/22 w-full rounded-sm bg-sheet object-cover object-top shadow-sm ring-1 ring-black/5"
-                />
+                <div className="relative">
+                  <img
+                    src={`/templates/${template.id}.png`}
+                    alt={`${template.name} template with a sample resume`}
+                    width={1020}
+                    height={1320}
+                    loading={index < 3 ? 'eager' : 'lazy'}
+                    className="aspect-17/22 w-full rounded-sm bg-sheet object-cover object-top shadow-sm ring-1 ring-black/5"
+                  />
+                  <TemplatePreview
+                    templateId={template.id}
+                    className="absolute top-3 right-3"
+                  />
+                </div>
                 <div className="flex flex-1 flex-col gap-3">
                   <div>
                     <h2 className="font-sans text-xl font-semibold">

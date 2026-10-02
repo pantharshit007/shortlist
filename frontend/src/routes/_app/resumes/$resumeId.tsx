@@ -427,6 +427,7 @@ function ResumeEditor({
                   }}
                   description="Your content stays the same; only the look changes."
                   options={layoutOptions()}
+                  previews={false}
                 />
               </PopoverContent>
             </Popover>

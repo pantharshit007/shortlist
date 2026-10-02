@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { TemplatePreview } from '@/components/templates/template-preview'
 import { ConfirmDialog } from '@/components/app/confirm-dialog'
 import { PageHeader } from '@/components/app/page-header'
 import {
@@ -165,6 +166,11 @@ function TemplatesPage() {
                   className="w-full"
                 />
               </Sheet>
+              {/* Above the card's full-size link, so it opens the preview instead of a new resume. */}
+              <TemplatePreview
+                templateId={template.id}
+                className="absolute top-2 right-2 z-10"
+              />
               <div className="flex flex-col gap-0.5">
                 <Link
                   to="/resumes/new"

@@ -6,6 +6,7 @@ import {
   useLoadMore,
 } from '@/components/templates/template-filters'
 import { FieldDescription, FieldLegend, FieldSet } from '@/components/ui/field'
+import { TemplatePreview } from '@/components/templates/template-preview'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { inCategory, templateCatalog } from '@/lib/templates'
 import type { TemplateCategory } from '@/lib/templates'
@@ -46,12 +47,15 @@ export function TemplatePicker({
   options,
   description,
   footer,
+  previews = true,
 }: {
   value: string
   onChange: (value: string) => void
   options: PickerOption[]
   description: string
   footer?: React.ReactNode
+  // Off inside a popover: the preview dialog would close the popover and itself with it.
+  previews?: boolean
 }) {
   const [category, setCategory] = useState<TemplateCategory>()
   // Blank page and custom templates have no categories, so they only show under All.
@@ -88,38 +92,46 @@ export function TemplatePicker({
         {shown.map((option) => {
           const selected = option.value === value
           return (
-            <ToggleGroupItem
-              key={option.value}
-              value={option.value}
-              aria-label={option.name}
-              className="group flex h-auto flex-col items-stretch justify-start gap-2 rounded-lg p-1.5 text-left whitespace-normal data-[state=on]:bg-primary/10"
-            >
-              <span
-                className={cn(
-                  'relative block overflow-hidden rounded-sm ring-1 ring-black/10 transition-shadow',
-                  selected
-                    ? 'ring-2 ring-primary'
-                    : 'group-hover:ring-foreground/30',
-                )}
+            <div key={option.value} className="relative">
+              <ToggleGroupItem
+                value={option.value}
+                aria-label={option.name}
+                className="group flex h-auto flex-col items-stretch justify-start gap-2 rounded-lg p-1.5 text-left whitespace-normal data-[state=on]:bg-primary/10"
               >
-                {option.preview}
-                {selected && (
-                  <span className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <CheckIcon className="size-4" />
-                  </span>
-                )}
-              </span>
-              <span className="flex flex-col px-0.5">
-                <span className="truncate text-sm font-medium">
-                  {option.name}
+                <span
+                  className={cn(
+                    'relative block overflow-hidden rounded-sm ring-1 ring-black/10 transition-shadow',
+                    selected
+                      ? 'ring-2 ring-primary'
+                      : 'group-hover:ring-foreground/30',
+                  )}
+                >
+                  {option.preview}
+                  {selected && (
+                    <span className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <CheckIcon className="size-4" />
+                    </span>
+                  )}
                 </span>
-                {option.note && (
-                  <span className="text-xs font-normal text-muted-foreground">
-                    {option.note}
+                <span className="flex flex-col px-0.5">
+                  <span className="truncate text-sm font-medium">
+                    {option.name}
                   </span>
-                )}
-              </span>
-            </ToggleGroupItem>
+                  {option.note && (
+                    <span className="text-xs font-normal text-muted-foreground">
+                      {option.note}
+                    </span>
+                  )}
+                </span>
+              </ToggleGroupItem>
+              {previews && (
+                <TemplatePreview
+                  templateId={option.value}
+                  onUse={() => onChange(option.value)}
+                  className="absolute top-3 left-3 z-10"
+                />
+              )}
+            </div>
           )
         })}
       </ToggleGroup>
