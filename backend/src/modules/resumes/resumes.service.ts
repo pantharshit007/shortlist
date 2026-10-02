@@ -4,6 +4,8 @@ import { customTemplates, jobs, resumes, resumeVersions } from "../../db/schema/
 import { AppError, NotFoundError, ValidationError } from "../../lib/errors.js";
 import { emptyResumeContent, type ResumeContent, resumeContentSchema } from "../../schemas/resume-content.js";
 import { findTemplate } from "../../templates/index.js";
+import { createImport } from "../imports/imports.service.js";
+import { renderStructured } from "../pdfs/pdfs.service.js";
 import { getProfile } from "../profiles/profiles.service.js";
 import { assertTemplateExists } from "../templates/templates.service.js";
 import { assertResumeQuota } from "../usage/quotas.js";
@@ -243,7 +245,29 @@ export async function updateResume(userId: string, resumeId: string, changes: z.
   if (changes.archived !== undefined) update.archivedAt = changes.archived ? new Date() : null;
 
   const [updated] = await db.update(resumes).set(update).where(eq(resumes.id, resume.id)).returning();
-  return updated!;
+  return changes.mode && changes.mode !== resume.mode ? switchMode(userId, updated!, changes.mode) : updated!;
+}
+
+// The resume keeps its template while in LaTeX, so switching back uses the same one.
+async function switchMode(userId: string, resume: typeof resumes.$inferSelect, mode: "structured" | "code") {
+  const head = toVersionDetail(await getVersionRow(resume.id, resume.headVersionId!));
+  const payload: VersionPayload =
+    mode === "code"
+      ? { texSource: renderStructured(resume.templateId, head.content!, resume.layout) }
+      : { content: (await createImport(userId, { texSource: head.texSource! })).content };
+  const templateId = resume.templateId ?? DEFAULT_TEMPLATE;
+  return db.transaction(async (tx) => {
+    const [switched] = await tx
+      .update(resumes)
+      .set({ mode, templateId, updatedAt: new Date() })
+      .where(eq(resumes.id, resume.id))
+      .returning();
+    const version = await appendVersion(tx, switched!, mode === "code" ? "manual" : "import", payload, {
+      label: mode === "code" ? "Switched to LaTeX" : "Switched to form",
+    });
+    track(userId, "resume_mode_switched", { mode });
+    return { ...switched!, headVersionId: version.id };
+  });
 }
 
 export async function deleteResume(userId: string, resumeId: string) {
@@ -279,8 +303,13 @@ export async function createVersion(userId: string, resumeId: string, input: z.i
       const payload: VersionPayload = from.content
         ? { content: resumeContentSchema.parse(from.content) }
         : { texSource: from.texSource! };
+      // Restoring a version from before a form/LaTeX switch switches the resume back too.
+      const mode = from.content ? "structured" : "code";
+      if (mode !== resume.mode) await tx.update(resumes).set({ mode }).where(eq(resumes.id, resume.id));
       return toVersionDetail(
-        await appendVersion(tx, resume, "restore", payload, { label: `Restored from ${from.createdAt.toISOString()}` }),
+        await appendVersion(tx, { ...resume, mode }, "restore", payload, {
+          label: `Restored from ${from.createdAt.toISOString()}`,
+        }),
       );
     }
 

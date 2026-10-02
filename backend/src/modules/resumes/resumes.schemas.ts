@@ -37,6 +37,8 @@ export const updateResumeBody = z
     pageLimit: z.number().int().min(1).max(3).optional(),
     layout: resumeLayoutSchema.optional(),
     archived: z.boolean().optional(),
+    // Switches editors in place: form to the template's LaTeX, or LaTeX back to a form read by AI.
+    mode: z.enum(["structured", "code"]).optional(),
   })
   .refine((body) => Object.keys(body).length > 0, "Provide at least one field to update");
 

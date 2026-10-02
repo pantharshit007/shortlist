@@ -18,7 +18,12 @@ Rules:
 - Keep the source's section order and titles.
 - Fill every field; use null or [] when something doesn't apply.`;
 
-export async function createImport(userId: string, input: { uploadId: string } | { text: string }) {
+const texLabel = "LaTeX source (ignore formatting commands, extract the content)";
+
+export async function createImport(
+  userId: string,
+  input: { uploadId: string } | { text: string } | { texSource: string },
+) {
   await assertAiQuota(userId, "import");
   let prompt = "Extract this resume.";
   const files: { data: Buffer; mediaType: string; filename: string }[] = [];
@@ -28,9 +33,11 @@ export async function createImport(userId: string, input: { uploadId: string } |
     if (upload.kind === "pdf") {
       files.push({ data: body, mediaType: "application/pdf", filename: upload.fileName });
     } else {
-      const label = upload.kind === "tex" ? "LaTeX source (ignore formatting commands, extract the content)" : "text";
+      const label = upload.kind === "tex" ? texLabel : "text";
       prompt = `Extract this resume from its ${label}:\n\n<resume>\n${body.toString("utf8")}\n</resume>`;
     }
+  } else if ("texSource" in input) {
+    prompt = `Extract this resume from its ${texLabel}:\n\n<resume>\n${input.texSource}\n</resume>`;
   } else {
     prompt = `Extract this resume:\n\n<resume>\n${input.text}\n</resume>`;
   }
