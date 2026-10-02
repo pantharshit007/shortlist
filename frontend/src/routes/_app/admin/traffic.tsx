@@ -348,6 +348,36 @@ function TrafficReport({ data }: { data: TrafficData }) {
         )}
       </Section>
 
+      <Section
+        title="PDF compiles"
+        description="Previews and downloads. A cache hit reuses an earlier PDF of the exact same LaTeX; compile times count only real compiles."
+      >
+        {data.compiles.requests === 0 ? (
+          <EmptyNote>No compiles recorded in this period.</EmptyNote>
+        ) : (
+          <StatGrid>
+            <Stat
+              label="Compiles"
+              value={formatNumber(data.compiles.requests)}
+            />
+            <Stat
+              label="Served from cache"
+              value={`${Math.round(data.compiles.cacheHitRate * 100)}%`}
+            />
+            <Stat
+              label="Compile time"
+              value={`${formatNumber(data.compiles.compileP50Ms)} ms`}
+              hint={`Slowest 5%: ${formatNumber(data.compiles.compileP95Ms)} ms`}
+            />
+            <Stat
+              label="Cache lookup"
+              value={`${formatNumber(data.compiles.lookupP50Ms)} ms`}
+              hint="Median round trip to storage"
+            />
+          </StatGrid>
+        )}
+      </Section>
+
       <Section title="Latest session recordings">
         {data.recordings.length === 0 ? (
           <EmptyNote>

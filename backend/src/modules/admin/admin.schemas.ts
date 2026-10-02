@@ -254,6 +254,14 @@ const trafficData = z.object({
   browsers: labelled,
   events: z.array(z.object({ event: z.string(), count: int, people: int })),
   api: z.array(z.object({ route: z.string(), requests: int, p50Ms: int, p95Ms: int, errors: int })),
+  // Compile time excludes cache hits; the lookup is the R2 round trip every compile starts with.
+  compiles: z.object({
+    requests: int,
+    cacheHitRate: z.number(),
+    compileP50Ms: int,
+    compileP95Ms: int,
+    lookupP50Ms: int,
+  }),
   recordings: z.array(
     z.object({
       id: z.string(),

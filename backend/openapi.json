@@ -23603,6 +23603,42 @@
                                     "additionalProperties": false
                                   }
                                 },
+                                "compiles": {
+                                  "type": "object",
+                                  "properties": {
+                                    "requests": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "cacheHitRate": {
+                                      "type": "number"
+                                    },
+                                    "compileP50Ms": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "compileP95Ms": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "lookupP50Ms": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "requests",
+                                    "cacheHitRate",
+                                    "compileP50Ms",
+                                    "compileP95Ms",
+                                    "lookupP50Ms"
+                                  ],
+                                  "additionalProperties": false
+                                },
                                 "recordings": {
                                   "type": "array",
                                   "items": {
@@ -23660,6 +23696,7 @@
                                 "browsers",
                                 "events",
                                 "api",
+                                "compiles",
                                 "recordings"
                               ],
                               "additionalProperties": false

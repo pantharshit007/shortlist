@@ -7425,6 +7425,13 @@ export interface paths {
                                         p95Ms: number;
                                         errors: number;
                                     }[];
+                                    compiles: {
+                                        requests: number;
+                                        cacheHitRate: number;
+                                        compileP50Ms: number;
+                                        compileP95Ms: number;
+                                        lookupP50Ms: number;
+                                    };
                                     recordings: {
                                         id: string;
                                         distinctId: string;
