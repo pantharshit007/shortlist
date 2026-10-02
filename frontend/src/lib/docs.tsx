@@ -321,7 +321,7 @@ export const docs: DocPage[] = [
               the LaTeX editor.
             </li>
             <li>
-              Each import counts as one AI import. See{' '}
+              Importing is free on every plan. See{' '}
               <DocLink slug="plans">Plans and limits</DocLink>.
             </li>
           </ul>
@@ -795,21 +795,21 @@ export const docs: DocPage[] = [
                   <td>₹0</td>
                   <td>3 a month</td>
                   <td>50 a month</td>
-                  <td>3 a month</td>
+                  <td>Free</td>
                 </tr>
                 <tr>
                   <td>Season Pass</td>
                   <td>₹499 once, for 6 months</td>
                   <td>40 a month</td>
                   <td>1,000 a month</td>
-                  <td>50 a month</td>
+                  <td>Free</td>
                 </tr>
                 <tr>
                   <td>Pro</td>
                   <td>₹129 a month</td>
                   <td>40 a month</td>
                   <td>1,000 a month</td>
-                  <td>50 a month</td>
+                  <td>Free</td>
                 </tr>
               </tbody>
             </table>
@@ -822,8 +822,8 @@ export const docs: DocPage[] = [
         body: (
           <p>
             Unlimited resumes you write yourself, every template, both editors,
-            PDF downloads, share links and analytics, version history and the
-            ATS checker.
+            PDF downloads, share links and analytics, version history, the ATS
+            checker and importing from a file.
           </p>
         ),
       },
@@ -836,7 +836,10 @@ export const docs: DocPage[] = [
             <li>
               Chat requests, bullet edits and LaTeX fixes count as AI edits.
             </li>
-            <li>Each imported file counts as one AI import.</li>
+            <li>
+              Imports are free on every plan, with a fair-use cap that only
+              stops abuse.
+            </li>
             <li>
               Limits reset at the start of each calendar month. With{' '}
               <DocLink slug="own-ai-key">your own AI key</DocLink>, none of them
