@@ -38,8 +38,12 @@ function linksBlock(s: Extract<ResumeSection, { type: "links" }>) {
   return `\\section{${tex(s.title)}}\n${links}\\par`;
 }
 
-// Renders each section with the template's own renderer where it has one, else flush skills and links
-// blocks, else the shared classic body.
+function summaryBlock(s: Extract<ResumeSection, { type: "summary" }>) {
+  return s.text ? `\\section{${tex(s.title)}}\n${texRich(s.text)}\\par` : "";
+}
+
+// Renders each section with the template's own renderer where it has one, else flush skills, links and
+// summary blocks, else the shared classic body.
 export const renderBody = (
   sections: ResumeSection[],
   custom: (s: ResumeSection) => string | undefined = () => undefined,
@@ -47,7 +51,14 @@ export const renderBody = (
   sections
     .map(
       (s) =>
-        custom(s) ?? (s.type === "skills" ? skillsBlock(s) : s.type === "links" ? linksBlock(s) : renderSections([s])),
+        custom(s) ??
+        (s.type === "skills"
+          ? skillsBlock(s)
+          : s.type === "links"
+            ? linksBlock(s)
+            : s.type === "summary"
+              ? summaryBlock(s)
+              : renderSections([s])),
     )
     .filter(Boolean)
     .join("\n\n");

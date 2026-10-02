@@ -88,6 +88,7 @@ export const sectionSchema = z.discriminatedUnion("type", [
   z.object({ ...sectionBase, type: z.literal("projects"), entries: z.array(projectEntry).max(30) }),
   z.object({ ...sectionBase, type: z.literal("skills"), groups: z.array(skillGroup).max(15) }),
   z.object({ ...sectionBase, type: z.literal("list"), entries: z.array(genericEntry).max(40) }),
+  z.object({ ...sectionBase, type: z.literal("summary"), text: z.string().trim().max(1000).default("") }),
   // Inline list of profile links, e.g. LeetCode, Codeforces.
   z.object({ ...sectionBase, type: z.literal("links"), links: z.array(linkSchema).max(15) }),
 ]);

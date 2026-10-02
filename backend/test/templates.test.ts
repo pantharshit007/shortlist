@@ -26,6 +26,21 @@ describe.skipIf(!hasTectonic)("templates compile", () => {
       expect(result.ok, JSON.stringify(result)).toBe(true);
     });
 
+    it(`${template.id} with a summary section`, async () => {
+      const text = "Analyst with **5 years** in M&A and 20% growth, focused on #fintech.";
+      const withSummary = {
+        ...sampleResume,
+        sections: [
+          { id: "summary", title: "Summary", hidden: false, type: "summary" as const, text },
+          ...sampleResume.sections,
+        ],
+      };
+      const tex = template.render(withSummary);
+      expect(tex).toContain("5 years");
+      const result = await compile(tex);
+      expect(result.ok, JSON.stringify(result)).toBe(true);
+    });
+
     it(`${template.id} with only a name`, async () => {
       const result = await compile(template.render(bare));
       expect(result.ok, JSON.stringify(result)).toBe(true);

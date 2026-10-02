@@ -85,22 +85,25 @@ describe("normalizeExtraction", () => {
 });
 
 describe("normalizeExtraction limits", () => {
-  it("cuts over-long fields to their limits instead of failing", () => {
+  it("moves a paragraph headline into a Summary section and cuts over-long fields", () => {
+    const paragraph = "Analyst with five years in equity research. ".repeat(10);
     const content = normalizeExtraction({
-      basics: { name: "A", headline: "h".repeat(500), email: null, phone: null, location: null, links: [] },
+      basics: { name: "A", headline: paragraph, email: null, phone: null, location: null, links: [] },
       sections: [
         {
           type: "skills",
           title: "Skills",
+          text: null,
           entries: [],
           links: [],
           groups: [{ name: "Tools", items: ["x".repeat(100), ...Array.from({ length: 50 }, (_, i) => `s${i}`)] }],
         },
       ],
     });
-    expect(content.basics.headline).toHaveLength(200);
-    const skills = content.sections[0];
-    expect(skills.type === "skills" && skills.groups[0].items).toHaveLength(40);
-    expect(skills.type === "skills" && skills.groups[0].items[0]).toHaveLength(60);
+    expect(content.basics.headline).toBeUndefined();
+    const [summary, skills] = content.sections;
+    expect(summary?.type === "summary" && summary.text).toBe(paragraph.trim());
+    expect(skills?.type === "skills" && skills.groups[0]!.items).toHaveLength(40);
+    expect(skills?.type === "skills" && skills.groups[0]!.items[0]).toHaveLength(60);
   });
 });

@@ -60,6 +60,7 @@ function renderSectionBody(section: ResumeSection): string {
         .join("\n");
     case "skills":
     case "links":
+    case "summary":
       return "";
   }
 }
@@ -73,6 +74,10 @@ export function renderSections(sections: ResumeSection[]) {
           .map((group) => `\\textbf{${tex(group.name)}}{: ${tex(group.items.join(", "))}}`)
           .join(" \\\\\n");
         return `\\section{${tex(section.title)}}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n\\small{\\item{\n${lines}\n}}\n\\end{itemize}`;
+      }
+      if (section.type === "summary") {
+        if (!section.text) return "";
+        return `\\section{${tex(section.title)}}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n\\small{\\item{${texRich(section.text)}}}\n\\end{itemize}`;
       }
       if (section.type === "links") {
         if (section.links.length === 0) return "";

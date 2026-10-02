@@ -20,7 +20,8 @@ export const rupeeFallback = String.raw`\usepackage{newunicodechar}
 export const businessMacros = String.raw`\newcommand{\ifnonempty}[2]{\if\relax\detokenize{#1}\relax\else#2\fi}
 \newcommand{\joinwith}[3]{#1\ifnonempty{#1}{\ifnonempty{#3}{#2}}#3}`;
 
-export const isSummary = (s: ResumeSection) => s.type === "list" && /summary|profile|about|objective/i.test(s.title);
+export const isSummary = (s: ResumeSection) =>
+  s.type === "summary" || (s.type === "list" && /summary|profile|about|objective/i.test(s.title));
 export const isCertifications = (s: ResumeSection) =>
   s.type === "list" && /certif|licen|credential|qualification|charter/i.test(s.title);
 export const isBoard = (s: ResumeSection) => s.type === "list" && /board|director|advis|governance/i.test(s.title);
@@ -122,6 +123,8 @@ function renderBody(s: ResumeSection, options: BusinessOptions): string {
       }
       return groups.map((g) => `\\skillline{${tex(g.name)}}{${tex(g.items.join(", "))}}`).join("\n");
     }
+    case "summary":
+      return s.text ? `\\summarytext{${texRich(s.text)}}` : "";
     case "links":
       return s.links.length ? `\\linkline{${s.links.map((l) => linked(l.url, l.label)).join("\\linksep ")}}` : "";
   }

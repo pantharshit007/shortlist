@@ -19,7 +19,7 @@ export type Operation = z.infer<typeof operationSchema> & { id: string; reason: 
 type Entry = { id: string; hidden: boolean; bullets: { id: string; text: string; hidden: boolean }[] };
 
 function entriesOf(section: ResumeContent["sections"][number]): Entry[] {
-  return section.type === "skills" || section.type === "links" ? [] : (section.entries as Entry[]);
+  return "entries" in section ? (section.entries as Entry[]) : [];
 }
 
 function findBullet(content: ResumeContent, bulletId: string) {
@@ -47,7 +47,7 @@ function childIds(content: ResumeContent, parentId: string): string[] | undefine
   for (const section of content.sections) {
     if (section.id === parentId) {
       if (section.type === "skills") return section.groups.map((g) => g.id);
-      if (section.type === "links") return undefined;
+      if (section.type === "links" || section.type === "summary") return undefined;
       return entriesOf(section).map((e) => e.id);
     }
     for (const entry of entriesOf(section)) {
@@ -122,7 +122,7 @@ export function applyOperations(content: ResumeContent, operations: Operation[])
         for (const section of next.sections) {
           if (section.id === op.parentId) {
             if (section.type === "skills") section.groups = reorderBy(section.groups, op.orderedIds);
-            else if (section.type !== "links")
+            else if ("entries" in section)
               (section as { entries: Entry[] }).entries = reorderBy(entriesOf(section), op.orderedIds);
           }
           for (const entry of entriesOf(section)) {

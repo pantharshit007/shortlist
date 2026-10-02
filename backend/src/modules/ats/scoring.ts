@@ -220,6 +220,10 @@ function factsFromContent(full: ResumeContent): Facts {
       lines.push(...groups);
       continue;
     }
+    if (section.type === "summary") {
+      lines.push(section.text);
+      continue;
+    }
     if (section.type === "links") {
       lines.push(...section.links.map((link) => `${link.label} ${link.url}`));
       urls.push(...section.links.map((link) => link.url));

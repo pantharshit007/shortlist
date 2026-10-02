@@ -23,7 +23,15 @@ const PARSED_KINDS = new Set(["experience", "education", "skills", "projects"]);
 function expectedFields(content: ResumeContent): Expected {
   const { basics, sections } = visibleContent(content);
   const shown = sections.filter(
-    (s) => (s.type === "skills" ? s.groups : s.type === "links" ? s.links : s.entries).length,
+    (s) =>
+      (s.type === "skills"
+        ? s.groups
+        : s.type === "links"
+          ? s.links
+          : s.type === "summary"
+            ? [s.text].filter(Boolean)
+            : s.entries
+      ).length,
   );
   return {
     name: basics.name || undefined,

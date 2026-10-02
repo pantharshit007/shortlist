@@ -106,6 +106,12 @@ function renderSection(s: ResumeSection): string {
         `\\begin{itemize}[leftmargin=0.15in, label={}]\n  \\item \\small{\n${lines}\n  }\n\\end{itemize}`,
       );
     }
+    case "summary":
+      if (!s.text) return "";
+      return section(
+        s.title,
+        `\\begin{itemize}[leftmargin=0.15in, label={}]\n  \\item \\small{${texRich(s.text)}}\n\\end{itemize}`,
+      );
     case "links":
       if (s.links.length === 0) return "";
       return section(

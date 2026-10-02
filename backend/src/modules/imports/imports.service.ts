@@ -9,9 +9,11 @@ Rules:
 - Copy facts exactly as written. Never invent, infer or embellish employers, dates, numbers or skills.
 - Keep each bullet's wording. Wrap text that is bold in the source in **double asterisks**.
 - Dates: "YYYY-MM" when the month is known, otherwise "YYYY"; use "present" for ongoing roles. Use null when unknown.
-- Section types: experience (jobs, internships), education, projects, skills (grouped lists like "Languages: ..."),
-  links (a bare list of profile links such as LeetCode or Codeforces), list (achievements, certifications,
-  positions of responsibility, anything else).
+- Section types: summary (a summary, profile, objective or about paragraph, in "text"), experience (jobs,
+  internships), education, projects, skills (grouped lists like "Languages: ..."), links (a bare list of profile
+  links such as LeetCode or Codeforces), list (achievements, certifications, positions of responsibility,
+  anything else).
+- The headline is only a short title under the name. A paragraph about the person is a summary section.
 - Keep the source's section order and titles.
 - Fill every field; use null or [] when something doesn't apply.`;
 

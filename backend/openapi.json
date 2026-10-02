@@ -1175,6 +1175,42 @@
                                       },
                                       "type": {
                                         "type": "string",
+                                        "const": "summary"
+                                      },
+                                      "text": {
+                                        "default": "",
+                                        "type": "string",
+                                        "maxLength": 1000
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "title",
+                                      "hidden",
+                                      "type",
+                                      "text"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64
+                                      },
+                                      "title": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 60
+                                      },
+                                      "hidden": {
+                                        "default": false,
+                                        "type": "boolean"
+                                      },
+                                      "type": {
+                                        "type": "string",
                                         "const": "links"
                                       },
                                       "links": {
@@ -1858,6 +1894,39 @@
                                 "title",
                                 "type",
                                 "entries"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 64
+                                },
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 60
+                                },
+                                "hidden": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "summary"
+                                },
+                                "text": {
+                                  "default": "",
+                                  "type": "string",
+                                  "maxLength": 1000
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "title",
+                                "type"
                               ]
                             },
                             {
@@ -2563,6 +2632,42 @@
                                       "hidden",
                                       "type",
                                       "entries"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64
+                                      },
+                                      "title": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 60
+                                      },
+                                      "hidden": {
+                                        "default": false,
+                                        "type": "boolean"
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "const": "summary"
+                                      },
+                                      "text": {
+                                        "default": "",
+                                        "type": "string",
+                                        "maxLength": 1000
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "title",
+                                      "hidden",
+                                      "type",
+                                      "text"
                                     ],
                                     "additionalProperties": false
                                   },
@@ -4275,6 +4380,42 @@
                                           },
                                           "type": {
                                             "type": "string",
+                                            "const": "summary"
+                                          },
+                                          "text": {
+                                            "default": "",
+                                            "type": "string",
+                                            "maxLength": 1000
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "title",
+                                          "hidden",
+                                          "type",
+                                          "text"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
+                                          },
+                                          "title": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 60
+                                          },
+                                          "hidden": {
+                                            "default": false,
+                                            "type": "boolean"
+                                          },
+                                          "type": {
+                                            "type": "string",
                                             "const": "links"
                                           },
                                           "links": {
@@ -5053,6 +5194,42 @@
                                           "hidden",
                                           "type",
                                           "entries"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
+                                          },
+                                          "title": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 60
+                                          },
+                                          "hidden": {
+                                            "default": false,
+                                            "type": "boolean"
+                                          },
+                                          "type": {
+                                            "type": "string",
+                                            "const": "summary"
+                                          },
+                                          "text": {
+                                            "default": "",
+                                            "type": "string",
+                                            "maxLength": 1000
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "title",
+                                          "hidden",
+                                          "type",
+                                          "text"
                                         ],
                                         "additionalProperties": false
                                       },
@@ -5872,6 +6049,42 @@
                                           "hidden",
                                           "type",
                                           "entries"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
+                                          },
+                                          "title": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 60
+                                          },
+                                          "hidden": {
+                                            "default": false,
+                                            "type": "boolean"
+                                          },
+                                          "type": {
+                                            "type": "string",
+                                            "const": "summary"
+                                          },
+                                          "text": {
+                                            "default": "",
+                                            "type": "string",
+                                            "maxLength": 1000
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "title",
+                                          "hidden",
+                                          "type",
+                                          "text"
                                         ],
                                         "additionalProperties": false
                                       },
@@ -6891,6 +7104,39 @@
                                         },
                                         "type": {
                                           "type": "string",
+                                          "const": "summary"
+                                        },
+                                        "text": {
+                                          "default": "",
+                                          "type": "string",
+                                          "maxLength": 1000
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "title",
+                                        "type"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 64
+                                        },
+                                        "title": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 60
+                                        },
+                                        "hidden": {
+                                          "default": false,
+                                          "type": "boolean"
+                                        },
+                                        "type": {
+                                          "type": "string",
                                           "const": "links"
                                         },
                                         "links": {
@@ -7800,6 +8046,42 @@
                                                   "hidden",
                                                   "type",
                                                   "entries"
+                                                ],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "id": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 64
+                                                  },
+                                                  "title": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 60
+                                                  },
+                                                  "hidden": {
+                                                    "default": false,
+                                                    "type": "boolean"
+                                                  },
+                                                  "type": {
+                                                    "type": "string",
+                                                    "const": "summary"
+                                                  },
+                                                  "text": {
+                                                    "default": "",
+                                                    "type": "string",
+                                                    "maxLength": 1000
+                                                  }
+                                                },
+                                                "required": [
+                                                  "id",
+                                                  "title",
+                                                  "hidden",
+                                                  "type",
+                                                  "text"
                                                 ],
                                                 "additionalProperties": false
                                               },
@@ -8751,6 +9033,42 @@
                                                   "hidden",
                                                   "type",
                                                   "entries"
+                                                ],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "id": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 64
+                                                  },
+                                                  "title": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 60
+                                                  },
+                                                  "hidden": {
+                                                    "default": false,
+                                                    "type": "boolean"
+                                                  },
+                                                  "type": {
+                                                    "type": "string",
+                                                    "const": "summary"
+                                                  },
+                                                  "text": {
+                                                    "default": "",
+                                                    "type": "string",
+                                                    "maxLength": 1000
+                                                  }
+                                                },
+                                                "required": [
+                                                  "id",
+                                                  "title",
+                                                  "hidden",
+                                                  "type",
+                                                  "text"
                                                 ],
                                                 "additionalProperties": false
                                               },
@@ -9944,6 +10262,39 @@
                                     },
                                     "type": {
                                       "type": "string",
+                                      "const": "summary"
+                                    },
+                                    "text": {
+                                      "default": "",
+                                      "type": "string",
+                                      "maxLength": 1000
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "title",
+                                    "type"
+                                  ]
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 64
+                                    },
+                                    "title": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 60
+                                    },
+                                    "hidden": {
+                                      "default": false,
+                                      "type": "boolean"
+                                    },
+                                    "type": {
+                                      "type": "string",
                                       "const": "links"
                                     },
                                     "links": {
@@ -10733,6 +11084,42 @@
                                           "hidden",
                                           "type",
                                           "entries"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
+                                          },
+                                          "title": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 60
+                                          },
+                                          "hidden": {
+                                            "default": false,
+                                            "type": "boolean"
+                                          },
+                                          "type": {
+                                            "type": "string",
+                                            "const": "summary"
+                                          },
+                                          "text": {
+                                            "default": "",
+                                            "type": "string",
+                                            "maxLength": 1000
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "title",
+                                          "hidden",
+                                          "type",
+                                          "text"
                                         ],
                                         "additionalProperties": false
                                       },
@@ -11558,6 +11945,42 @@
                                           "hidden",
                                           "type",
                                           "entries"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
+                                          },
+                                          "title": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 60
+                                          },
+                                          "hidden": {
+                                            "default": false,
+                                            "type": "boolean"
+                                          },
+                                          "type": {
+                                            "type": "string",
+                                            "const": "summary"
+                                          },
+                                          "text": {
+                                            "default": "",
+                                            "type": "string",
+                                            "maxLength": 1000
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "title",
+                                          "hidden",
+                                          "type",
+                                          "text"
                                         ],
                                         "additionalProperties": false
                                       },
@@ -12415,6 +12838,42 @@
                                           "hidden",
                                           "type",
                                           "entries"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
+                                          },
+                                          "title": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 60
+                                          },
+                                          "hidden": {
+                                            "default": false,
+                                            "type": "boolean"
+                                          },
+                                          "type": {
+                                            "type": "string",
+                                            "const": "summary"
+                                          },
+                                          "text": {
+                                            "default": "",
+                                            "type": "string",
+                                            "maxLength": 1000
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "title",
+                                          "hidden",
+                                          "type",
+                                          "text"
                                         ],
                                         "additionalProperties": false
                                       },
@@ -13329,6 +13788,39 @@
                                     "title",
                                     "type",
                                     "entries"
+                                  ]
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 64
+                                    },
+                                    "title": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 60
+                                    },
+                                    "hidden": {
+                                      "default": false,
+                                      "type": "boolean"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "const": "summary"
+                                    },
+                                    "text": {
+                                      "default": "",
+                                      "type": "string",
+                                      "maxLength": 1000
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "title",
+                                    "type"
                                   ]
                                 },
                                 {
@@ -14383,6 +14875,42 @@
                                       "hidden",
                                       "type",
                                       "entries"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64
+                                      },
+                                      "title": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 60
+                                      },
+                                      "hidden": {
+                                        "default": false,
+                                        "type": "boolean"
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "const": "summary"
+                                      },
+                                      "text": {
+                                        "default": "",
+                                        "type": "string",
+                                        "maxLength": 1000
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "title",
+                                      "hidden",
+                                      "type",
+                                      "text"
                                     ],
                                     "additionalProperties": false
                                   },
@@ -17628,6 +18156,42 @@
                                           "hidden",
                                           "type",
                                           "entries"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
+                                          },
+                                          "title": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 60
+                                          },
+                                          "hidden": {
+                                            "default": false,
+                                            "type": "boolean"
+                                          },
+                                          "type": {
+                                            "type": "string",
+                                            "const": "summary"
+                                          },
+                                          "text": {
+                                            "default": "",
+                                            "type": "string",
+                                            "maxLength": 1000
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "title",
+                                          "hidden",
+                                          "type",
+                                          "text"
                                         ],
                                         "additionalProperties": false
                                       },

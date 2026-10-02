@@ -66,6 +66,9 @@ export function toJsonResume(content: ResumeContent) {
             .map((e) => ({ title: e.title, summary: e.subtitle, date: e.date })),
         ];
         break;
+      case "summary":
+        (out.basics as { summary?: string | undefined }).summary = section.text || undefined;
+        break;
       case "links":
         (out.basics as { profiles: unknown[] }).profiles.push(
           ...section.links.map((link) => ({ network: link.label, url: link.url })),

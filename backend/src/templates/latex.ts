@@ -57,7 +57,7 @@ export function visibleContent(content: ResumeContent): ResumeContent {
     sections: content.sections
       .filter((section) => !section.hidden)
       .map((section) => {
-        if (section.type === "skills" || section.type === "links") return section;
+        if (section.type === "skills" || section.type === "links" || section.type === "summary") return section;
         const entries = section.entries
           .filter((entry) => !entry.hidden)
           .map((entry) => ({ ...entry, bullets: entry.bullets.filter((bullet) => !bullet.hidden) }));

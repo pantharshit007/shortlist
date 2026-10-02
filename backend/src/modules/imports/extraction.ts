@@ -10,7 +10,7 @@ const aiLink = z.object({ label: z.string(), url: z.string() });
 export const extractionSchema = z.object({
   basics: z.object({
     name: z.string(),
-    headline: text,
+    headline: text.describe("Short title under the name, like 'Backend Engineer'; never a paragraph"),
     email: text,
     phone: text,
     location: text,
@@ -18,8 +18,9 @@ export const extractionSchema = z.object({
   }),
   sections: z.array(
     z.object({
-      type: z.enum(["experience", "education", "projects", "skills", "list", "links"]),
+      type: z.enum(["experience", "education", "projects", "skills", "list", "links", "summary"]),
       title: z.string(),
+      text: text.describe("summary sections only: the paragraph"),
       entries: z.array(
         z.object({
           organization: text,
@@ -143,6 +144,8 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
       };
     case "links":
       return { ...base, type: "links", links: links(section.links) };
+    case "summary":
+      return { ...base, type: "summary", text: clean(section.text) ?? "" };
     case "list":
       return {
         ...base,
@@ -164,16 +167,23 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
 
 export function normalizeExtraction(extraction: Extraction): ResumeContent {
   const email = clean(extraction.basics.email);
+  const sections = extraction.sections.map(normalizeSection).filter((s): s is ResumeSection => s !== null);
+  let headline = clean(extraction.basics.headline);
+  // Models sometimes put the summary paragraph in the headline; give it its own section instead.
+  if (headline && headline.length > 100 && !sections.some((s) => s.type === "summary")) {
+    sections.unshift({ id: shortId(), title: "Summary", hidden: false, type: "summary", text: headline });
+    headline = undefined;
+  }
   const content = {
     basics: {
       name: extraction.basics.name.trim(),
-      headline: clean(extraction.basics.headline),
+      headline,
       email: email && z.email().safeParse(email).success ? email : undefined,
       phone: clean(extraction.basics.phone)?.slice(0, 30),
       location: clean(extraction.basics.location),
       links: links(extraction.basics.links),
     },
-    sections: extraction.sections.map(normalizeSection).filter((s): s is ResumeSection => s !== null),
+    sections,
   };
   // Drops undefined keys and applies schema defaults so the result is valid resume content.
   return fitToLimits(JSON.parse(JSON.stringify(content)));
