@@ -83,3 +83,24 @@ describe("normalizeExtraction", () => {
     expect(new Set([experience.id, skills.id]).size).toBe(2);
   });
 });
+
+describe("normalizeExtraction limits", () => {
+  it("cuts over-long fields to their limits instead of failing", () => {
+    const content = normalizeExtraction({
+      basics: { name: "A", headline: "h".repeat(500), email: null, phone: null, location: null, links: [] },
+      sections: [
+        {
+          type: "skills",
+          title: "Skills",
+          entries: [],
+          links: [],
+          groups: [{ name: "Tools", items: ["x".repeat(100), ...Array.from({ length: 50 }, (_, i) => `s${i}`)] }],
+        },
+      ],
+    });
+    expect(content.basics.headline).toHaveLength(200);
+    const skills = content.sections[0];
+    expect(skills.type === "skills" && skills.groups[0].items).toHaveLength(40);
+    expect(skills.type === "skills" && skills.groups[0].items[0]).toHaveLength(60);
+  });
+});

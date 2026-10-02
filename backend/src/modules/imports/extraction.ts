@@ -176,5 +176,26 @@ export function normalizeExtraction(extraction: Extraction): ResumeContent {
     sections: extraction.sections.map(normalizeSection).filter((s): s is ResumeSection => s !== null),
   };
   // Drops undefined keys and applies schema defaults so the result is valid resume content.
-  return resumeContentSchema.parse(JSON.parse(JSON.stringify(content)));
+  return fitToLimits(JSON.parse(JSON.stringify(content)));
+}
+
+// Models sometimes return a field longer than the schema allows (a paragraph as the headline);
+// cut each over-long string or list to its limit instead of failing the whole import.
+function fitToLimits(content: Record<string, unknown>): ResumeContent {
+  for (;;) {
+    const result = resumeContentSchema.safeParse(content);
+    if (result.success) return result.data;
+    const tooBig = result.error.issues.filter((issue) => issue.code === "too_big");
+    if (tooBig.length < result.error.issues.length) throw result.error;
+    for (const issue of tooBig) {
+      const parent = issue.path
+        .slice(0, -1)
+        .reduce<unknown>((node, key) => (node as Record<PropertyKey, unknown>)[key], content) as Record<
+        PropertyKey,
+        string | unknown[]
+      >;
+      const key = issue.path.at(-1)!;
+      parent[key] = parent[key]!.slice(0, Number(issue.maximum));
+    }
+  }
 }
