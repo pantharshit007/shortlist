@@ -1,3 +1,4 @@
+import { recordStep } from "../../middleware/request-metrics.js";
 import { APICallError, generateObject } from "ai";
 import type { z } from "zod";
 import { db } from "../../db/index.js";
@@ -62,6 +63,7 @@ export async function generateStructured<S extends z.ZodType>(
       providerOptions: { openai: { strictJsonSchema: true } },
     });
 
+    recordStep("ai_ms", Date.now() - started);
     const usage = {
       inputTokens: result.usage.inputTokens ?? 0,
       cachedInputTokens: result.usage.inputTokenDetails?.cacheReadTokens ?? 0,

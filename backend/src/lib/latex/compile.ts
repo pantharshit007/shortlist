@@ -1,3 +1,5 @@
+import { recordStep, timed } from "../../middleware/request-metrics.js";
+import { logger } from "../logger.js";
 import { createHash } from "node:crypto";
 import { PDFDocument } from "pdf-lib";
 import { env } from "../../config/env.js";
@@ -44,12 +46,16 @@ export async function compileTex(source: string): Promise<CompileResult> {
   const tex = makeXetexCompatible(source);
   const cacheKey = `compiled/${createHash("sha256").update(tex).digest("hex")}.pdf`;
 
-  const cachedPdf = await storage.get(cacheKey);
+  const cachedPdf = await timed("cache_lookup_ms", () => storage.get(cacheKey));
+  recordStep("compile_cached", Boolean(cachedPdf));
   if (cachedPdf) return { ok: true, pdf: cachedPdf, pageCount: await pageCount(cachedPdf), cached: true };
 
-  const result = localCompile ? await localCompile(tex) : await remoteCompile(tex);
+  const result = await timed("compile_ms", () => (localCompile ? localCompile(tex) : remoteCompile(tex)));
   if (!result.ok) return result;
 
-  await storage.put(cacheKey, result.pdf, "application/pdf");
+  // Caching is for next time, so the response doesn't wait for the upload.
+  storage.put(cacheKey, result.pdf, "application/pdf").catch((err: unknown) => {
+    logger.warn({ err }, "Could not cache a compiled PDF");
+  });
   return { ok: true, pdf: result.pdf, pageCount: await pageCount(result.pdf), cached: false };
 }
