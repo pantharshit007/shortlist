@@ -1,0 +1,1 @@
+ALTER TABLE "share_links" ADD COLUMN "contact_password_hash" text;

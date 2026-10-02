@@ -24,6 +24,8 @@ export const shareLinks = pgTable(
     // Listed on the user's public page at site/<username>.
     isListed: boolean().notNull().default(false),
     passwordHash: text(),
+    // Paid: contacts stay masked until this password is given. Ignored while showContact is on or the owner is free.
+    contactPasswordHash: text(),
     expiresAt: timestamp({ withTimezone: true }),
     viewCount: integer().notNull().default(0),
     lastViewedAt: timestamp({ withTimezone: true }),

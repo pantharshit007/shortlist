@@ -64,6 +64,13 @@
       "when": 1790921136019,
       "tag": "0008_usage_reset",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790923494888,
+      "tag": "0009_share_link_contact_password",
+      "breakpoints": true
     }
   ]
 }
