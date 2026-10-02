@@ -311,15 +311,26 @@ export function HistoryPanel({
             lost.
           </SheetDescription>
         </SheetHeader>
-        <div className="flex items-center justify-between border-b px-4 py-2.5 text-sm">
-          <label htmlFor="named-only" className="text-muted-foreground">
-            Named versions only
-          </label>
-          <Switch
-            id="named-only"
-            checked={namedOnly}
-            onCheckedChange={setNamedOnly}
-          />
+        <div className="flex items-center justify-between gap-3 border-b px-4 py-2.5 text-sm">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!versions?.length}
+            onClick={() => versions?.[0] && setNaming(versions[0])}
+          >
+            <BookmarkIcon data-icon="inline-start" />
+            Save checkpoint
+          </Button>
+          <div className="flex items-center gap-2">
+            <label htmlFor="named-only" className="text-muted-foreground">
+              Named only
+            </label>
+            <Switch
+              id="named-only"
+              checked={namedOnly}
+              onCheckedChange={setNamedOnly}
+            />
+          </div>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           {isPending ? (
