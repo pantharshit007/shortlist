@@ -43,6 +43,7 @@ import {
   queryKeys,
   shareLinkStatsQuery,
   shareLinksQuery,
+  resumeQuery,
 } from '@/lib/api/queries'
 import type { ShareLink } from '@/lib/api/types'
 import { formatDate, timeAgo } from '@/lib/format'
@@ -107,17 +108,33 @@ type ContactMode = 'shown' | 'hidden' | 'password'
 
 function ContactField({
   id,
+  resumeId,
   value,
   onChange,
   paid,
   description,
 }: {
   id: string
+  resumeId: string
   value: ContactMode
   onChange: (mode: ContactMode) => void
   paid: boolean
   description: string
 }) {
+  const { data: resume } = useQuery(resumeQuery(resumeId))
+  // LaTeX resumes print whatever the source says, so there are no contact fields to hide.
+  if (resume?.mode === 'code') {
+    return (
+      <Field>
+        <FieldLabel>Phone and email</FieldLabel>
+        <FieldDescription>
+          This resume is written in LaTeX, so they show exactly as in your code.
+          To hide them on this link, remove them from the code or switch to the
+          form editor.
+        </FieldDescription>
+      </Field>
+    )
+  }
   return (
     <Field>
       <FieldLabel id={`${id}-label`}>Phone and email</FieldLabel>
@@ -321,6 +338,7 @@ function LinkCard({
       <FieldGroup className="gap-4">
         <ContactField
           id={`${link.id}-contact`}
+          resumeId={resumeId}
           value={contactMode}
           paid={paid}
           description={
@@ -540,6 +558,7 @@ function CreateLinkForm({
         </Field>
         <ContactField
           id="new-contact"
+          resumeId={resumeId}
           value={contactMode}
           onChange={setContactMode}
           paid={paid}
