@@ -3,12 +3,38 @@ import { dayKeys } from "../analytics/analytics.service.js";
 
 const configured = () => Boolean(env.POSTHOG_PERSONAL_API_KEY && env.POSTHOG_PROJECT_ID);
 
+// PostHog caps how many queries a project runs at once and answers the rest with 503 "too busy",
+// so requests queue here and a busy answer is retried after a pause.
+const MAX_CONCURRENT = 3;
+let running = 0;
+const waiting: (() => void)[] = [];
+
+export async function withSlot<T>(run: () => Promise<T>): Promise<T> {
+  if (running >= MAX_CONCURRENT) await new Promise<void>((resolve) => waiting.push(resolve));
+  running++;
+  try {
+    return await run();
+  } finally {
+    running--;
+    waiting.shift()?.();
+  }
+}
+
+const busy = (status: number) => status === 429 || status === 503;
+
 async function posthog<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${env.POSTHOG_APP_HOST}/api/projects/${env.POSTHOG_PROJECT_ID}${path}`, {
-    ...init,
-    headers: { Authorization: `Bearer ${env.POSTHOG_PERSONAL_API_KEY}`, "Content-Type": "application/json" },
-    signal: AbortSignal.timeout(20_000),
-  });
+  let res: Response;
+  for (let attempt = 0; ; attempt++) {
+    res = await withSlot(() =>
+      fetch(`${env.POSTHOG_APP_HOST}/api/projects/${env.POSTHOG_PROJECT_ID}${path}`, {
+        ...init,
+        headers: { Authorization: `Bearer ${env.POSTHOG_PERSONAL_API_KEY}`, "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(20_000),
+      }),
+    );
+    if (!busy(res.status) || attempt === 2) break;
+    await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
+  }
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as { detail?: string } | null;
     throw new Error(`PostHog ${res.status}: ${body?.detail ?? res.statusText}`);
