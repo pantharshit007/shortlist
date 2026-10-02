@@ -95,16 +95,20 @@ async function traffic(days: number, timeZone: string) {
        GROUP BY event ORDER BY total DESC LIMIT 20`,
       values,
     ),
-    // api_request is sampled (see request-metrics.ts), so counts are weighted back up by 1 / sample_rate.
+    // api_request is sampled (see request-metrics.ts): slow and failed requests are always kept, fast ones 1 in 10.
+    // Each event is repeated 1 / sample_rate times so counts and percentiles reflect real traffic (HogQL has no
+    // weighted quantile); unweighted, the p95 read 30 times too high.
     hogql(
-      `SELECT
-         concat(toString(properties.method), ' ', toString(properties.route)) AS route,
-         round(sum(1 / toFloat(properties.sample_rate))) AS requests,
-         quantile(0.5)(toFloat(properties.duration_ms)),
-         quantile(0.95)(toFloat(properties.duration_ms)),
-         countIf(toInt(properties.status) >= 500)
-       FROM events
-       WHERE event = 'api_request' AND timestamp >= now() - toIntervalDay({days})
+      `SELECT route, count() AS requests, quantile(0.5)(duration), quantile(0.95)(duration), countIf(status >= 500)
+       FROM (
+         SELECT
+           concat(toString(properties.method), ' ', toString(properties.route)) AS route,
+           toFloat(properties.duration_ms) AS duration,
+           toInt(properties.status) AS status,
+           arrayJoin(range(toInt(round(1 / toFloat(properties.sample_rate))))) AS copy
+         FROM events
+         WHERE event = 'api_request' AND timestamp >= now() - toIntervalDay({days})
+       )
        GROUP BY route ORDER BY requests DESC LIMIT 15`,
       values,
     ),
