@@ -165,7 +165,8 @@ function renderSection(s: ResumeSection): string {
 
 export function renderDeveloper(input: ResumeContent, layout?: ResumeLayout) {
   const { basics, sections } = visibleContent(input);
-  const lines = [`{\\Huge \\scshape ${tex(basics.name)}}${nameGap(layout)}`];
+  // \leavevmode starts the line even when the name is empty, so the line break after it has a line to end.
+  const lines = [`\\leavevmode{\\Huge \\scshape ${tex(basics.name)}}${nameGap(layout)}`];
   if (basics.headline) lines.push(`\\small ${tex(basics.headline)}`);
   const contacts = header(basics);
   if (contacts) lines.push(contacts);

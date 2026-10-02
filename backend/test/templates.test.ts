@@ -18,6 +18,7 @@ const hasTectonic = (() => {
 
 const compile = createTectonic({ bin: "tectonic", onlyCached: false, timeoutMs: 120_000, concurrency: 2 });
 const bare = resumeContentSchema.parse({ basics: { name: "Only Name" }, sections: [] });
+const nameless = resumeContentSchema.parse({ basics: { name: "", headline: "Data Analyst" }, sections: [] });
 
 describe.skipIf(!hasTectonic)("templates compile", () => {
   for (const template of templates) {
@@ -38,6 +39,11 @@ describe.skipIf(!hasTectonic)("templates compile", () => {
       const tex = template.render(withSummary);
       expect(tex).toContain("5 years");
       const result = await compile(tex);
+      expect(result.ok, JSON.stringify(result)).toBe(true);
+    });
+
+    it(`${template.id} with no name yet`, async () => {
+      const result = await compile(template.render(nameless));
       expect(result.ok, JSON.stringify(result)).toBe(true);
     });
 
@@ -78,9 +84,9 @@ describe("templates hide content", () => {
 // sha256 of each template's sample render before layouts existed. The default layout must not change a byte;
 // if the sample or a template changes on purpose, update the hash.
 const beforeLayouts: Record<string, string> = {
-  developer: "468091223c5dc9aa1e6a8507bf7019940c13021b16993b6a984f70889a7b7eb8",
+  developer: "e49d5d9167e57b5d8d991a77e4654ce86868228a6d3c787a712ff64b7ac7cc7a",
   jake: "4e7af6b01e20d855ccf5bcd541d4a4814c26a72cbcae3a77e9fa4af6c9b6f70b",
-  modern: "7efc6edd2ecd754d193ce24be6174649e305f3af7c39b4e284ea727f7b008119",
+  modern: "6c7c75ec71df93475a9447f0decc9f8413d795e8b51c44bdc712795d10f63249",
   sb2nov: "1ce48352bb666a983bc617a82dccf8054881d903c204b47eef6ecee767c6f986",
   "ml-research": "e7b651bb55b643dcfd121d39b7ad5b18af863d366db1c5956203e808d02f111c",
   "data-analyst": "0fa331493ea00451d4c4e8e933d6e35cc95d4b6e4e5d7c2ab5c13fa45af81ec2",
