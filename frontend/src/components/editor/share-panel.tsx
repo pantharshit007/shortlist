@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import {
   CheckIcon,
   CopyIcon,
@@ -35,6 +36,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
 import { Switch } from '@/components/ui/switch'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { api, errorMessage, expectOk, unwrap } from '@/lib/api/client'
 import {
   meQuery,
@@ -97,6 +99,61 @@ function SwitchField({
         <FieldDescription>{description}</FieldDescription>
       </FieldContent>
       <Switch id={id} checked={checked} onCheckedChange={onChange} />
+    </Field>
+  )
+}
+
+type ContactMode = 'shown' | 'hidden' | 'password'
+
+function ContactField({
+  id,
+  value,
+  onChange,
+  paid,
+  description,
+}: {
+  id: string
+  value: ContactMode
+  onChange: (mode: ContactMode) => void
+  paid: boolean
+  description: string
+}) {
+  return (
+    <Field>
+      <FieldLabel id={`${id}-label`}>Phone and email</FieldLabel>
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        spacing={0}
+        className="w-full"
+        aria-labelledby={`${id}-label`}
+        value={value}
+        onValueChange={(mode) => mode && onChange(mode as ContactMode)}
+      >
+        <ToggleGroupItem value="shown" className="flex-1">
+          Shown
+        </ToggleGroupItem>
+        <ToggleGroupItem value="hidden" className="flex-1">
+          Hidden
+        </ToggleGroupItem>
+        <ToggleGroupItem value="password" className="flex-1" disabled={!paid}>
+          <LockIcon data-icon="inline-start" />
+          With password
+        </ToggleGroupItem>
+      </ToggleGroup>
+      <FieldDescription>{description}</FieldDescription>
+      {!paid && (
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+          <Badge variant="secondary">Season Pass / Pro</Badge>
+          Let visitors unlock them with a password.
+          <Link
+            to="/pricing"
+            className="font-medium text-foreground underline underline-offset-4"
+          >
+            See plans
+          </Link>
+        </p>
+      )}
     </Field>
   )
 }
@@ -168,12 +225,24 @@ function LinkCard({
   headVersionId: string | null
 }) {
   const queryClient = useQueryClient()
+  const { data: me } = useQuery(meQuery)
+  const paid = me !== undefined && me.plan !== 'free'
   const [confirmOff, setConfirmOff] = useState(false)
+  const [settingPassword, setSettingPassword] = useState(false)
+  const [contactPassword, setContactPassword] = useState('')
+  const contactMode: ContactMode = settingPassword
+    ? 'password'
+    : link.showContact
+      ? 'shown'
+      : link.hasContactPassword
+        ? 'password'
+        : 'hidden'
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.shareLinks(resumeId) })
   const update = useMutation({
     mutationFn: (body: {
       showContact?: boolean
+      contactPassword?: string | null
       isListed?: boolean
       pinnedVersionId?: string | null
     }) =>
@@ -250,13 +319,73 @@ function LinkCard({
       <LinkStats link={link} />
       <Separator />
       <FieldGroup className="gap-4">
-        <SwitchField
+        <ContactField
           id={`${link.id}-contact`}
-          label="Show phone and email"
-          description="Hidden by default so strangers can't scrape them."
-          checked={link.showContact}
-          onChange={(showContact) => update.mutate({ showContact })}
+          value={contactMode}
+          paid={paid}
+          description={
+            contactMode === 'shown'
+              ? 'Anyone with the link sees them.'
+              : contactMode === 'hidden'
+                ? "Hidden so strangers can't scrape them."
+                : !paid && link.hasContactPassword
+                  ? 'Your plan no longer includes this, so they stay hidden.'
+                  : 'Visitors see the resume and enter the password to see them.'
+          }
+          onChange={(mode) => {
+            setSettingPassword(mode === 'password')
+            if (mode !== 'password')
+              update.mutate(
+                mode === 'shown'
+                  ? { showContact: true }
+                  : { showContact: false, contactPassword: null },
+              )
+          }}
         />
+        {paid && contactMode === 'password' && !settingPassword && (
+          <Button
+            variant="link"
+            size="sm"
+            className="-mt-2 h-auto self-start p-0"
+            onClick={() => setSettingPassword(true)}
+          >
+            Change contact password
+          </Button>
+        )}
+        {settingPassword && (
+          <form
+            className="-mt-1 flex items-start gap-2"
+            onSubmit={(event) => {
+              event.preventDefault()
+              update.mutate(
+                { contactPassword },
+                {
+                  onSuccess: () => {
+                    setSettingPassword(false)
+                    setContactPassword('')
+                    toast.success('Contact password saved')
+                  },
+                },
+              )
+            }}
+          >
+            <Input
+              type="password"
+              autoComplete="new-password"
+              aria-label="Contact password"
+              placeholder="Contact password"
+              value={contactPassword}
+              onChange={(e) => setContactPassword(e.target.value)}
+            />
+            <Button
+              type="submit"
+              disabled={contactPassword.length < 4 || update.isPending}
+            >
+              {update.isPending && <Spinner data-icon="inline-start" />}
+              Save
+            </Button>
+          </form>
+        )}
         <SwitchField
           id={`${link.id}-listed`}
           label="List on my public profile"
@@ -331,7 +460,11 @@ function CreateLinkForm({
   const queryClient = useQueryClient()
   const { data: me } = useQuery(meQuery)
   const [slug, setSlug] = useState('')
-  const [showContact, setShowContact] = useState(false)
+  const paid = me !== undefined && me.plan !== 'free'
+  const [contactMode, setContactMode] = useState<ContactMode>('hidden')
+  const [contactPassword, setContactPassword] = useState('')
+  const contactPasswordShort =
+    contactMode === 'password' && contactPassword.length < 4
   const [isListed, setIsListed] = useState(false)
   const [pin, setPin] = useState(false)
   const [password, setPassword] = useState('')
@@ -346,7 +479,8 @@ function CreateLinkForm({
           params: { path: { resumeId } },
           body: {
             ...(cleanSlug && { slug: cleanSlug }),
-            showContact,
+            showContact: contactMode === 'shown',
+            ...(contactMode === 'password' && { contactPassword }),
             isListed,
             pinnedVersionId: pin ? headVersionId : null,
             ...(password && { password }),
@@ -404,13 +538,36 @@ function CreateLinkForm({
             </FieldDescription>
           )}
         </Field>
-        <SwitchField
+        <ContactField
           id="new-contact"
-          label="Show phone and email"
-          description="Off by default."
-          checked={showContact}
-          onChange={setShowContact}
+          value={contactMode}
+          onChange={setContactMode}
+          paid={paid}
+          description={
+            contactMode === 'password'
+              ? 'Visitors see the resume and enter this password to see them.'
+              : 'Hidden by default.'
+          }
         />
+        {contactMode === 'password' && (
+          <Field
+            className="-mt-1"
+            data-invalid={contactPassword.length > 0 && contactPasswordShort}
+          >
+            <FieldLabel htmlFor="contact-password">Contact password</FieldLabel>
+            <Input
+              id="contact-password"
+              type="password"
+              autoComplete="new-password"
+              value={contactPassword}
+              aria-invalid={contactPassword.length > 0 && contactPasswordShort}
+              onChange={(e) => setContactPassword(e.target.value)}
+            />
+            {contactPassword.length > 0 && contactPasswordShort && (
+              <FieldError>Use at least 4 characters.</FieldError>
+            )}
+          </Field>
+        )}
         <SwitchField
           id="new-listed"
           label="List on my public profile"
@@ -457,6 +614,7 @@ function CreateLinkForm({
           disabled={
             create.isPending ||
             slugTooShort ||
+            contactPasswordShort ||
             (password.length > 0 && password.length < 4)
           }
         >
