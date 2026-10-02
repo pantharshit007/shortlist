@@ -1,4 +1,5 @@
 import { LockIcon, LockOpenIcon } from 'lucide-react'
+import { useState } from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -139,6 +140,8 @@ export function EndDateField({
   onChange: (value: string | undefined) => void
 }) {
   const present = value === 'present'
+  // Unticking Present brings back the date it replaced.
+  const [lastDate, setLastDate] = useState(present ? undefined : value)
   return (
     <Field>
       <div className="flex items-center justify-between gap-2">
@@ -146,9 +149,12 @@ export function EndDateField({
         <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Checkbox
             checked={present}
-            onCheckedChange={(checked) =>
-              onChange(checked === true ? 'present' : undefined)
-            }
+            onCheckedChange={(checked) => {
+              if (checked === true) {
+                setLastDate(value)
+                onChange('present')
+              } else onChange(lastDate)
+            }}
           />
           Present
         </label>
