@@ -279,3 +279,29 @@ describe("normalizeExtraction tech stacks", () => {
     expect(skills?.type === "skills" && skills.groups[0]!.name).toBe("Frontend");
   });
 });
+
+describe("normalizeExtraction project links", () => {
+  it("shows the project url as a labelled link when it isn't one already", () => {
+    const content = normalizeExtraction({
+      basics: { name: "A", headline: null, email: null, phone: null, location: null, links: [] },
+      sections: [
+        {
+          type: "projects",
+          title: "Projects",
+          text: null,
+          groups: [],
+          links: [],
+          entries: [
+            entry({
+              name: "Abhyas",
+              url: "https://github.com/karan/abhyas",
+              links: [{ label: "Live", url: "https://abhyas.app" }],
+            }),
+          ],
+        },
+      ],
+    });
+    const projects = content.sections[0];
+    expect(projects?.type === "projects" && projects.entries[0]!.links.map((l) => l.label)).toEqual(["GitHub", "Live"]);
+  });
+});
