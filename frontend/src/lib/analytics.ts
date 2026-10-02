@@ -14,7 +14,13 @@ export function initAnalytics() {
     person_profiles: 'identified_only',
     mask_all_text: true,
     session_recording: { maskAllInputs: true, maskTextSelector: '*' },
+    // Load, interaction and layout-shift timings as real visitors experience them, not just server time.
+    capture_performance: { web_vitals: true },
   })
+}
+
+export function track(event: string, properties: Record<string, unknown>) {
+  if (key) posthog.capture(event, properties)
 }
 
 // The backend sends product events under the same user id, so they join this person's page views.

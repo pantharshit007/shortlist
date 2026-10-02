@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ResumeContent, ResumeDetail } from '@/lib/api/types'
+import { track } from '@/lib/analytics'
 import { apiUrl } from '@/lib/env'
 
 export type CompileError = {
@@ -39,6 +40,8 @@ export function usePdfPreview(input: PreviewInput, delay = 700) {
 
   useEffect(() => {
     if (!key) return
+    // From the edit to the new PDF on screen, debounce included: the wait a user actually sees.
+    const editedAt = performance.now()
     const timer = setTimeout(async () => {
       controller.current?.abort()
       const abort = new AbortController()
@@ -55,6 +58,10 @@ export function usePdfPreview(input: PreviewInput, delay = 700) {
         if (response.ok) {
           const url = URL.createObjectURL(await response.blob())
           const pageCount = Number(response.headers.get('x-page-count')) || null
+          track('preview_shown', {
+            duration_ms: Math.round(performance.now() - editedAt),
+            debounce_ms: delay,
+          })
           setState((s) => {
             if (s.url) URL.revokeObjectURL(s.url)
             return {
