@@ -12,7 +12,13 @@ import {
 import { BreakdownList } from '@/components/analytics/breakdown-list'
 import { referrerLabel } from '@/components/analytics/labels'
 import { ViewsChart } from '@/components/analytics/views-chart'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+} from '@/components/ui/alert'
+import { Spinner } from '@/components/ui/spinner'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -31,11 +37,11 @@ import { site } from '@/lib/site'
 export const Route = createFileRoute('/_app/admin/traffic')({
   head: () => ({ meta: [{ title: `Traffic · Admin | ${site.name}` }] }),
   loaderDeps: ({ search }) => ({ days: search.days ?? 30 }),
-  // Changing the search in place shows the page's loading state instead of holding the old page.
+  // Not awaited, so switching tabs or ranges shows the loading state at once instead of holding the old page.
   loader: ({ context, deps, cause }) =>
     cause === 'stay'
       ? undefined
-      : context.queryClient.prefetchQuery(adminTrafficQuery(deps.days)),
+      : void context.queryClient.prefetchQuery(adminTrafficQuery(deps.days)),
   component: TrafficPage,
 })
 
@@ -64,11 +70,27 @@ function TrafficPage() {
             <NotConfigured />
           ) : result.error || !result.data ? (
             <Alert variant="destructive">
-              <AlertTitle>PostHog didn't answer</AlertTitle>
+              <AlertTitle>
+                {busy(result.error)
+                  ? 'PostHog is busy right now'
+                  : "PostHog didn't answer"}
+              </AlertTitle>
               <AlertDescription>
-                {result.error ?? 'No data came back.'} Check that the personal
-                API key has the query:read and session_recording:read scopes.
+                {busy(result.error)
+                  ? 'It limits how many reports run at once. Wait a moment and try again.'
+                  : `${result.error ?? 'No data came back.'} Check that the personal API key has the query:read and session_recording:read scopes.`}
               </AlertDescription>
+              <AlertAction>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={traffic.isFetching}
+                  onClick={() => traffic.refetch()}
+                >
+                  {traffic.isFetching && <Spinner data-icon="inline-start" />}
+                  Try again
+                </Button>
+              </AlertAction>
             </Alert>
           ) : (
             <TrafficReport data={result.data} />
@@ -78,6 +100,10 @@ function TrafficPage() {
     </QueryView>
   )
 }
+
+// 429 and 503 mean PostHog is overloaded for a moment, not that anything is set up wrong.
+const busy = (error: string | null) =>
+  Boolean(error && /PostHog (429|503)/.test(error))
 
 function NotConfigured() {
   return (

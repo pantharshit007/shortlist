@@ -55,11 +55,11 @@ export const Route = createFileRoute('/_app/admin/users/')({
     status,
     page,
   }),
-  // Changing the search in place shows the page's loading state instead of holding the old page.
+  // Not awaited, so switching tabs or ranges shows the loading state at once instead of holding the old page.
   loader: ({ context, deps, cause }) =>
     cause === 'stay'
       ? undefined
-      : context.queryClient.prefetchQuery(adminUsersQuery(deps)),
+      : void context.queryClient.prefetchQuery(adminUsersQuery(deps)),
   component: UsersPage,
 })
 
