@@ -178,6 +178,23 @@ export const analyticsQuery = (days: 7 | 30 | 90) =>
       ),
   })
 
+// Season Pass and Pro only; the API answers 402 on the free plan.
+export const insightsQuery = (days: 7 | 30 | 90) =>
+  queryOptions({
+    queryKey: [...queryKeys.analytics(days), 'insights'],
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/analytics/insights', {
+          params: {
+            query: {
+              days: String(days) as '7' | '30' | '90',
+              timeZone: timeZone(),
+            },
+          },
+        }),
+      ),
+  })
+
 // Days are bucketed in the viewer's own time zone.
 const timeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone
 

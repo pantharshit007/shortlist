@@ -40,6 +40,7 @@ export type CustomTemplate = ResponseData<
   'get'
 >
 export type Analytics = ResponseData<'/v1/analytics', 'get'>
+export type Insights = ResponseData<'/v1/analytics/insights', 'get'>
 export type ResumeSummary = ResponseData<'/v1/resumes', 'get'>[number]
 export type ResumeDetail = ResponseData<'/v1/resumes/{resumeId}', 'get'>
 export type VersionSummary = ResponseData<

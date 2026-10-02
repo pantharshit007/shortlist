@@ -4,6 +4,7 @@ import { Share2Icon } from 'lucide-react'
 import { z } from 'zod'
 import { BreakdownList } from '@/components/analytics/breakdown-list'
 import { Change } from '@/components/analytics/change'
+import { PremiumInsights } from '@/components/analytics/insights'
 import {
   countryLabel,
   deviceLabel,
@@ -297,6 +298,8 @@ function Report({ data }: { data: Analytics }) {
           </ol>
         )}
       </section>
+
+      <PremiumInsights days={data.days as Range} links={data.links} />
     </>
   )
 }
