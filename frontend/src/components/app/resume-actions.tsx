@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import {
   ArchiveIcon,
   ArchiveRestoreIcon,
+  CodeIcon,
   CopyIcon,
   DownloadIcon,
   LayoutTemplateIcon,
@@ -61,13 +62,14 @@ export function ResumeActions({ resume }: { resume: ResumeSummary }) {
     onError: (error) => toast.error(errorMessage(error)),
   })
 
+  // A LaTeX copy of a form resume is the template's code; the form original stays as it is.
   const duplicate = useMutation({
-    mutationFn: () =>
+    mutationFn: (mode: typeof resume.mode) =>
       unwrap(
         api.POST('/v1/resumes', {
           body: {
-            title: `${resume.title} (copy)`,
-            mode: resume.mode,
+            title: `${resume.title} (${mode === resume.mode ? 'copy' : 'LaTeX'})`,
+            mode,
             ...(resume.templateId && { templateId: resume.templateId }),
             source: { type: 'resume', resumeId: resume.id },
           },
@@ -133,10 +135,16 @@ export function ResumeActions({ resume }: { resume: ResumeSummary }) {
               <DownloadIcon />
               Download PDF
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => duplicate.mutate()}>
+            <DropdownMenuItem onSelect={() => duplicate.mutate(resume.mode)}>
               <CopyIcon />
               Make a copy
             </DropdownMenuItem>
+            {resume.mode === 'structured' && (
+              <DropdownMenuItem onSelect={() => duplicate.mutate('code')}>
+                <CodeIcon />
+                Copy as LaTeX
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onSelect={() => setSavingTemplate(true)}>
               <LayoutTemplateIcon />
               Save as template
