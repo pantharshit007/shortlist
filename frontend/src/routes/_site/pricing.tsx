@@ -111,6 +111,14 @@ const comparison: { label: string; values: [string, string, string] }[] = [
     values: ['Included', 'Included', 'Included'],
   },
   {
+    label: 'Opening times, link comparison and CSV export',
+    values: ['Not included', 'Included', 'Included'],
+  },
+  {
+    label: 'Contact details unlocked with a password',
+    values: ['Not included', 'Included', 'Included'],
+  },
+  {
     label: 'Price',
     values: ['Free', '₹499 once, for 6 months', '₹129 a month'],
   },
