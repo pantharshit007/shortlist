@@ -1,26 +1,24 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { DownloadIcon, LockIcon } from 'lucide-react'
-import { useState } from 'react'
 import { toast } from 'sonner'
-import { BreakdownList } from '@/components/analytics/breakdown-list'
 import {
   countryLabel,
   deviceLabel,
   referrerLabel,
 } from '@/components/analytics/labels'
-import { ViewsChart } from '@/components/analytics/views-chart'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { api, errorMessage, unwrap } from '@/lib/api/client'
 import { insightsQuery, meQuery } from '@/lib/api/queries'
 import type { Analytics, Insights } from '@/lib/api/types'
@@ -88,7 +86,7 @@ export function PremiumInsights({
         <div className="flex flex-col gap-1">
           <Heading>Detailed insights</Heading>
           <p className="text-sm text-muted-foreground">
-            When your links get opened, from where, and how each one is doing.
+            When your links get opened and how each one is doing.
           </p>
         </div>
         <ExportButton days={days} />
@@ -106,22 +104,7 @@ export function PremiumInsights({
       ) : (
         <>
           <OpeningTimes heatmap={insights.data.heatmap} />
-          <LinkActivity insights={insights.data} links={links} />
-          <BreakdownList
-            title="Cities"
-            rows={insights.data.places.map((place) => ({
-              label: [place.city, place.region, countryLabel(place.country)]
-                .filter((part) => part && part !== 'Unknown')
-                .join(', '),
-              views: place.views,
-            }))}
-            empty="No city data yet. It isn't available for every view."
-          />
-          <p className="-mt-4 text-xs text-muted-foreground">
-            Cities are approximate, as our hosting provider reports them from
-            the visitor's network. A VPN or office network can show a different
-            place.
-          </p>
+          <LinkComparison insights={insights.data} links={links} />
         </>
       )}
     </section>
@@ -231,58 +214,106 @@ function OpeningTimes({ heatmap }: { heatmap: Insights['heatmap'] }) {
   )
 }
 
-function LinkActivity({
+function LinkComparison({
   insights,
   links,
 }: {
   insights: Insights
   links: Analytics['links']
 }) {
-  const [selected, setSelected] = useState<string>()
-  const active =
-    insights.links.find((link) => link.id === selected) ?? insights.links.at(0)
   const title = (id: string) =>
     links.find((link) => link.id === id)?.resumeTitle ?? 'Deleted link'
+  // One scale for every row, so the bars compare across links.
+  const max = Math.max(
+    1,
+    ...insights.links.flatMap((link) => link.viewsByDay.map((d) => d.views)),
+  )
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-sans text-base font-semibold">Activity per link</h3>
-        {insights.links.length > 1 && (
-          <Select value={active?.id} onValueChange={setSelected}>
-            <SelectTrigger className="w-64 max-w-full" aria-label="Link">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {insights.links.map((link) => (
-                <SelectItem key={link.id} value={link.id}>
-                  {title(link.id)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+      <div className="flex flex-col gap-1">
+        <h3 className="font-sans text-base font-semibold">
+          Compare your links
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Opened again counts a visitor who opened the same link more than once
+          on the same day.
+        </p>
       </div>
-      {active ? (
-        <>
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">
-              {title(active.id)}
-            </span>
-            : {active.views.toLocaleString('en-IN')}{' '}
-            {active.views === 1 ? 'view' : 'views'}
-            {active.repeatOpens > 0 &&
-              `, ${active.repeatOpens} of them by someone opening it again the same day`}
-            .
-          </p>
-          <ViewsChart data={active.viewsByDay} />
-        </>
-      ) : (
+      {insights.links.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No views in this period.
         </p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Resume</TableHead>
+                <TableHead className="text-right">Views</TableHead>
+                <TableHead className="text-right">Opened again</TableHead>
+                <TableHead>Top source</TableHead>
+                <TableHead>Views per day</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {insights.links.map((link) => (
+                <TableRow key={link.id}>
+                  <TableCell className="max-w-56 truncate font-medium">
+                    {title(link.id)}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {link.views.toLocaleString('en-IN')}
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground tabular-nums">
+                    {link.repeatOpens.toLocaleString('en-IN')}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {referrerLabel(link.topSource)}
+                  </TableCell>
+                  <TableCell>
+                    <Sparkline data={link.viewsByDay} max={max} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </section>
+  )
+}
+
+function Sparkline({
+  data,
+  max,
+}: {
+  data: Insights['links'][number]['viewsByDay']
+  max: number
+}) {
+  const peak = Math.max(...data.map((d) => d.views))
+  const activeDays = data.filter((d) => d.views > 0).length
+  return (
+    <div
+      role="img"
+      aria-label={`Viewed on ${activeDays} of ${data.length} days, at most ${peak} in a day`}
+      className="flex h-6 w-32 items-end gap-px"
+    >
+      {data.map((d) => (
+        <span
+          key={d.day}
+          className={cn(
+            'flex-1 rounded-t-[1px]',
+            d.views ? 'bg-primary' : 'h-px bg-border',
+          )}
+          style={
+            d.views
+              ? { height: `${Math.max(15, (d.views / max) * 100)}%` }
+              : undefined
+          }
+        />
+      ))}
+    </div>
   )
 }
 
@@ -384,8 +415,7 @@ function LockedInsights() {
             </p>
             <ul className="list-disc pl-5 text-sm text-muted-foreground">
               <li>Busiest weekdays and hours</li>
-              <li>Day-by-day activity and repeat opens per link</li>
-              <li>Approximate cities</li>
+              <li>Your links side by side, with repeat opens and top source</li>
               <li>Download every view as a CSV</li>
             </ul>
             <Button asChild>

@@ -1255,17 +1255,12 @@ export interface paths {
                             data: {
                                 days: number;
                                 heatmap: number[][];
-                                places: {
-                                    city: string;
-                                    region: string | null;
-                                    country: string | null;
-                                    views: number;
-                                }[];
                                 links: {
                                     /** Format: uuid */
                                     id: string;
                                     views: number;
                                     repeatOpens: number;
+                                    topSource: string;
                                     viewsByDay: {
                                         day: string;
                                         views: number;
