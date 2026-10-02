@@ -1225,6 +1225,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/analytics/insights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Opening times, cities and per-link activity (Season Pass and Pro) */
+        get: {
+            parameters: {
+                query?: {
+                    days?: "7" | "30" | "90";
+                    timeZone?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                days: number;
+                                heatmap: number[][];
+                                places: {
+                                    city: string;
+                                    region: string | null;
+                                    country: string | null;
+                                    views: number;
+                                }[];
+                                links: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    views: number;
+                                    repeatOpens: number;
+                                    viewsByDay: {
+                                        day: string;
+                                        views: number;
+                                    }[];
+                                }[];
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/views": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every view in the range, for export (Season Pass and Pro) */
+        get: {
+            parameters: {
+                query?: {
+                    days?: "7" | "30" | "90";
+                    timeZone?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                viewedAt: string;
+                                resumeTitle: string;
+                                slug: string;
+                                referrer: string | null;
+                                country: string | null;
+                                region: string | null;
+                                city: string | null;
+                                device: string | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Error */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/custom-templates": {
         parameters: {
             query?: never;
