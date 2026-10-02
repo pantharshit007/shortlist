@@ -1,3 +1,6 @@
+import { eq } from "drizzle-orm";
+import { db } from "../../db/index.js";
+import { users } from "../../db/schema/index.js";
 import { generateStructured } from "../../lib/ai/generate.js";
 import { readUpload } from "../uploads/uploads.service.js";
 import { assertAiQuota } from "../usage/quotas.js";
@@ -102,5 +105,15 @@ export async function createDraft(userId: string, input: { role: string; notes: 
     prompt: `Target role: ${input.role}\n\nNotes:\n<notes>\n${input.notes}\n</notes>`,
   });
   track(userId, "resume_drafted", {});
-  return { content: normalizeExtraction(data), aiRunId: runId };
+  // Notes rarely include a name or email; the account has them, added here so they never reach the model.
+  const content = normalizeExtraction(data);
+  const [user] = await db
+    .select({ name: users.name, email: users.email, isAnonymous: users.isAnonymous })
+    .from(users)
+    .where(eq(users.id, userId));
+  if (user && !user.isAnonymous) {
+    content.basics.name ||= user.name;
+    content.basics.email ??= user.email;
+  }
+  return { content, aiRunId: runId };
 }
