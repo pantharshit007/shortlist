@@ -67,7 +67,6 @@ beforeEach(() => {
     where: () => ({
       returning: (columns: object) => {
         mocks.returning(columns);
-        // SQL array updates are covered against Postgres by ai-model-history.check.ts.
         Object.assign(saved!, Object.fromEntries(Object.entries(values).filter(([key]) => key !== "modelIds")));
         return Promise.resolve([
           Object.fromEntries(Object.keys(columns).map((key) => [key, saved![key as keyof typeof saved]])),
