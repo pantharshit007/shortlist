@@ -47,12 +47,14 @@ async function call<T>(
   path: string,
   headers: Record<string, string>,
   password?: string,
+  contactPassword?: string,
 ): Promise<Outcome<T>> {
   try {
     const response = await fetch(`${apiUrl}${path}`, {
       headers: {
         ...headers,
         ...(password && { 'x-share-password': password }),
+        ...(contactPassword && { 'x-share-contact-password': contactPassword }),
       },
     })
     const body = (await response.json()) as {
@@ -72,13 +74,19 @@ async function call<T>(
 
 export const fetchPublicResume = createServerFn({ method: 'POST' })
   .inputValidator(
-    (input: { username: string; slug: string; password?: string }) => input,
+    (input: {
+      username: string
+      slug: string
+      password?: string
+      contactPassword?: string
+    }) => input,
   )
   .handler(({ data }) =>
     call<PublicResume>(
       `/v1/public/users/${encodeURIComponent(data.username)}/resumes/${encodeURIComponent(data.slug)}`,
       visitorHeaders(),
       data.password,
+      data.contactPassword,
     ),
   )
 

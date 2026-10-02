@@ -73,9 +73,17 @@ function pdfPath(username: string, slug: string) {
   return `${apiUrl}/v1/public/users/${encodeURIComponent(username)}/resumes/${encodeURIComponent(slug)}/pdf`
 }
 
-async function fetchPdf(username: string, slug: string, password?: string) {
+async function fetchPdf(
+  username: string,
+  slug: string,
+  password?: string,
+  contactPassword?: string,
+) {
   const response = await fetch(pdfPath(username, slug), {
-    headers: password ? { 'x-share-password': password } : {},
+    headers: {
+      ...(password && { 'x-share-password': password }),
+      ...(contactPassword && { 'x-share-contact-password': contactPassword }),
+    },
   })
   if (!response.ok) throw new Error('Could not load the PDF')
   return response.blob()
@@ -180,12 +188,75 @@ function PasswordForm({
   )
 }
 
+function ContactUnlock({
+  onSubmit,
+}: {
+  onSubmit: (password: string) => Promise<boolean>
+}) {
+  const [open, setOpen] = useState(false)
+  const [password, setPassword] = useState('')
+  const [wrong, setWrong] = useState(false)
+  const [pending, setPending] = useState(false)
+  if (!open) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        className="self-start"
+        onClick={() => setOpen(true)}
+      >
+        <LockIcon data-icon="inline-start" />
+        Enter password to see contact details
+      </Button>
+    )
+  }
+  return (
+    <form
+      className="flex flex-col gap-2 px-1"
+      onSubmit={async (event) => {
+        event.preventDefault()
+        setPending(true)
+        try {
+          setWrong(!(await onSubmit(password)))
+        } catch {
+          toast.error('Could not check the password. Try again.')
+        } finally {
+          setPending(false)
+        }
+      }}
+    >
+      <Field data-invalid={wrong}>
+        <FieldLabel htmlFor="contact-password">
+          Password for contact details
+        </FieldLabel>
+        <div className="flex max-w-sm gap-2">
+          <Input
+            id="contact-password"
+            type="password"
+            autoComplete="current-password"
+            autoFocus
+            aria-invalid={wrong}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          <Button type="submit" disabled={!password || pending}>
+            {pending && <Spinner data-icon="inline-start" />}
+            Unlock
+          </Button>
+        </div>
+        {wrong && <FieldError>That password isn't right.</FieldError>}
+      </Field>
+    </form>
+  )
+}
+
 function SharePage() {
   const initial = Route.useLoaderData()
   const { username, slug } = Route.useParams()
   const unlock = useServerFn(fetchPublicResume)
   const [outcome, setOutcome] = useState(initial)
   const [password, setPassword] = useState<string>()
+  const [contactPassword, setContactPassword] = useState<string>()
   const [downloading, setDownloading] = useState(false)
 
   if (outcome.status === 'password' || outcome.status === 'wrong_password') {
@@ -234,7 +305,12 @@ function SharePage() {
   async function download() {
     setDownloading(true)
     try {
-      const blob = await fetchPdf(resume.username, resume.slug, password)
+      const blob = await fetchPdf(
+        resume.username,
+        resume.slug,
+        password,
+        contactPassword,
+      )
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -262,7 +338,21 @@ function SharePage() {
       }
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-3 px-3 py-6 sm:px-6 sm:py-10">
+        {resume.contactLocked && resume.content && (
+          <ContactUnlock
+            onSubmit={async (value) => {
+              const next = await unlock({
+                data: { username, slug, password, contactPassword: value },
+              })
+              if (next.status !== 'ok' || next.data.contactMasked) return false
+              setContactPassword(value)
+              setOutcome(next)
+              return true
+            }}
+          />
+        )}
         {resume.contactMasked &&
+          !resume.contactLocked &&
           resume.content &&
           (resume.content.basics.email || resume.content.basics.phone) ===
             undefined && (
