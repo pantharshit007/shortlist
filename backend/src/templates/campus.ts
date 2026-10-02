@@ -13,6 +13,8 @@ const preamble = String.raw`\documentclass[a4paper,10pt]{article}
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage[hidelinks]{hyperref}
+\usepackage{fontawesome5}
+\usepackage{accsupp}
 \usepackage{fontspec}
 \setmainfont{NotoSerif}[Extension=.ttf, UprightFont=*-Regular, BoldFont=*-Bold, ItalicFont=*-Italic, BoldItalicFont=*-BoldItalic]
 

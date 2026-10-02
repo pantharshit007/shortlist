@@ -26,6 +26,8 @@ export function renderFinance(input: ResumeContent, layout?: ResumeLayout) {
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
+\usepackage{fontawesome5}
+\usepackage{accsupp}
 \usepackage{fontspec}
 \setmainfont{texgyrepagella}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
 ${rupeeFallback}

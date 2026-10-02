@@ -14,6 +14,8 @@ export function renderModern(input: ResumeContent, layout?: ResumeLayout) {
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
+\usepackage{fontawesome5}
+\usepackage{accsupp}
 \usepackage{tabularx}
 \usepackage{fontspec}
 \setmainfont{texgyreheros}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]

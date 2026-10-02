@@ -11,6 +11,8 @@ const preamble = String.raw`\documentclass[a4paper,10pt]{article}
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
+\usepackage{fontawesome5}
+\usepackage{accsupp}
 \usepackage{fontspec}
 ${bundleFont("IBMPlexSans")}
 \newfontface\headingfont{IBMPlexSans-SemiBold.otf}[LetterSpace=6]

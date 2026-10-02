@@ -15,6 +15,8 @@ export function renderMarketing(input: ResumeContent, layout?: ResumeLayout) {
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
+\usepackage{fontawesome5}
+\usepackage{accsupp}
 \usepackage{fontspec}
 \setmainfont{Lato}[Extension=.ttf, UprightFont=*-Regular, BoldFont=*-Bold, ItalicFont=*-Italic, BoldItalicFont=*-BoldItalic]
 

@@ -78,20 +78,20 @@ describe("templates hide content", () => {
 // sha256 of each template's sample render before layouts existed. The default layout must not change a byte;
 // if the sample or a template changes on purpose, update the hash.
 const beforeLayouts: Record<string, string> = {
-  developer: "52e889322951601162f7ffde2d160a31e21ae565ff625798849fbbace99d5ba4",
-  jake: "6ebbea68b8ea5d33f3ad1aaf6ecf65659705bf888d5b9a410fcc9ffbee09334a",
-  modern: "0aad9170b5b335eee10bfe4a7eb3b27937b908acd4c55c2f1cc10a3987517882",
-  sb2nov: "95ca4558891322201168ca545b126e7cf166b9eb669c80b93bc56c8cb73c354c",
-  "ml-research": "15e8de1504135ab5ab3e3f3af0087df918325503421d3d26e3109535e26ba0a8",
-  "data-analyst": "304ee7b0da9f6598cc64238b938f89e6037dabb4af8d25c2191d2dca7ffc560c",
-  "product-manager": "03cc2aaf989aa24a0592ba0e0e66d7b1d40d3a51afdd16c9205da092aa97a260",
+  developer: "0fc52d4d70fdb652f3cb1fb91e69e0e32c2f051a34bd26bdcc3460da6678b689",
+  jake: "848e14028696399f74e06f29953b00b1914b24965644071de57ca52161b78736",
+  modern: "9bc7ee57f6a60a8bc7cca944f87d7d6a0822332efee7d376c69cc5147a5eacb8",
+  sb2nov: "73aecf19979e2d095c4ebe42926e1b6187ea369ac76df6cd87161cb4b678f809",
+  "ml-research": "f6f76c0fac80d4cf52eb7e606f2570609976f37a1024a93c7aa74e1734b72a7c",
+  "data-analyst": "3996ab2e00140599e42fac80df52c8be6a8aed2a6dcb2336d6dc86a3f189c576",
+  "product-manager": "44df207ce4e739632ec4951045e2dd79209d8c3b3328037e337468af7b17097c",
   designer: "6bf8363624239681f0aa5112c7df477e73e00dd4438672f405d03aa0d220b54d",
-  campus: "1b9b25e9af2bedbc58d8e3fda9f3463c2e977ef471e311026b220f6052183100",
-  banking: "a71db1facb14964efc97386bd4ccd82137f9160150b7cd647131f4d28c0e50ed",
-  finance: "c732276ceb2c98c4123749a5066b92c9a223211c7941c559fb2a7edc1b112918",
-  consulting: "170df2717e52801f301661f61849bb033f7ab07d11d963ea66cc3b039b3287a0",
-  marketing: "11b95d628d50e1ab21785447d9d3ad5b5b073f473f70fcce6238e545519a873c",
-  executive: "ca80c387c1b71677c4c59bca96e31e223199071efbca45158853df4deba796f7",
+  campus: "e33a623ba1ddd53c298ffb3429abc38763702518b2365c0a06e6624620e9ea67",
+  banking: "d2129a2b48d7b013ebc12096fc6b5cbfe7186a0e793eace52d4baa3f0e2ceac6",
+  finance: "c28d86dc8ca4b7dd9beb89b52ddc09a9661660f57e017a1a7ece960866338174",
+  consulting: "82a1c70442a1dd4e92774596ea392119f4d3737ae781d79fa0cc75dafe8a52eb",
+  marketing: "e461e4044aff9b8c45090acc7867c3c7434bfa07e564b51006086d7b057e9f09",
+  executive: "9fe2babff113530db377c8cbd64163e90d01a133752df0c800b2f934153a100e",
 };
 
 describe("default layout", () => {

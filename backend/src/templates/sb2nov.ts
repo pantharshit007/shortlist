@@ -16,6 +16,8 @@ export function renderSb2nov(input: ResumeContent, layout?: ResumeLayout) {
 \usepackage[usenames,dvipsnames]{color}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
+\usepackage{fontawesome5}
+\usepackage{accsupp}
 \usepackage{tabularx}
 
 \pagestyle{empty}

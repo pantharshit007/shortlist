@@ -22,6 +22,8 @@ export function renderConsulting(input: ResumeContent, layout?: ResumeLayout) {
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
+\usepackage{fontawesome5}
+\usepackage{accsupp}
 \usepackage{fontspec}
 \setmainfont{SourceSansPro}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Semibold, ItalicFont=*-RegularIt, BoldItalicFont=*-SemiboldIt]
 

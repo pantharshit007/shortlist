@@ -66,11 +66,37 @@ export function visibleContent(content: ResumeContent): ResumeContent {
   };
 }
 
+// fontawesome5 has no X logo yet, so x.com links keep the bird.
+const linkIcons: [RegExp, string][] = [
+  [/linkedin/, "\\faLinkedin"],
+  [/github/, "\\faGithub"],
+  [/gitlab/, "\\faGitlab"],
+  [/twitter|x\.com/, "\\faTwitter"],
+  [/kaggle/, "\\faKaggle"],
+  [/medium\.com/, "\\faMedium"],
+  [/behance/, "\\faBehance"],
+  [/dribbble/, "\\faDribbble"],
+  [/stackoverflow/, "\\faStackOverflow"],
+  [/youtube/, "\\faYoutube"],
+  [/instagram/, "\\faInstagram"],
+  [/leetcode|codeforces|codechef|hackerrank|geeksforgeeks/, "\\faCode"],
+];
+
+// Empty ActualText keeps the icon glyphs out of copied text and what an ATS reads.
+const icon = (name: string) => `\\BeginAccSupp{ActualText={}}\\raisebox{-0.1\\height}{${name}}\\EndAccSupp{}\\,`;
+const iconLink = (url: string, name: string, label: string) =>
+  `\\href{${texUrl(url)}}{${icon(name)}\\underline{${tex(label)}}}`;
+
+// Contact details with an icon each; email and links are underlined and clickable. Templates load fontawesome5
+// and accsupp.
 export function contactParts(basics: ResumeContent["basics"]) {
   return [
-    basics.phone ? tex(basics.phone) : undefined,
-    basics.email ? `\\href{mailto:${texUrl(basics.email)}}{${tex(basics.email)}}` : undefined,
-    basics.location ? tex(basics.location) : undefined,
-    ...basics.links.map((link) => `\\href{${texUrl(link.url)}}{${tex(link.label)}}`),
+    basics.phone ? `${icon("\\faPhone")}${tex(basics.phone)}` : undefined,
+    basics.email ? iconLink(`mailto:${basics.email}`, "\\faEnvelope", basics.email) : undefined,
+    basics.location ? `${icon("\\faMapMarker")}${tex(basics.location)}` : undefined,
+    ...basics.links.map((link) => {
+      const target = `${link.label} ${link.url}`.toLowerCase();
+      return iconLink(link.url, linkIcons.find(([pattern]) => pattern.test(target))?.[1] ?? "\\faGlobe", link.label);
+    }),
   ].filter((part): part is string => Boolean(part));
 }

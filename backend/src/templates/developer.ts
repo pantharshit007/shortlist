@@ -1,5 +1,5 @@
 import type { ResumeContent, ResumeSection } from "../schemas/resume-content.js";
-import { dateRange, tex, texRich, texUrl, visibleContent } from "./latex.js";
+import { contactParts, dateRange, tex, texRich, texUrl, visibleContent } from "./latex.js";
 import { applyLayout, nameGap, type ResumeLayout } from "./layout.js";
 
 // The Jake's Resume variant popular with Indian developers: small-caps name, icon header,
@@ -17,6 +17,7 @@ const preamble = String.raw`\documentclass[letterpaper,10pt]{article}
 \usepackage[english]{babel}
 \usepackage{tabularx}
 \usepackage{fontawesome5}
+\usepackage{accsupp}
 
 \addtolength{\oddsidemargin}{-0.7in}
 \addtolength{\evensidemargin}{-0.7in}
@@ -57,25 +58,8 @@ const preamble = String.raw`\documentclass[letterpaper,10pt]{article}
 \newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
 `;
 
-function iconFor(label: string, url: string) {
-  const value = `${label} ${url}`.toLowerCase();
-  if (value.includes("linkedin")) return "\\faLinkedin";
-  if (value.includes("github")) return "\\faGithub";
-  if (value.includes("leetcode") || value.includes("codeforces") || value.includes("codechef")) return "\\faCode";
-  return "\\faGlobe";
-}
-
-const iconLink = (url: string, icon: string, label: string) =>
-  `\\href{${texUrl(url)}}{\\raisebox{-0.2\\height}${icon}\\ \\underline{${tex(label)}}}`;
-
 function header(basics: ResumeContent["basics"]) {
-  const parts = [
-    basics.phone ? `\\raisebox{-0.2\\height}\\faPhone*\\ ${tex(basics.phone)}` : undefined,
-    basics.email ? iconLink(`mailto:${basics.email}`, "\\faEnvelope", basics.email) : undefined,
-    basics.location ? `\\raisebox{-0.2\\height}\\faMapMarker*\\ ${tex(basics.location)}` : undefined,
-    ...basics.links.map((link) => iconLink(link.url, iconFor(link.label, link.url), link.label)),
-  ].filter(Boolean);
-  return parts.join(" ~\n  ");
+  return contactParts(basics).join(" ~\n  ");
 }
 
 function bullets(items: { text: string }[]) {
