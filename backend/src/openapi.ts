@@ -132,7 +132,10 @@ function op(input: OperationInput): ZodOpenApiOperationObject {
   };
 }
 
-const sharePassword = z.object({ "x-share-password": z.string().optional() });
+const sharePassword = z.object({
+  "x-share-password": z.string().optional(),
+  "x-share-contact-password": z.string().optional(),
+});
 
 const paths: ZodOpenApiPathsObject = {
   "/v1/me": {

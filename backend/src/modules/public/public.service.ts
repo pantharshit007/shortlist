@@ -7,6 +7,7 @@ import { AppError, NotFoundError } from "../../lib/errors.js";
 import { verifyPassword } from "../../lib/passwords.js";
 import type { ResumeContent } from "../../schemas/resume-content.js";
 import { getVersion } from "../resumes/resumes.service.js";
+import type { Plan } from "../usage/quotas.js";
 
 export type Viewer = {
   userId?: string | undefined;
@@ -26,7 +27,7 @@ const place = (value: string | undefined) =>
     .slice(0, 80) || null;
 
 async function resolveUser(username: string) {
-  const columns = { id: users.id, username: users.username, name: users.name, image: users.image };
+  const columns = { id: users.id, username: users.username, name: users.name, image: users.image, plan: users.plan };
   const [user] = await db.select(columns).from(users).where(eq(users.username, username)).limit(1);
   if (user) return user;
   const [redirected] = await db
@@ -68,7 +69,23 @@ export function maskContact(content: ResumeContent): ResumeContent {
   return { ...content, basics };
 }
 
-async function resolveLink(username: string, slug: string, password: string | undefined) {
+// A contact password only works while the owner is on a paid plan; after a downgrade those contacts stay hidden.
+export async function contactAccess(
+  link: { showContact: boolean; contactPasswordHash: string | null },
+  ownerPlan: Plan,
+  contactPassword: string | undefined,
+) {
+  if (link.showContact) return "shown";
+  if (!link.contactPasswordHash || ownerPlan === "free") return "hidden";
+  return contactPassword && (await verifyPassword(contactPassword, link.contactPasswordHash)) ? "shown" : "locked";
+}
+
+async function resolveLink(
+  username: string,
+  slug: string,
+  password: string | undefined,
+  contactPassword: string | undefined,
+) {
   const user = await resolveUser(username);
   const [row] = await db
     .select({ link: shareLinks, resume: resumes })
@@ -94,8 +111,9 @@ async function resolveLink(username: string, slug: string, password: string | un
   const versionId = row.link.pinnedVersionId ?? row.resume.headVersionId;
   if (!versionId) throw new NotFoundError("Resume");
   const version = await getVersion(user.id, row.resume.id, versionId);
-  const content = version.content && !row.link.showContact ? maskContact(version.content) : version.content;
-  return { user, link: row.link, resume: row.resume, version: { ...version, content } };
+  const contact = await contactAccess(row.link, user.plan, contactPassword);
+  const content = version.content && contact !== "shown" ? maskContact(version.content) : version.content;
+  return { user, link: row.link, resume: row.resume, version: { ...version, content }, contact };
 }
 
 const botPattern = /bot|crawler|spider|preview|facebookexternalhit|slurp|headless/i;
@@ -130,9 +148,16 @@ async function recordView(link: typeof shareLinks.$inferSelect, viewer: Viewer) 
     .where(eq(shareLinks.id, link.id));
 }
 
-export async function getPublicResume(username: string, slug: string, password: string | undefined, viewer: Viewer) {
-  const { user, link, resume, version } = await resolveLink(username, slug, password);
-  await recordView(link, viewer);
+export async function getPublicResume(
+  username: string,
+  slug: string,
+  password: string | undefined,
+  contactPassword: string | undefined,
+  viewer: Viewer,
+) {
+  const { user, link, resume, version, contact } = await resolveLink(username, slug, password, contactPassword);
+  // Unlocking contacts reloads a page that was already counted.
+  if (contactPassword === undefined) await recordView(link, viewer);
   return {
     data: {
       username: user.username,
@@ -141,14 +166,20 @@ export async function getPublicResume(username: string, slug: string, password: 
       mode: resume.mode,
       templateId: resume.templateId,
       content: version.content,
-      contactMasked: !link.showContact,
+      contactMasked: contact !== "shown",
+      contactLocked: contact === "locked",
       updatedAt: resume.updatedAt,
     },
     isListed: link.isListed,
   };
 }
 
-export async function getPublicResumeForPdf(username: string, slug: string, password: string | undefined) {
-  const { resume, version, link } = await resolveLink(username, slug, password);
+export async function getPublicResumeForPdf(
+  username: string,
+  slug: string,
+  password: string | undefined,
+  contactPassword: string | undefined,
+) {
+  const { resume, version, link } = await resolveLink(username, slug, password, contactPassword);
   return { resume, version, isListed: link.isListed };
 }

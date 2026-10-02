@@ -5507,6 +5507,7 @@ export interface paths {
                 query?: never;
                 header?: {
                     "x-share-password"?: string;
+                    "x-share-contact-password"?: string;
                 };
                 path: {
                     username: string;
@@ -5692,6 +5693,7 @@ export interface paths {
                                     })[];
                                 } | null;
                                 contactMasked: boolean;
+                                contactLocked: boolean;
                                 updatedAt: string;
                             };
                         };
@@ -5729,6 +5731,7 @@ export interface paths {
                 query?: never;
                 header?: {
                     "x-share-password"?: string;
+                    "x-share-contact-password"?: string;
                 };
                 path: {
                     username: string;

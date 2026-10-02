@@ -21,5 +21,7 @@ export const publicResumeResponse = z.object({
   // Null for code-mode resumes, which are only available as PDF.
   content: resumeContentSchema.nullable(),
   contactMasked: z.boolean(),
+  // Contacts are hidden but a visitor with the contact password can reveal them.
+  contactLocked: z.boolean(),
   updatedAt: z.date(),
 });

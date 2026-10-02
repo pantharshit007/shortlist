@@ -49,6 +49,7 @@ publicRouter.get(
       username,
       slug,
       req.get("x-share-password"),
+      req.get("x-share-contact-password"),
       viewerFrom(req),
     );
     if (!isListed) res.set("X-Robots-Tag", "noindex, nofollow");
@@ -64,6 +65,7 @@ publicRouter.get(
       username,
       slug,
       req.get("x-share-password"),
+      req.get("x-share-contact-password"),
     );
     const { pdf, pageCount } = await compileOrThrow(texForVersion(resume, version));
     if (!isListed) res.set("X-Robots-Tag", "noindex, nofollow");
