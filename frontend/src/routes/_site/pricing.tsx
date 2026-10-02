@@ -33,6 +33,7 @@ const plans = [
     features: [
       'Unlimited resumes you write yourself',
       '3 resumes tailored with AI each month',
+      'Free imports from PDF, .tex or text files (fair use)',
       'Every template, in the form or LaTeX editor',
       'PDF downloads and share links',
     ],
@@ -51,7 +52,6 @@ const plans = [
       '40 resumes tailored with AI each month, instead of 3',
       'Unlimited AI rewrites and quick changes (fair use)',
       'Unlimited one-click LaTeX error fixes (fair use)',
-      '50 imports a month from PDF, .tex or text files',
       '6 months of access for a single payment',
       'Never renews or charges you again on its own',
       'Your resumes and links stay when the pass ends',
@@ -70,7 +70,6 @@ const plans = [
       '40 resumes tailored with AI each month, instead of 3',
       'Unlimited AI rewrites and quick changes (fair use)',
       'Unlimited one-click LaTeX error fixes (fair use)',
-      '50 imports a month from PDF, .tex or text files',
       'Billed monthly, cancel anytime from Settings',
       'Keep Pro until the end of the month you paid for',
       'Your resumes and links stay if you cancel',
@@ -88,8 +87,8 @@ const comparison: { label: string; values: [string, string, string] }[] = [
     values: ['3 a month', '40 a month', '40 a month'],
   },
   {
-    label: 'Imports from PDF, .tex or text (uses AI)',
-    values: ['3 a month', '50 a month', '50 a month'],
+    label: 'Imports from PDF, .tex or text',
+    values: ['Free (fair use)', 'Free (fair use)', 'Free (fair use)'],
   },
   {
     label: 'AI rewrites, quick changes and LaTeX fixes',
@@ -121,6 +120,10 @@ const faqs = [
   {
     q: 'What counts as a resume tailored with AI?',
     a: 'Each time you ask the AI to tailor a resume to a job description, it counts as one. Writing and editing by hand, downloading and sharing never count.',
+  },
+  {
+    q: 'Does importing my old resume cost anything?',
+    a: 'No. Importing a PDF, .tex or text file is free on every plan, including Free, within fair use.',
   },
   {
     q: 'What happens when the Season Pass ends?',
