@@ -57,7 +57,10 @@ export function visibleContent(content: ResumeContent): ResumeContent {
     sections: content.sections
       .filter((section) => !section.hidden)
       .map((section) => {
-        if (section.type === "skills" || section.type === "links" || section.type === "summary") return section;
+        // Templates print "Group: items", so a name typed as "Frontend:" would show two colons.
+        if (section.type === "skills")
+          return { ...section, groups: section.groups.map((g) => ({ ...g, name: g.name.replace(/\s*:+$/, "") })) };
+        if (section.type === "links" || section.type === "summary") return section;
         const entries = section.entries
           .filter((entry) => !entry.hidden)
           .map((entry) => ({ ...entry, bullets: entry.bullets.filter((bullet) => !bullet.hidden) }));
@@ -65,6 +68,11 @@ export function visibleContent(content: ResumeContent): ResumeContent {
       }),
   };
 }
+
+// A project heading is one unwrapped line; past this many characters it runs off the page,
+// so the tech list moves to its own line under the heading.
+// ponytail: counts characters, not rendered width; a font-aware measure would be exact.
+export const fitsOneLine = (parts: (string | undefined)[]) => parts.filter(Boolean).join(" | ").length <= 75;
 
 type ListEntry = Extract<ResumeContent["sections"][number], { type: "list" }>["entries"][number];
 

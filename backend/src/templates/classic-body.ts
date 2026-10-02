@@ -1,14 +1,16 @@
 import type { ResumeSection } from "../schemas/resume-content.js";
-import { compactList, dateRange, joinNonEmpty, tex, texRich, texUrl } from "./latex.js";
+import { compactList, dateRange, fitsOneLine, joinNonEmpty, tex, texRich, texUrl } from "./latex.js";
 
 // Section bodies shared by the templates. Each template defines these macros in its preamble:
 // \resumeSubheading{title}{right}{subtitle}{right-sub}, \resumeProjectHeading{left}{right},
 // \resumeItem{text}, \resumeSubHeadingListStart/End, \resumeItemListStart/End.
 
-function bullets(items: { text: string }[]) {
-  if (items.length === 0) return "";
+// `lead` lines go first without a bullet, like a project's tech list.
+function bullets(items: { text: string }[], lead: string[] = []) {
+  if (items.length === 0 && lead.length === 0) return "";
   return [
     "\\resumeItemListStart",
+    ...lead.map((line) => `  \\item[] \\small{\\emph{${tex(line)}}}`),
     ...items.map((item) => `  \\resumeItem{${texRich(item.text)}}`),
     "\\resumeItemListEnd",
   ].join("\n");
@@ -40,13 +42,15 @@ function renderSectionBody(section: ResumeSection): string {
       return section.entries
         .map((e) => {
           const name = e.url ? `\\href{${texUrl(e.url)}}{\\textbf{${tex(e.name)}}}` : `\\textbf{${tex(e.name)}}`;
-          const tech = e.technologies.length ? ` $|$ \\emph{${tex(e.technologies.join(", "))}}` : "";
+          const techs = e.technologies.join(", ");
+          const inline = fitsOneLine([e.name, techs, ...e.links.map((l) => l.label)]);
+          const tech = techs && inline ? ` $|$ \\emph{${tex(techs)}}` : "";
           const links = e.links
             .map((link) => ` $|$ \\href{${texUrl(link.url)}}{\\underline{${tex(link.label)}}}`)
             .join("");
           return [
             `\\resumeProjectHeading{${name}${tech}${links}}{${dateRange(e.start, e.end)}}`,
-            bullets(e.bullets),
+            bullets(e.bullets, techs && !inline ? [techs] : []),
           ].join("\n");
         })
         .join("\n");

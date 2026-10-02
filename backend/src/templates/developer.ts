@@ -1,5 +1,5 @@
 import type { ResumeContent, ResumeSection } from "../schemas/resume-content.js";
-import { compactList, contactParts, dateRange, tex, texRich, texUrl, visibleContent } from "./latex.js";
+import { compactList, contactParts, dateRange, fitsOneLine, tex, texRich, texUrl, visibleContent } from "./latex.js";
 import { applyLayout, nameGap, type ResumeLayout } from "./layout.js";
 
 // The Jake's Resume variant popular with Indian developers: small-caps name, icon header,
@@ -62,10 +62,12 @@ function header(basics: ResumeContent["basics"]) {
   return contactParts(basics).join(" ~\n  ");
 }
 
-function bullets(items: { text: string }[]) {
-  if (items.length === 0) return "";
+// `lead` lines go first without a bullet, like a project's tech list.
+function bullets(items: { text: string }[], lead: string[] = []) {
+  if (items.length === 0 && lead.length === 0) return "";
   return [
     "\\resumeItemListStart",
+    ...lead.map((line) => `  \\item[] \\small{\\emph{${tex(line)}}}`),
     ...items.map((item) => `  \\resumeItem{${texRich(item.text)}}`),
     "\\resumeItemListEnd",
   ].join("\n");
@@ -133,13 +135,14 @@ function renderSection(s: ResumeSection): string {
       if (s.entries.length === 0) return "";
       const entries = s.entries.map((e) => {
         const title = e.url ? `\\href{${texUrl(e.url)}}{\\textbf{${tex(e.name)}}}` : `\\textbf{${tex(e.name)}}`;
-        const tech = e.technologies.length
-          ? ` $|$ \\emph{${e.technologies.map((t) => `\\textbf{${tex(t)}}`).join(", ")}}`
-          : "";
+        const techs = e.technologies.join(", ");
+        const inline = fitsOneLine([e.name, techs, ...e.links.map((l) => l.label)]);
+        const tech =
+          techs && inline ? ` $|$ \\emph{${e.technologies.map((t) => `\\textbf{${tex(t)}}`).join(", ")}}` : "";
         const links = e.links.map((l) => ` $|$ ${link(l.url, l.label)}`).join("");
         return [
           `\\resumeProjectHeading\n  {${title}${tech}${links}}{${dateRange(e.start, e.end)}}\n\\vspace{-10pt}`,
-          bullets(e.bullets),
+          bullets(e.bullets, techs && !inline ? [techs] : []),
         ].join("\n");
       });
       return section(
