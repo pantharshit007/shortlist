@@ -106,6 +106,11 @@ function SwitchField({
 
 type ContactMode = 'shown' | 'hidden' | 'password'
 
+const listedHint = (listed: boolean) =>
+  listed
+    ? 'Anyone visiting your profile page can find and open it.'
+    : 'Only people you send this link to can open it. It does not show on your profile page.'
+
 function ContactField({
   id,
   resumeId,
@@ -411,8 +416,8 @@ function LinkCard({
         )}
         <SwitchField
           id={`${link.id}-listed`}
-          label="List on my public profile"
-          description="Anyone visiting your profile page can find it."
+          label={`List on my public profile (${link.isListed ? 'listed' : 'unlisted'})`}
+          description={listedHint(link.isListed)}
           checked={link.isListed}
           onChange={(isListed) => update.mutate({ isListed })}
         />
@@ -594,8 +599,8 @@ function CreateLinkForm({
         )}
         <SwitchField
           id="new-listed"
-          label="List on my public profile"
-          description="Off keeps it unlisted."
+          label={`List on my public profile (${isListed ? 'listed' : 'unlisted'})`}
+          description={listedHint(isListed)}
           checked={isListed}
           onChange={setIsListed}
         />
