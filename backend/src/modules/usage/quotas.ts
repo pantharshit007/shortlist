@@ -10,9 +10,9 @@ export type QuotaKind = "tailor" | "edit" | "import";
 // Monthly AI limits per plan; resumes are unlimited on every plan (1000 = unlimited). Paid limits are fair-use caps.
 // Imports are free on every plan; the cap only stops abuse.
 export const planLimits: Record<Plan, Record<QuotaKind | "resumes", number>> = {
-  free: { resumes: 1000, tailor: 3, edit: 50, import: 20 },
+  free: { resumes: 1000, tailor: 1, edit: 50, import: 20 },
   season_pass: { resumes: 1000, tailor: 40, edit: 1000, import: 20 },
-  pro: { resumes: 1000, tailor: 40, edit: 1000, import: 20 },
+  pro: { resumes: 1000, tailor: 60, edit: 1000, import: 20 },
 };
 
 const stepsFor: Record<QuotaKind, (typeof aiRuns.$inferSelect)["step"][]> = {
