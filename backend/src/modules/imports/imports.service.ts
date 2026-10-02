@@ -2,7 +2,7 @@ import { generateStructured } from "../../lib/ai/generate.js";
 import { readUpload } from "../uploads/uploads.service.js";
 import { assertAiQuota } from "../usage/quotas.js";
 import { extractionSchema, normalizeExtraction } from "./extraction.js";
-import { pdfLinks } from "./pdf-links.js";
+import { pdfHints } from "./pdf-hints.js";
 import { track } from "../../lib/analytics.js";
 
 const system = `You extract resumes into structured JSON.
@@ -16,6 +16,10 @@ Rules:
   links such as LeetCode or Codeforces), list (achievements, certifications, positions of responsibility,
   anything else).
 - The headline is only a short title under the name. A paragraph about the person is a summary section.
+- Publications, talks, awards and certifications are list sections, not projects.
+- A single date (a graduation year, Class X or XII) is the end date; leave start null.
+- Never split one item at a comma ("Winner, Smart India Hackathon" stays one title). Words that only name a link
+  ("Verify", "Live", "Code", "PDF") are not content.
 - In list sections, every item is its own entry. For an item written as "Name - description" (or with a colon or
   long dash), put the name in title and the description in subtitle; otherwise the whole item is the title.
 - Link labels are short names like "LinkedIn", "GitHub" or "Portfolio", never the URL itself.
@@ -36,9 +40,12 @@ export async function createImport(
     const { upload, body } = await readUpload(userId, input.uploadId);
     if (upload.kind === "pdf") {
       files.push({ data: body, mediaType: "application/pdf", filename: upload.fileName });
-      const links = await pdfLinks(new Uint8Array(body));
+      const { links, bold } = await pdfHints(new Uint8Array(body));
       if (links.length) {
-        prompt += `\n\nThese links are hidden behind text in the PDF. Each shows the words it sits on (or its line, for an icon), then where it points. Put each URL in the url or links field of the item it belongs to, or in basics.links for profile links:\n${links.map((l) => `- "${l.text}" -> ${l.url}`).join("\n")}`;
+        prompt += `\n\nThese links are hidden behind text in the PDF. Each shows the words it sits on (or its line, for an icon), then where it points. Put each URL in the url or links field of the item it belongs to, a mailto: address in basics.email, a tel: number in basics.phone, and profile links in basics.links:\n${links.map((l) => `- "${l.text}" -> ${l.url}`).join("\n")}`;
+      }
+      if (bold.length) {
+        prompt += `\n\nThese phrases are bold in the PDF. Wherever one appears inside a bullet, summary or list item, wrap it in **double asterisks**:\n${bold.map((b) => `- ${b}`).join("\n")}`;
       }
     } else {
       const label = upload.kind === "tex" ? texLabel : "text";

@@ -1,35 +1,72 @@
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 
-type Run = { str: string; x: number; y: number };
+type Run = { str: string; x: number; y: number; width: number; bold: boolean };
 
-// PDF links usually sit behind words like "GitHub" or an icon, so the URL never shows in the text the model reads.
-// Returns each web link with the words under it, or the whole line for an icon with no words.
-export async function pdfLinks(pdf: Uint8Array, maxPages = 4) {
+const boldFont = /bold|black|heavy|semibold|demi/i;
+
+// What the model can't see in a PDF's text: links hidden behind words or icons, and which words are bold.
+// Each link comes with the words under it, or its whole line when it sits on an icon.
+export async function pdfHints(pdf: Uint8Array, maxPages = 4) {
   const task = getDocument({ data: pdf.slice(), useSystemFonts: false, verbosity: 0 });
+  const links: { text: string; url: string }[] = [];
+  const bold = new Set<string>();
   try {
     const doc = await task.promise;
-    const links: { text: string; url: string }[] = [];
     for (let number = 1; number <= Math.min(doc.numPages, maxPages); number++) {
       const page = await doc.getPage(number);
-      const runs: Run[] = (await page.getTextContent()).items.flatMap((item) =>
-        "str" in item && item.str.trim() ? [{ str: item.str, x: item.transform[4], y: item.transform[5] }] : [],
-      );
+      await page.getOperatorList();
+      const fonts = new Map<string, boolean>();
+      const runs: Run[] = (await page.getTextContent()).items.flatMap((item) => {
+        if (!("str" in item) || !item.str.trim()) return [];
+        if (!fonts.has(item.fontName)) {
+          let name = "";
+          try {
+            name = (page.commonObjs.get(item.fontName) as { name?: string }).name ?? "";
+          } catch {
+            // A font pdf.js never loaded has no name; it just isn't bold.
+          }
+          fonts.set(item.fontName, boldFont.test(name));
+        }
+        const [, , , , x, y] = item.transform as number[];
+        return [{ str: item.str, x: x!, y: y!, width: item.width, bold: fonts.get(item.fontName)! }];
+      });
+
+      // Bold runs on the same line join into one phrase.
+      let phrase: Run[] = [];
+      const flush = () => {
+        const text = phrase
+          .map((run) => run.str.trim())
+          .join(" ")
+          .trim();
+        if (text.length > 1 && text.length <= 80) bold.add(text);
+        phrase = [];
+      };
+      for (const run of runs) {
+        if (run.bold && (!phrase.length || Math.abs(phrase.at(-1)!.y - run.y) < 2)) phrase.push(run);
+        else {
+          flush();
+          if (run.bold) phrase.push(run);
+        }
+      }
+      flush();
+
       for (const annotation of await page.getAnnotations()) {
         const url = annotation.subtype === "Link" ? (annotation.url as string | undefined) : undefined;
-        if (!url || !/^https?:\/\//i.test(url)) continue;
+        if (!url || !/^(https?:\/\/|mailto:|tel:)/i.test(url)) continue;
         const [x1, y1, x2, y2] = annotation.rect as [number, number, number, number];
         const onLine = runs.filter((run) => run.y >= y1 - 2 && run.y <= y2).sort((a, b) => a.x - b.x);
-        const under = onLine.filter((run) => run.x >= x1 - 1 && run.x <= x2);
-        const text = (under.length ? under : onLine).map((run) => run.str.trim()).join(" ");
+        const under = onLine.filter((run) => run.x < x2 && run.x + run.width > x1);
+        // Icon fonts give one stray glyph ("a", "]"); the rest of the line says what the link is for.
+        const words = under.map((run) => run.str.trim()).join(" ");
+        const text = words.length > 1 ? words : onLine.map((run) => run.str.trim()).join(" ");
         links.push({ text: text.slice(0, 80), url });
       }
       page.cleanup();
     }
-    return links;
   } catch {
-    // Links are a bonus; a PDF pdf.js can't read still imports from its text.
-    return [];
+    // Hints are a bonus; a PDF pdf.js can't read still imports from its text.
   } finally {
     await task.destroy();
   }
+  return { links, bold: [...bold].slice(0, 80) };
 }
