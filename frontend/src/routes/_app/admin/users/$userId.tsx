@@ -133,7 +133,7 @@ function UserReport({ data }: { data: AdminUser }) {
   const { user } = data
   const { data: me } = useQuery(meQuery)
   const [confirm, setConfirm] = useState<
-    'suspend' | 'restore' | 'sessions' | null
+    'suspend' | 'restore' | 'sessions' | 'usage' | null
   >(null)
   const [ending, setEnding] = useState<string | null>(null)
   const [granting, setGranting] = useState(false)
@@ -151,6 +151,11 @@ function UserReport({ data }: { data: AdminUser }) {
     user.id,
     () => expectOk(api.DELETE('/v1/admin/users/{userId}/sessions', path)),
     'Signed out on every device',
+  )
+  const resetUsage = useAdminAction(
+    user.id,
+    () => expectOk(api.DELETE('/v1/admin/users/{userId}/usage', path)),
+    'Usage reset',
   )
   const revoke = useAdminAction(
     user.id,
@@ -265,6 +270,18 @@ function UserReport({ data }: { data: AdminUser }) {
           data.usage.ownAiKey
             ? 'They use their own AI key, so AI limits do not apply.'
             : `Resets ${formatDate(data.usage.periodEnd)}.`
+        }
+        actions={
+          !data.usage.ownAiKey && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={resetUsage.isPending}
+              onClick={() => setConfirm('usage')}
+            >
+              Reset usage
+            </Button>
+          )
         }
       >
         <div className="grid gap-6 sm:grid-cols-3">
@@ -522,6 +539,14 @@ function UserReport({ data }: { data: AdminUser }) {
         description={`Ends all ${data.sessions.length} of their sessions. They can sign in again whenever they like.`}
         confirmLabel="Sign out everywhere"
         onConfirm={() => signOut.mutate(undefined)}
+      />
+      <ConfirmDialog
+        open={confirm === 'usage'}
+        onOpenChange={(open) => !open && setConfirm(null)}
+        title="Reset this month's usage?"
+        description="Their AI-tailored resumes, edits and imports count from zero again. Their plan stays the same."
+        confirmLabel="Reset usage"
+        onConfirm={() => resetUsage.mutate(undefined)}
       />
       <ConfirmDialog
         open={ending !== null}
