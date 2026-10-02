@@ -57,7 +57,7 @@ export function createTectonic(options: TectonicOptions) {
     }
   }
 
-  function run(cwd: string): Promise<{ code: number | null; output: string; timedOut: boolean }> {
+  function run(cwd: string, signal?: AbortSignal): Promise<{ code: number | null; output: string; timedOut: boolean }> {
     const args = ["--untrusted", "--chatter", "minimal", ...(options.onlyCached ? ["--only-cached"] : []), "main.tex"];
     return new Promise((resolve, reject) => {
       const child = spawn(options.bin, args, {
@@ -77,6 +77,7 @@ export function createTectonic(options: TectonicOptions) {
         timedOut = true;
         child.kill("SIGKILL");
       }, options.timeoutMs);
+      signal?.addEventListener("abort", () => child.kill("SIGKILL"), { once: true });
       child.on("error", (err) => {
         clearTimeout(timer);
         reject(err);
@@ -88,12 +89,16 @@ export function createTectonic(options: TectonicOptions) {
     });
   }
 
-  return async function compile(source: string): Promise<TectonicResult> {
+  // A signal aborts a compile nobody is waiting for (the editor sent a newer one): dropped from the queue, or
+  // killed if it has started, so it never holds a slot a live request needs.
+  return async function compile(source: string, signal?: AbortSignal): Promise<TectonicResult> {
     return withSlot(async () => {
+      signal?.throwIfAborted();
       const dir = await mkdtemp(join(tmpdir(), "rb-tex-"));
       try {
         await writeFile(join(dir, "main.tex"), makeXetexCompatible(source));
-        const { code, output, timedOut } = await run(dir);
+        const { code, output, timedOut } = await run(dir, signal);
+        signal?.throwIfAborted();
         if (timedOut) {
           return {
             ok: false,

@@ -34,14 +34,20 @@ const server = createServer(async (req, res) => {
     chunks.push(chunk as Buffer);
   }
 
+  // The API hangs up when the editor no longer needs this PDF.
+  const abandoned = new AbortController();
+  res.on("close", () => {
+    if (!res.writableEnded) abandoned.abort();
+  });
   try {
-    const result = await compile(Buffer.concat(chunks).toString("utf8"));
+    const result = await compile(Buffer.concat(chunks).toString("utf8"), abandoned.signal);
     if (result.ok) {
       res.writeHead(200, { "content-type": "application/pdf" }).end(result.pdf);
     } else {
       res.writeHead(422, { "content-type": "application/json" }).end(JSON.stringify({ errors: result.errors }));
     }
   } catch (err) {
+    if (abandoned.signal.aborted) return;
     console.error(err);
     res.writeHead(500).end();
   }

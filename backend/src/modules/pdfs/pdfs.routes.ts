@@ -67,7 +67,18 @@ pdfsRouter.post(
       "content" in req.body
         ? renderStructured(req.body.templateId, req.body.content, req.body.layout)
         : req.body.texSource;
-    const { pdf, pageCount } = await compileOrThrow(tex);
-    sendPdf(res, pdf, "preview.pdf", pageCount);
+    // The editor cancels a preview when a newer edit comes in; stop compiling it too.
+    const abandoned = new AbortController();
+    res.on("close", () => {
+      if (!res.writableEnded) abandoned.abort();
+    });
+    try {
+      const { pdf, pageCount } = await compileOrThrow(tex, abandoned.signal);
+      sendPdf(res, pdf, "preview.pdf", pageCount);
+    } catch (err) {
+      // Nobody is listening any more; not a server error.
+      if (abandoned.signal.aborted) return;
+      throw err;
+    }
   }),
 );

@@ -19,8 +19,8 @@ export function texForVersion(
   return version.content ? renderStructured(resume.templateId, version.content, resume.layout) : version.texSource!;
 }
 
-export async function compileOrThrow(tex: string) {
-  const result = await compileTex(tex);
+export async function compileOrThrow(tex: string, signal?: AbortSignal) {
+  const result = await compileTex(tex, signal);
   if (!result.ok) {
     throw new AppError(422, "COMPILE_FAILED", "The resume could not be compiled", result.errors);
   }

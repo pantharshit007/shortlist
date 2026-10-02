@@ -21,12 +21,13 @@ const localCompile = env.COMPILER_URL
       concurrency: env.COMPILE_CONCURRENCY,
     });
 
-async function remoteCompile(tex: string) {
+async function remoteCompile(tex: string, signal?: AbortSignal) {
+  const timeout = AbortSignal.timeout(env.COMPILE_TIMEOUT_MS + 5_000);
   const response = await fetch(`${env.COMPILER_URL}/compile`, {
     method: "POST",
     headers: { "content-type": "text/plain; charset=utf-8" },
     body: tex,
-    signal: AbortSignal.timeout(env.COMPILE_TIMEOUT_MS + 5_000),
+    signal: signal ? AbortSignal.any([timeout, signal]) : timeout,
   });
   if (response.status === 200) return { ok: true as const, pdf: Buffer.from(await response.arrayBuffer()) };
   if (response.status === 422) {
@@ -42,7 +43,7 @@ async function pageCount(pdf: Buffer) {
   return doc.getPageCount();
 }
 
-export async function compileTex(source: string): Promise<CompileResult> {
+export async function compileTex(source: string, signal?: AbortSignal): Promise<CompileResult> {
   const tex = makeXetexCompatible(source);
   const cacheKey = `compiled/${createHash("sha256").update(tex).digest("hex")}.pdf`;
 
@@ -50,7 +51,9 @@ export async function compileTex(source: string): Promise<CompileResult> {
   recordStep("compile_cached", Boolean(cachedPdf));
   if (cachedPdf) return { ok: true, pdf: cachedPdf, pageCount: await pageCount(cachedPdf), cached: true };
 
-  const result = await timed("compile_ms", () => (localCompile ? localCompile(tex) : remoteCompile(tex)));
+  const result = await timed("compile_ms", () =>
+    localCompile ? localCompile(tex, signal) : remoteCompile(tex, signal),
+  );
   if (!result.ok) return result;
 
   // Caching is for next time, so the response doesn't wait for the upload.
