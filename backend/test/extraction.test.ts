@@ -243,3 +243,39 @@ describe("normalizeExtraction cleanup", () => {
     ]);
   });
 });
+
+describe("normalizeExtraction tech stacks", () => {
+  it("moves a Tech Stack line into technologies and drops the colon from skill groups", () => {
+    const content = normalizeExtraction({
+      basics: { name: "A", headline: null, email: null, phone: null, location: null, links: [] },
+      sections: [
+        {
+          type: "projects",
+          title: "Projects",
+          text: null,
+          groups: [],
+          links: [],
+          entries: [
+            entry({ name: "Abhyas", bullets: ["Tech Stack: React.js, AWS (EC2, Amplify, RDS), Qdrant", "Built it"] }),
+          ],
+        },
+        {
+          type: "skills",
+          title: "Skills",
+          text: null,
+          entries: [],
+          links: [],
+          groups: [{ name: "Frontend:", items: ["Next.js"] }],
+        },
+      ],
+    });
+    const [projects, skills] = content.sections;
+    expect(projects?.type === "projects" && projects.entries[0]!.technologies).toEqual([
+      "React.js",
+      "AWS (EC2, Amplify, RDS)",
+      "Qdrant",
+    ]);
+    expect(projects?.type === "projects" && projects.entries[0]!.bullets.map((b) => b.text)).toEqual(["Built it"]);
+    expect(skills?.type === "skills" && skills.groups[0]!.name).toBe("Frontend");
+  });
+});

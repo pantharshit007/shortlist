@@ -118,6 +118,20 @@ function range(x: Entry) {
   return start && start === end ? { end } : { start, end };
 }
 
+// A "Tech Stack: React, Node" line belongs in the project's technologies, not in its bullets.
+const techLine = /^(tech(nologies|nology)?( stack)?|stack|built with|tools( used)?)\s*:/i;
+function projectTech(x: Entry) {
+  const listed = x.technologies.map((t) => plain(t) ?? "").filter(Boolean);
+  const line = x.bullets.find((b) => techLine.test(b.replace(bulletMarker, "").trim()));
+  const fromLine = line
+    ? (plain(line.replace(bulletMarker, "").trim().replace(techLine, ""))
+        ?.split(/,(?![^(]*\))/)
+        .map((t) => t.trim())
+        .filter(Boolean) ?? [])
+    : [];
+  return (listed.length ? listed : fromLine).slice(0, 20);
+}
+
 // Words that only name a link ("Verify", "Live") aren't content once the URL is attached.
 const linkWord = /^(verify|verified|link|code|live|demo|pdf|github|website|certificate|credential|view|here)$/i;
 
@@ -171,12 +185,9 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
             name: plain(x.name)!,
             url: url(x.url),
             links: links(x.links),
-            technologies: x.technologies
-              .map((t) => plain(t) ?? "")
-              .filter(Boolean)
-              .slice(0, 20),
+            technologies: projectTech(x),
             ...range(x),
-            bullets: withLeftovers(x, ["title", "subtitle"], [x.name]),
+            bullets: withLeftovers(x, ["title", "subtitle"], [x.name]).filter((b) => !techLine.test(b.text)),
           })),
       };
     case "skills":
@@ -187,7 +198,8 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
           .filter((g) => g.items.length > 0)
           .map((g) => ({
             id: shortId(),
-            name: plain(g.name) ?? "",
+            // The template adds its own colon after a group name.
+            name: plain(g.name)?.replace(/\s*:+$/, "") ?? "",
             items: g.items.map((i) => plain(i) ?? "").filter(Boolean),
           })),
       };

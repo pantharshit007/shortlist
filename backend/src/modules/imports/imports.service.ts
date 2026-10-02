@@ -22,6 +22,7 @@ Rules:
   ("Verify", "Live", "Code", "PDF") are not content.
 - In list sections, every item is its own entry. For an item written as "Name - description" (or with a colon or
   long dash), put the name in title and the description in subtitle; otherwise the whole item is the title.
+- A project's "Tech Stack:" or "Technologies:" line goes in technologies, not in bullets.
 - Link labels are short names like "LinkedIn", "GitHub" or "Portfolio", never the URL itself.
 - Keep the source's section order and titles.
 - Fill every field; use null or [] when something doesn't apply.`;
