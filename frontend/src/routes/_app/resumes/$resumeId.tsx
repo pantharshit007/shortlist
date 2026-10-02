@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   ArrowLeftIcon,
+  ChevronDownIcon,
   HistoryIcon,
   Maximize2Icon,
   Share2Icon,
@@ -20,6 +21,15 @@ import { HistoryPanel } from '@/components/editor/history-panel'
 import { SharePanel } from '@/components/editor/share-panel'
 import { UnsavedChangesGuard } from '@/components/app/unsaved-changes-guard'
 import { ConfirmDialog } from '@/components/app/confirm-dialog'
+import {
+  TemplatePicker,
+  layoutOptions,
+} from '@/components/templates/template-picker'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { SaveTemplateDialog } from '@/components/templates/save-template-dialog'
 import { LatexEditor } from '@/components/editor/latex-editor'
 import type { LatexEditorHandle } from '@/components/editor/latex-editor'
@@ -29,15 +39,6 @@ import { SaveStatus } from '@/components/editor/save-status'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Kbd } from '@/components/ui/kbd'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -61,7 +62,7 @@ import { queryKeys, resumeQuery } from '@/lib/api/queries'
 import type { ResumeContent, ResumeDetail } from '@/lib/api/types'
 import { panelStorage } from '@/lib/panel-storage'
 import { site } from '@/lib/site'
-import { templateCatalog, templateCategories } from '@/lib/templates'
+import { templateCatalog } from '@/lib/templates'
 import { cn } from '@/lib/utils'
 
 const focusKey = 'resume-editor-focus'
@@ -279,6 +280,7 @@ function ResumeEditor({
   })
 
   const [confirmToForm, setConfirmToForm] = useState(false)
+  const [pickingTemplate, setPickingTemplate] = useState(false)
   // The new head comes back from the server, which remounts the editor in the other mode.
   const switchMode = useMutation({
     mutationFn: (mode: ResumeDetail['mode']) =>
@@ -401,48 +403,33 @@ function ResumeEditor({
             </ToggleGroupItem>
           </ToggleGroup>
           {structured && (
-            <Select
-              value={templateId}
-              onValueChange={(value) => {
-                setTemplateId(value)
-                update.mutate({ templateId: value })
-              }}
-            >
-              <SelectTrigger
-                className="hidden w-40 md:flex"
-                aria-label="Template"
+            <Popover open={pickingTemplate} onOpenChange={setPickingTemplate}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  aria-label={`Template: ${currentTemplate?.name ?? ''}`}
+                  className="hidden w-40 justify-between md:flex"
+                >
+                  <span className="truncate">{currentTemplate?.name}</span>
+                  <ChevronDownIcon data-icon="inline-end" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                className="@container max-h-[min(40rem,80svh)] w-[min(52rem,calc(100vw-2rem))] overflow-y-auto"
               >
-                <SelectValue>{currentTemplate?.name}</SelectValue>
-              </SelectTrigger>
-              <SelectContent className="w-72">
-                {templateCategories.map((category) => {
-                  const templates = templateCatalog.filter(
-                    (template) => template.categories[0] === category.id,
-                  )
-                  return (
-                    templates.length > 0 && (
-                      <SelectGroup key={category.id}>
-                        <SelectLabel>{category.name}</SelectLabel>
-                        {templates.map((template) => (
-                          <SelectItem
-                            key={template.id}
-                            value={template.id}
-                            textValue={template.name}
-                          >
-                            <span className="flex flex-col items-start">
-                              {template.name}
-                              <span className="text-xs text-muted-foreground">
-                                {template.description}
-                              </span>
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    )
-                  )
-                })}
-              </SelectContent>
-            </Select>
+                <TemplatePicker
+                  value={templateId}
+                  onChange={(value) => {
+                    setTemplateId(value)
+                    update.mutate({ templateId: value })
+                    setPickingTemplate(false)
+                  }}
+                  description="Your content stays the same; only the look changes."
+                  options={layoutOptions()}
+                />
+              </PopoverContent>
+            </Popover>
           )}
           {structured && (
             <LayoutMenu
