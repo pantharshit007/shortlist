@@ -76,6 +76,12 @@ export async function assertAiQuota(userId: string, kind: QuotaKind) {
   }
 }
 
+// Premium features (extra link controls, detailed analytics) need Season Pass or Pro.
+export async function assertPaidPlan(userId: string, feature: string) {
+  if ((await planOf(userId)) === "free")
+    throw new AppError(402, "PLAN_REQUIRED", `${feature} is part of Season Pass and Pro`);
+}
+
 export async function assertResumeQuota(userId: string) {
   const limit = planLimits[await planOf(userId)].resumes;
   const used = await activeResumes(userId);
