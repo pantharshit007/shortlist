@@ -144,7 +144,8 @@ function OpeningTimes({ heatmap }: { heatmap: Insights['heatmap'] }) {
             : `Busiest: ${weekdayNames[busiest.day]}, ${hourLabel(busiest.hour)} to ${hourLabel((busiest.hour + 1) % 24)}, in your time zone.`}
         </p>
       </div>
-      <div className="overflow-x-auto">
+      {/* The top padding leaves room for the first row's tooltips inside the scroll box. */}
+      <div className="-mt-4 overflow-x-auto pt-8">
         <figure className="flex min-w-[36rem] flex-col gap-1.5">
           <div
             role="img"
@@ -168,7 +169,12 @@ function OpeningTimes({ heatmap }: { heatmap: Insights['heatmap'] }) {
                         views === 0 ? 'bg-muted' : levelOf(views, max),
                       )}
                     >
-                      <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 hidden -translate-x-1/2 rounded-md border bg-popover px-2 py-1 text-xs whitespace-nowrap text-popover-foreground shadow-md group-hover:block">
+                      <span
+                        className={cn(
+                          'pointer-events-none absolute bottom-full z-10 mb-1 hidden rounded-md border bg-popover px-2 py-1 text-xs whitespace-nowrap text-popover-foreground shadow-md group-hover:block',
+                          hour > 20 ? 'right-0' : 'left-1/2 -translate-x-1/2',
+                        )}
+                      >
                         <span className="font-medium">
                           {weekdays[day]} {hourLabel(hour)}
                         </span>
@@ -200,24 +206,27 @@ function OpeningTimes({ heatmap }: { heatmap: Insights['heatmap'] }) {
           </figcaption>
         </figure>
       </div>
-      <table className="sr-only">
-        <caption>Views by weekday and hour</caption>
-        <tbody>
-          {heatmap.map((row, day) => (
-            <tr key={weekdays[day]}>
-              <th scope="row">{weekdayNames[day]}</th>
-              <td>
-                {row
-                  .map((views, hour) =>
-                    views ? `${hourLabel(hour)}: ${views}` : '',
-                  )
-                  .filter(Boolean)
-                  .join(', ') || 'none'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* A table can't shrink below its content, so the wrapper is what gets hidden. */}
+      <div className="sr-only">
+        <table>
+          <caption>Views by weekday and hour</caption>
+          <tbody>
+            {heatmap.map((row, day) => (
+              <tr key={weekdays[day]}>
+                <th scope="row">{weekdayNames[day]}</th>
+                <td>
+                  {row
+                    .map((views, hour) =>
+                      views ? `${hourLabel(hour)}: ${views}` : '',
+                    )
+                    .filter(Boolean)
+                    .join(', ') || 'none'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   )
 }
