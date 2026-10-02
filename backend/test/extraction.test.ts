@@ -107,3 +107,34 @@ describe("normalizeExtraction limits", () => {
     expect(skills?.type === "skills" && skills.groups[0]!.items[0]).toHaveLength(60);
   });
 });
+
+describe("normalizeExtraction bullets", () => {
+  it("drops the source's bullet symbols but keeps bold and leading numbers", () => {
+    const content = normalizeExtraction({
+      basics: { name: "A", headline: null, email: null, phone: null, location: null, links: [] },
+      sections: [
+        {
+          type: "experience",
+          title: "Experience",
+          text: null,
+          groups: [],
+          links: [],
+          entries: [
+            entry({
+              organization: "Ajar",
+              bullets: ["• Fixed a leak", "- Audited auth", "• • Built a hub", "**Cut** builds", "-5% cost", "•"],
+            }),
+          ],
+        },
+      ],
+    });
+    const experience = content.sections[0];
+    expect(experience?.type === "experience" && experience.entries[0]!.bullets.map((b) => b.text)).toEqual([
+      "Fixed a leak",
+      "Audited auth",
+      "Built a hub",
+      "**Cut** builds",
+      "-5% cost",
+    ]);
+  });
+});

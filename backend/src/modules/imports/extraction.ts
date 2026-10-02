@@ -70,8 +70,14 @@ const links = (items: { label: string; url: string }[]) =>
     const u = url(item.url);
     return u && clean(item.label) ? [{ label: item.label.trim().slice(0, 40), url: u }] : [];
   });
+// The source's own bullet glyphs ("• Built X", "- Built X"); templates draw their own bullet.
+// A dash only counts when a space follows, and "*" is left alone since "**bold**" starts with it.
+const bulletMarker = /^(?:\s*(?:[•·▪▸►‣⁃◦○●■□➢➤✓✔→]|[-\u2013\u2014](?=\s)))+\s*/u;
 const bullets = (items: string[]) =>
-  items.filter((b) => b.trim()).map((b) => ({ id: shortId(), text: b.trim().slice(0, 600), hidden: false }));
+  items
+    .map((b) => b.replace(bulletMarker, "").trim())
+    .filter(Boolean)
+    .map((text) => ({ id: shortId(), text: text.slice(0, 600), hidden: false }));
 
 function normalizeSection(section: Extraction["sections"][number]): ResumeSection | null {
   const base = { id: shortId(), title: clean(section.title) ?? section.type, hidden: false };

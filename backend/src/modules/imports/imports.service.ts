@@ -7,7 +7,8 @@ import { track } from "../../lib/analytics.js";
 const system = `You extract resumes into structured JSON.
 Rules:
 - Copy facts exactly as written. Never invent, infer or embellish employers, dates, numbers or skills.
-- Keep each bullet's wording. Wrap text that is bold in the source in **double asterisks**.
+- Keep each bullet's wording, without its bullet symbol ("•", "-"). Wrap text that is bold in the source in
+  **double asterisks**.
 - Dates: "YYYY-MM" when the month is known, otherwise "YYYY"; use "present" for ongoing roles. Use null when unknown.
 - Section types: summary (a summary, profile, objective or about paragraph, in "text"), experience (jobs,
   internships), education, projects, skills (grouped lists like "Languages: ..."), links (a bare list of profile
