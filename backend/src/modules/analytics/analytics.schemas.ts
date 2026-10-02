@@ -60,20 +60,14 @@ export const insightsResponse = z.object({
   days: z.number().int(),
   // Seven rows, Monday first, of 24 hourly view counts in the requested time zone.
   heatmap: z.array(z.array(z.number().int()).length(24)).length(7),
-  places: z.array(
-    z.object({
-      city: z.string(),
-      region: z.string().nullable(),
-      country: z.string().nullable(),
-      views: z.number().int(),
-    }),
-  ),
   links: z.array(
     z.object({
       id: z.uuid(),
       views: z.number().int(),
       // Opens beyond the first by the same visitor on the same day; the visitor hash changes daily.
       repeatOpens: z.number().int(),
+      // Most common referrer host, or "direct".
+      topSource: z.string(),
       viewsByDay,
     }),
   ),

@@ -1,4 +1,4 @@
-import { and, count, countDistinct, desc, eq, gte, isNotNull, isNull, lt, sql } from "drizzle-orm";
+import { and, count, countDistinct, desc, eq, gte, isNull, lt, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { linkViews, resumes, shareLinks } from "../../db/schema/index.js";
 
@@ -106,16 +106,16 @@ export async function getAnalytics(userId: string, days: number, timeZone: strin
 
 type HourCount = { weekday: number; hour: number; views: number };
 type LinkDayCount = { linkId: string; day: string; views: number };
-type LinkTotal = { linkId: string; views: number; repeatOpens: number };
+type LinkTotal = { linkId: string; views: number; repeatOpens: number; topSource: string };
 
 // Fills the gaps SQL leaves out: empty hours of the week and days a link had no views.
 export function shapeInsights(keys: string[], hours: HourCount[], linkDays: LinkDayCount[], linkTotals: LinkTotal[]) {
   const heatmap = Array.from({ length: 7 }, () => Array<number>(24).fill(0));
   // ISO weekday: 1 is Monday.
   for (const { weekday, hour, views } of hours) heatmap[weekday - 1]![hour]! += views;
-  const links = linkTotals.map(({ linkId, views, repeatOpens }) => {
+  const links = linkTotals.map(({ linkId, ...totals }) => {
     const byDay = new Map(linkDays.filter((row) => row.linkId === linkId).map((row) => [row.day, row.views]));
-    return { id: linkId, views, repeatOpens, viewsByDay: keys.map((day) => ({ day, views: byDay.get(day) ?? 0 })) };
+    return { id: linkId, ...totals, viewsByDay: keys.map((day) => ({ day, views: byDay.get(day) ?? 0 })) };
   });
   return { heatmap, links };
 }
@@ -129,7 +129,7 @@ export async function getInsights(userId: string, days: number, timeZone: string
   );
   const local = sql`${linkViews.viewedAt} at time zone ${timeZone}`;
 
-  const [hours, linkDays, linkTotals, places] = await Promise.all([
+  const [hours, linkDays, linkTotals] = await Promise.all([
     db
       .select({
         weekday: sql<number>`extract(isodow from ${local})::int`,
@@ -153,28 +153,16 @@ export async function getInsights(userId: string, days: number, timeZone: string
         repeatOpens: sql<number>`count(${linkViews.visitorHash}) - count(distinct ${linkViews.visitorHash})`.mapWith(
           Number,
         ),
+        topSource: sql<string>`mode() within group (order by coalesce(${linkViews.referrer}, 'direct'))`,
       })
       .from(linkViews)
       .innerJoin(shareLinks, eq(linkViews.shareLinkId, shareLinks.id))
       .where(inRange)
       .groupBy(linkViews.shareLinkId)
       .orderBy(desc(count())),
-    db
-      .select({
-        city: sql<string>`${linkViews.city}`,
-        region: linkViews.region,
-        country: linkViews.country,
-        views: count(),
-      })
-      .from(linkViews)
-      .innerJoin(shareLinks, eq(linkViews.shareLinkId, shareLinks.id))
-      .where(and(inRange, isNotNull(linkViews.city)))
-      .groupBy(linkViews.city, linkViews.region, linkViews.country)
-      .orderBy(desc(count()))
-      .limit(10),
   ]);
 
-  return { days, places, ...shapeInsights(dayKeys(days, timeZone, now), hours, linkDays, linkTotals) };
+  return { days, ...shapeInsights(dayKeys(days, timeZone, now), hours, linkDays, linkTotals) };
 }
 
 // ponytail: capped at 5000 rows, plenty for one person's links over 90 days; page it if that ever binds.

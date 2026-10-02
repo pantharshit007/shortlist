@@ -3609,41 +3609,6 @@
                             }
                           }
                         },
-                        "places": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "city": {
-                                "type": "string"
-                              },
-                              "region": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "country": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "views": {
-                                "type": "integer",
-                                "minimum": -9007199254740991,
-                                "maximum": 9007199254740991
-                              }
-                            },
-                            "required": [
-                              "city",
-                              "region",
-                              "country",
-                              "views"
-                            ],
-                            "additionalProperties": false
-                          }
-                        },
                         "links": {
                           "type": "array",
                           "items": {
@@ -3663,6 +3628,9 @@
                                 "type": "integer",
                                 "minimum": -9007199254740991,
                                 "maximum": 9007199254740991
+                              },
+                              "topSource": {
+                                "type": "string"
                               },
                               "viewsByDay": {
                                 "type": "array",
@@ -3690,6 +3658,7 @@
                               "id",
                               "views",
                               "repeatOpens",
+                              "topSource",
                               "viewsByDay"
                             ],
                             "additionalProperties": false
@@ -3699,7 +3668,6 @@
                       "required": [
                         "days",
                         "heatmap",
-                        "places",
                         "links"
                       ],
                       "additionalProperties": false

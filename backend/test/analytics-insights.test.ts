@@ -30,7 +30,7 @@ describe("shapeInsights", () => {
         { linkId: "b", day: "2026-09-30", views: 1 },
         { linkId: "a", day: "2026-09-30", views: 1 },
       ],
-      [{ linkId: "a", views: 4, repeatOpens: 1 }],
+      [{ linkId: "a", views: 4, repeatOpens: 1, topSource: "direct" }],
     );
     expect(keys).toEqual(["2026-09-30", "2026-10-01", "2026-10-02"]);
     expect(links).toEqual([
@@ -38,6 +38,7 @@ describe("shapeInsights", () => {
         id: "a",
         views: 4,
         repeatOpens: 1,
+        topSource: "direct",
         viewsByDay: [
           { day: "2026-09-30", views: 1 },
           { day: "2026-10-01", views: 0 },
