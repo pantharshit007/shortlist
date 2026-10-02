@@ -20,7 +20,7 @@ import {
 import { atsReport, createAtsReportBody, createResumeAtsReportBody } from "./modules/ats/ats.schemas.js";
 import { coverageQuery, coverageResponse } from "./modules/coverage/coverage.routes.js";
 import { checkoutResponse, createCheckoutBody, subscriptionResponse } from "./modules/billing/billing.schemas.js";
-import { createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
+import { createDraftBody, createImportBody, importResponse } from "./modules/imports/imports.schemas.js";
 import { usageResponse } from "./modules/usage/usage.routes.js";
 import { aiKeyResponse, putAiKeyBody } from "./modules/ai-keys/ai-keys.schemas.js";
 import { aiRunListResponse } from "./modules/ai-runs/ai-runs.routes.js";
@@ -330,6 +330,15 @@ const paths: ZodOpenApiPathsObject = {
   "/v1/uploads/{uploadId}": {
     get: op({ summary: "Get an upload", tag: "Import", params: uploadParams, response: uploadResponse }),
     delete: op({ summary: "Delete an upload", tag: "Import", params: uploadParams, noContent: true }),
+  },
+  "/v1/resume-drafts": {
+    post: op({
+      summary: "Write resume content from the user's notes with AI",
+      tag: "Import",
+      body: createDraftBody,
+      response: importResponse,
+      status: 201,
+    }),
   },
   "/v1/imports": {
     post: op({

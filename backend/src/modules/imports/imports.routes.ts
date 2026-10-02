@@ -3,8 +3,8 @@ import { sendData } from "../../lib/http.js";
 import { currentUser, requireAuth } from "../../middleware/require-auth.js";
 import { aiLimiter } from "../../middleware/rate-limit.js";
 import { validated } from "../../middleware/validate.js";
-import { createImportBody, importResponse } from "./imports.schemas.js";
-import { createImport } from "./imports.service.js";
+import { createDraftBody, createImportBody, importResponse } from "./imports.schemas.js";
+import { createDraft, createImport } from "./imports.service.js";
 
 export const importsRouter = Router();
 
@@ -15,5 +15,15 @@ importsRouter.post(
   aiLimiter,
   ...validated({ body: createImportBody }, async (req, res) => {
     sendData(res, importResponse, await createImport(currentUser(req).id, req.body), 201);
+  }),
+);
+
+// A resume written by AI from the user's notes, returned like an import for the client to review and save.
+importsRouter.post(
+  "/resume-drafts",
+  requireAuth,
+  aiLimiter,
+  ...validated({ body: createDraftBody }, async (req, res) => {
+    sendData(res, importResponse, await createDraft(currentUser(req).id, req.body), 201);
   }),
 );

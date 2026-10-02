@@ -12,6 +12,7 @@ export const aiStep = pgEnum("ai_step", [
   "inline_edit",
   "chat_edit",
   "fix_compile",
+  "draft",
 ]);
 
 export const aiRunStatus = pgEnum("ai_run_status", ["succeeded", "failed"]);

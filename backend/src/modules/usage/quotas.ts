@@ -5,20 +5,22 @@ import { AppError, NotFoundError } from "../../lib/errors.js";
 import { hasUserAiKey } from "../ai-keys/ai-keys.service.js";
 
 export type Plan = (typeof users.$inferSelect)["plan"];
-export type QuotaKind = "tailor" | "edit" | "import";
+export type QuotaKind = "tailor" | "edit" | "import" | "draft";
 
 // Monthly AI limits per plan; resumes are unlimited on every plan (1000 = unlimited). Paid limits are fair-use caps.
 // Imports are free on every plan; the cap only stops abuse.
+// Free gets one resume written from notes per account (counted for all time), to see it work once.
 export const planLimits: Record<Plan, Record<QuotaKind | "resumes", number>> = {
-  free: { resumes: 1000, tailor: 1, edit: 50, import: 20 },
-  season_pass: { resumes: 1000, tailor: 40, edit: 1000, import: 20 },
-  pro: { resumes: 1000, tailor: 60, edit: 1000, import: 20 },
+  free: { resumes: 1000, tailor: 1, edit: 50, import: 20, draft: 1 },
+  season_pass: { resumes: 1000, tailor: 40, edit: 1000, import: 20, draft: 30 },
+  pro: { resumes: 1000, tailor: 60, edit: 1000, import: 20, draft: 30 },
 };
 
 const stepsFor: Record<QuotaKind, (typeof aiRuns.$inferSelect)["step"][]> = {
   tailor: ["rewrite"],
   edit: ["chat_edit", "inline_edit", "fix_compile"],
   import: ["import"],
+  draft: ["draft"],
 };
 
 // Calendar month in UTC.
@@ -36,9 +38,10 @@ async function planOf(userId: string): Promise<Plan> {
   return user.plan;
 }
 
-async function usedThisPeriod(userId: string, kind: QuotaKind) {
+// `allTime` counts every run, for allowances given once per account rather than per month.
+async function usedThisPeriod(userId: string, kind: QuotaKind, allTime = false) {
   const [user] = await db.select({ resetAt: users.usageResetAt }).from(users).where(eq(users.id, userId));
-  const start = periodStart();
+  const start = allTime ? new Date(0) : periodStart();
   const since = user?.resetAt && user.resetAt > start ? user.resetAt : start;
   const [row] = await db
     .select({ value: count() })
@@ -70,8 +73,17 @@ function quotaError(message: string, limit: number, used: number, resetsAt?: Dat
 export async function assertAiQuota(userId: string, kind: QuotaKind) {
   // Requests on the user's own key cost us nothing, so plan limits don't apply.
   if (await hasUserAiKey(userId)) return;
-  const limit = planLimits[await planOf(userId)][kind];
-  const used = await usedThisPeriod(userId, kind);
+  const plan = await planOf(userId);
+  const limit = planLimits[plan][kind];
+  const once = kind === "draft" && plan === "free";
+  const used = await usedThisPeriod(userId, kind, once);
+  if (used >= limit && once) {
+    throw quotaError(
+      "You've used your free AI-written resume. Season Pass and Pro include more, or add your own AI key.",
+      limit,
+      used,
+    );
+  }
   if (used >= limit) {
     throw quotaError(`You've used all ${limit} ${kind} requests for this month`, limit, used, periodEnd());
   }
@@ -93,10 +105,11 @@ export async function assertResumeQuota(userId: string) {
 export async function getUsage(userId: string) {
   const plan = await planOf(userId);
   const limits = planLimits[plan];
-  const [tailor, edit, importCount, resumeCount, ownAiKey] = await Promise.all([
+  const [tailor, edit, importCount, draft, resumeCount, ownAiKey] = await Promise.all([
     usedThisPeriod(userId, "tailor"),
     usedThisPeriod(userId, "edit"),
     usedThisPeriod(userId, "import"),
+    usedThisPeriod(userId, "draft", plan === "free"),
     activeResumes(userId),
     hasUserAiKey(userId),
   ]);
@@ -109,5 +122,6 @@ export async function getUsage(userId: string) {
     tailor: { used: tailor, limit: limits.tailor },
     edit: { used: edit, limit: limits.edit },
     import: { used: importCount, limit: limits.import },
+    draft: { used: draft, limit: limits.draft },
   };
 }

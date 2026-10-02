@@ -70,3 +70,37 @@ export async function createImport(
   track(userId, "resume_imported", { from: "uploadId" in input ? "file" : "text" });
   return { content: normalizeExtraction(data), aiRunId: runId };
 }
+
+const draftSystem = `You write a resume from a person's own rough notes, as structured JSON.
+Rules:
+- Use only facts from the notes: employers, schools, dates, numbers, tools and results. Never invent any of them, and
+  never add a number, metric or skill that isn't in the notes.
+- Turn each rough note into a concise resume bullet: start with a strong past-tense verb, say what was built or done and
+  its result, ideally in one line. Wrap the one key technology or result of a bullet in **double asterisks**.
+- The headline is a short title for the target role, like "Backend Engineer".
+- Add a summary section of two sentences only when the notes give enough to say something specific about the person.
+- Group skills by kind (Languages, Frameworks, Tools and so on), using only tools the notes mention.
+- Education goes in its fields (institution, degree, field, score, dates), with no bullets unless the notes add
+  something more, like coursework or a thesis.
+- Project and job details go in bullets; leave subtitle and title null for them.
+- In list sections, every achievement or certification is its own entry with its text as the title and no bullets.
+- Put education first for students and freshers, experience first for everyone else.
+- Dates: "YYYY-MM" when the month is known, otherwise "YYYY"; "present" for ongoing roles; null when not given.
+- Section types: summary (in "text"), experience, education, projects, skills, links, list (achievements,
+  certifications, positions of responsibility).
+- Fill every field; use null or [] when something doesn't apply.`;
+
+// Writes a first resume from notes for someone starting from nothing. Same output and cleanup as an import.
+export async function createDraft(userId: string, input: { role: string; notes: string }) {
+  await assertAiQuota(userId, "draft");
+  const { data, runId } = await generateStructured({
+    userId,
+    step: "draft",
+    tier: "smart",
+    schema: extractionSchema,
+    system: draftSystem,
+    prompt: `Target role: ${input.role}\n\nNotes:\n<notes>\n${input.notes}\n</notes>`,
+  });
+  track(userId, "resume_drafted", {});
+  return { content: normalizeExtraction(data), aiRunId: runId };
+}

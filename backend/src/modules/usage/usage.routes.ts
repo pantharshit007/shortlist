@@ -15,6 +15,8 @@ export const usageResponse = z.object({
   tailor: counter,
   edit: counter,
   import: counter,
+  // Resumes written by AI from the user's notes; on Free this counts for all time, not per month.
+  draft: counter,
 });
 
 export const usageRouter = Router();
