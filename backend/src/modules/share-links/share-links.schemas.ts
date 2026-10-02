@@ -9,14 +9,23 @@ const slugSchema = z
   .toLowerCase()
   .regex(USERNAME_PATTERN, "Use 3-30 lowercase letters, digits or hyphens");
 
-export const createShareLinkBody = z.object({
-  slug: slugSchema.optional(),
-  pinnedVersionId: z.uuid().nullable().default(null),
-  showContact: z.boolean().default(false),
-  isListed: z.boolean().default(false),
-  password: z.string().min(4).max(100).optional(),
-  expiresAt: z.coerce.date().optional(),
-});
+const linkPassword = z.string().min(4).max(100);
+const contactChoice = (body: { showContact?: boolean | undefined; contactPassword?: string | null | undefined }) =>
+  !(body.showContact && body.contactPassword);
+const contactChoiceError = "Contacts are either shown or locked with a password, not both";
+
+export const createShareLinkBody = z
+  .object({
+    slug: slugSchema.optional(),
+    pinnedVersionId: z.uuid().nullable().default(null),
+    showContact: z.boolean().default(false),
+    isListed: z.boolean().default(false),
+    password: linkPassword.optional(),
+    // Paid: contacts stay hidden until a visitor enters this password.
+    contactPassword: linkPassword.optional(),
+    expiresAt: z.coerce.date().optional(),
+  })
+  .refine(contactChoice, contactChoiceError);
 
 export const updateShareLinkBody = z
   .object({
@@ -24,10 +33,12 @@ export const updateShareLinkBody = z
     pinnedVersionId: z.uuid().nullable().optional(),
     showContact: z.boolean().optional(),
     isListed: z.boolean().optional(),
-    password: z.string().min(4).max(100).nullable().optional(),
+    password: linkPassword.nullable().optional(),
+    contactPassword: linkPassword.nullable().optional(),
     expiresAt: z.coerce.date().nullable().optional(),
   })
-  .refine((body) => Object.keys(body).length > 0, "Provide at least one field to update");
+  .refine((body) => Object.keys(body).length > 0, "Provide at least one field to update")
+  .refine(contactChoice, contactChoiceError);
 
 export const shareLinkResponse = z.object({
   id: z.uuid(),
@@ -38,6 +49,7 @@ export const shareLinkResponse = z.object({
   showContact: z.boolean(),
   isListed: z.boolean(),
   hasPassword: z.boolean(),
+  hasContactPassword: z.boolean(),
   expiresAt: z.date().nullable(),
   viewCount: z.number().int(),
   lastViewedAt: z.date().nullable(),

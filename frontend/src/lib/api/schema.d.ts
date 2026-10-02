@@ -5114,6 +5114,7 @@ export interface paths {
                                 showContact: boolean;
                                 isListed: boolean;
                                 hasPassword: boolean;
+                                hasContactPassword: boolean;
                                 expiresAt: string | null;
                                 viewCount: number;
                                 lastViewedAt: string | null;
@@ -5155,6 +5156,7 @@ export interface paths {
                         /** @default false */
                         isListed?: boolean;
                         password?: string;
+                        contactPassword?: string;
                         expiresAt?: string;
                     };
                 };
@@ -5179,6 +5181,7 @@ export interface paths {
                                 showContact: boolean;
                                 isListed: boolean;
                                 hasPassword: boolean;
+                                hasContactPassword: boolean;
                                 expiresAt: string | null;
                                 viewCount: number;
                                 lastViewedAt: string | null;
@@ -5242,6 +5245,7 @@ export interface paths {
                                 showContact: boolean;
                                 isListed: boolean;
                                 hasPassword: boolean;
+                                hasContactPassword: boolean;
                                 expiresAt: string | null;
                                 viewCount: number;
                                 lastViewedAt: string | null;
@@ -5313,6 +5317,7 @@ export interface paths {
                         showContact?: boolean;
                         isListed?: boolean;
                         password?: string | null;
+                        contactPassword?: string | null;
                         expiresAt?: string | null;
                     };
                 };
@@ -5337,6 +5342,7 @@ export interface paths {
                                 showContact: boolean;
                                 isListed: boolean;
                                 hasPassword: boolean;
+                                hasContactPassword: boolean;
                                 expiresAt: string | null;
                                 viewCount: number;
                                 lastViewedAt: string | null;

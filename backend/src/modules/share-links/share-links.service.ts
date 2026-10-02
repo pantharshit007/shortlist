@@ -5,6 +5,7 @@ import { linkViews, resumeVersions, shareLinks, users } from "../../db/schema/in
 import { ConflictError, NotFoundError } from "../../lib/errors.js";
 import { hashPassword } from "../../lib/passwords.js";
 import { getOwnedResume } from "../resumes/resumes.service.js";
+import { assertPaidPlan } from "../usage/quotas.js";
 import { slugify } from "../users/usernames.js";
 import { track } from "../../lib/analytics.js";
 
@@ -12,8 +13,20 @@ type ShareLinkRow = typeof shareLinks.$inferSelect;
 
 async function toResponse(link: ShareLinkRow) {
   const [owner] = await db.select({ username: users.username }).from(users).where(eq(users.id, link.userId));
-  const { passwordHash, deletedAt: _deletedAt, userId: _userId, updatedAt: _updatedAt, ...rest } = link;
-  return { ...rest, hasPassword: Boolean(passwordHash), url: `${env.FRONTEND_URL}/${owner!.username}/${link.slug}` };
+  const {
+    passwordHash,
+    contactPasswordHash,
+    deletedAt: _deletedAt,
+    userId: _userId,
+    updatedAt: _updatedAt,
+    ...rest
+  } = link;
+  return {
+    ...rest,
+    hasPassword: Boolean(passwordHash),
+    hasContactPassword: Boolean(contactPasswordHash),
+    url: `${env.FRONTEND_URL}/${owner!.username}/${link.slug}`,
+  };
 }
 
 async function slugTaken(userId: string, slug: string, exceptId?: string) {
@@ -66,10 +79,12 @@ export async function createShareLink(
     showContact: boolean;
     isListed: boolean;
     password?: string | undefined;
+    contactPassword?: string | undefined;
     expiresAt?: Date | undefined;
   },
 ) {
   const resume = await getOwnedResume(userId, resumeId);
+  if (input.contactPassword) await assertPaidPlan(userId, "Contact password");
   if (input.pinnedVersionId) await assertVersionOfResume(resume.id, input.pinnedVersionId);
   if (input.slug && (await slugTaken(userId, input.slug))) throw new ConflictError("You already use this slug");
 
@@ -83,6 +98,7 @@ export async function createShareLink(
       showContact: input.showContact,
       isListed: input.isListed,
       passwordHash: input.password ? await hashPassword(input.password) : null,
+      contactPasswordHash: input.contactPassword ? await hashPassword(input.contactPassword) : null,
       expiresAt: input.expiresAt ?? null,
     })
     .returning();
@@ -90,6 +106,7 @@ export async function createShareLink(
     pinned: Boolean(input.pinnedVersionId),
     password: Boolean(input.password),
     shows_contact: input.showContact,
+    contact_password: Boolean(input.contactPassword),
   });
   return toResponse(link!);
 }
@@ -117,10 +134,12 @@ export async function updateShareLink(
     showContact?: boolean | undefined;
     isListed?: boolean | undefined;
     password?: string | null | undefined;
+    contactPassword?: string | null | undefined;
     expiresAt?: Date | null | undefined;
   },
 ) {
   const link = await getOwnedShareLink(userId, shareLinkId);
+  if (changes.contactPassword) await assertPaidPlan(userId, "Contact password");
   if (changes.slug && (await slugTaken(userId, changes.slug, link.id)))
     throw new ConflictError("You already use this slug");
   if (changes.pinnedVersionId) await assertVersionOfResume(link.resumeId, changes.pinnedVersionId);
@@ -135,6 +154,12 @@ export async function updateShareLink(
       ...(changes.password !== undefined && {
         passwordHash: changes.password ? await hashPassword(changes.password) : null,
       }),
+      // Showing contacts and locking them are exclusive, so picking one clears the other.
+      ...(changes.showContact && { contactPasswordHash: null }),
+      ...(changes.contactPassword !== undefined && {
+        contactPasswordHash: changes.contactPassword ? await hashPassword(changes.contactPassword) : null,
+      }),
+      ...(changes.contactPassword && { showContact: false }),
       ...(changes.expiresAt !== undefined && { expiresAt: changes.expiresAt }),
       updatedAt: new Date(),
     })

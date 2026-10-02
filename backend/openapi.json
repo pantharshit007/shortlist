@@ -16602,6 +16602,9 @@
                           "hasPassword": {
                             "type": "boolean"
                           },
+                          "hasContactPassword": {
+                            "type": "boolean"
+                          },
                           "expiresAt": {
                             "type": [
                               "string",
@@ -16632,6 +16635,7 @@
                           "showContact",
                           "isListed",
                           "hasPassword",
+                          "hasContactPassword",
                           "expiresAt",
                           "viewCount",
                           "lastViewedAt",
@@ -16719,6 +16723,11 @@
                     "minLength": 4,
                     "maxLength": 100
                   },
+                  "contactPassword": {
+                    "type": "string",
+                    "minLength": 4,
+                    "maxLength": 100
+                  },
                   "expiresAt": {
                     "type": "string"
                   }
@@ -16776,6 +16785,9 @@
                         "hasPassword": {
                           "type": "boolean"
                         },
+                        "hasContactPassword": {
+                          "type": "boolean"
+                        },
                         "expiresAt": {
                           "type": [
                             "string",
@@ -16806,6 +16818,7 @@
                         "showContact",
                         "isListed",
                         "hasPassword",
+                        "hasContactPassword",
                         "expiresAt",
                         "viewCount",
                         "lastViewedAt",
@@ -16907,6 +16920,9 @@
                         "hasPassword": {
                           "type": "boolean"
                         },
+                        "hasContactPassword": {
+                          "type": "boolean"
+                        },
                         "expiresAt": {
                           "type": [
                             "string",
@@ -16937,6 +16953,7 @@
                         "showContact",
                         "isListed",
                         "hasPassword",
+                        "hasContactPassword",
                         "expiresAt",
                         "viewCount",
                         "lastViewedAt",
@@ -17027,6 +17044,18 @@
                       }
                     ]
                   },
+                  "contactPassword": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 4,
+                        "maxLength": 100
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "expiresAt": {
                     "type": [
                       "string",
@@ -17087,6 +17116,9 @@
                         "hasPassword": {
                           "type": "boolean"
                         },
+                        "hasContactPassword": {
+                          "type": "boolean"
+                        },
                         "expiresAt": {
                           "type": [
                             "string",
@@ -17117,6 +17149,7 @@
                         "showContact",
                         "isListed",
                         "hasPassword",
+                        "hasContactPassword",
                         "expiresAt",
                         "viewCount",
                         "lastViewedAt",
