@@ -465,8 +465,8 @@ function ResumeEditor({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              Tailor it to a job or polish your bullets. You review every change
-              first.
+              Tailor it to a job or polish your bullets. Nothing changes until
+              you apply it.
             </TooltipContent>
           </Tooltip>
         </div>

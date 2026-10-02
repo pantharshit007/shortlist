@@ -368,20 +368,22 @@ export const docs: DocPage[] = [
       },
       {
         id: 'review',
-        title: 'Review every change',
+        title: 'Apply or review changes',
         body: (
           <>
             <p>
-              Suggestions arrive as a list of separate changes, each with its
-              reason. Removed words are struck through in red and new words
-              underlined in green. Untick anything you don't want, then apply
-              the rest as a new version.
+              Suggestions arrive as a list of separate changes. Choose{' '}
+              <b>Apply all</b> to take them at once, with an Undo button right
+              after, or <b>Review changes</b> to see each one with its reason.
+              Removed words are struck through in red and new words underlined
+              in green. Untick anything you don't want, then apply the rest as a
+              new version.
             </p>
             <p>
               If a change mentions something that isn't in your resume or
               profile, it is flagged, for example{' '}
-              <i>Not found in your profile: Kafka</i>. Only accept it if it is
-              true.
+              <i>Not found in your profile: Kafka</i>. Apply all leaves flagged
+              changes out; only accept one if it is true.
             </p>
           </>
         ),
