@@ -92,11 +92,11 @@ export function TemplatePicker({
         {shown.map((option) => {
           const selected = option.value === value
           return (
-            <div key={option.value} className="relative">
+            <div key={option.value} className="group/card relative flex">
               <ToggleGroupItem
                 value={option.value}
                 aria-label={option.name}
-                className="group flex h-auto flex-col items-stretch justify-start gap-2 rounded-lg p-1.5 text-left whitespace-normal data-[state=on]:bg-primary/10"
+                className="group flex h-auto w-full flex-col items-stretch justify-start gap-2 rounded-lg p-1.5 text-left whitespace-normal data-[state=on]:bg-primary/10"
               >
                 <span
                   className={cn(
@@ -128,7 +128,7 @@ export function TemplatePicker({
                 <TemplatePreview
                   templateId={option.value}
                   onUse={() => onChange(option.value)}
-                  className="absolute top-3 left-3 z-10"
+                  className="absolute right-3 bottom-12 z-10"
                 />
               )}
             </div>

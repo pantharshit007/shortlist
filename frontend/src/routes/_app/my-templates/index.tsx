@@ -154,7 +154,7 @@ function TemplatesPage() {
           {templateCatalog.map((template) => (
             <li
               key={template.id}
-              className="group relative flex flex-col gap-3"
+              className="group group/card relative flex flex-col gap-3"
             >
               <Sheet className="p-0">
                 <img

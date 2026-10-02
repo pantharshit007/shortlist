@@ -104,7 +104,7 @@ function TemplatesPage() {
                 id={template.id}
                 className="flex scroll-mt-24 flex-col gap-4"
               >
-                <div className="relative">
+                <div className="group/card relative">
                   <img
                     src={`/templates/${template.id}.png`}
                     alt={`${template.name} template with a sample resume`}

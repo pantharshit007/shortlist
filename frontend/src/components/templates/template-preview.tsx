@@ -33,12 +33,16 @@ export function TemplatePreview({
       <DialogTrigger asChild>
         <Button
           variant="secondary"
-          size="sm"
+          size="icon-sm"
           aria-label={`Preview ${template.name}`}
-          className={cn('shadow-sm', className)}
+          title="Preview"
+          // Shown on hover or focus with a mouse; always shown on touch screens, which have no hover.
+          className={cn(
+            'rounded-full shadow-sm pointer-fine:opacity-0 pointer-fine:group-hover/card:opacity-100 pointer-fine:focus-visible:opacity-100',
+            className,
+          )}
         >
-          <EyeIcon data-icon="inline-start" />
-          Preview
+          <EyeIcon />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[92svh] gap-4 overflow-y-auto sm:max-w-2xl">
