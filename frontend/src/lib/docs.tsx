@@ -814,7 +814,7 @@ export const docs: DocPage[] = [
                 <tr>
                   <td>Free</td>
                   <td>₹0</td>
-                  <td>3 a month</td>
+                  <td>1 a month</td>
                   <td>50 a month</td>
                   <td>Free</td>
                 </tr>
@@ -828,7 +828,7 @@ export const docs: DocPage[] = [
                 <tr>
                   <td>Pro</td>
                   <td>₹129 a month</td>
-                  <td>40 a month</td>
+                  <td>60 a month</td>
                   <td>1,000 a month</td>
                   <td>Free</td>
                 </tr>

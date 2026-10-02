@@ -32,10 +32,17 @@ const plans = [
     listTitle: 'Includes:',
     features: [
       'Unlimited resumes you write yourself',
-      '3 resumes tailored with AI each month',
+      'Every template, in the form or LaTeX editor, switch anytime',
       'Free imports from PDF, .tex or text files (fair use)',
-      'Every template, in the form or LaTeX editor',
-      'PDF downloads and share links',
+      'Try job tailoring: 1 resume tailored to a job description each month',
+      '50 AI rewrites and quick fixes each month',
+      'ATS checker with job match and fixes',
+      'PDF, LaTeX and JSON downloads',
+      'Share links with view analytics: views, people, location and source',
+      'Hide your phone and email on shared links',
+      'Unlisted or password-protected links, with expiry',
+      'Full version history with named checkpoints',
+      'Use your own AI key for unlimited AI',
     ],
   },
   {
@@ -44,18 +51,16 @@ const plans = [
     forWhom: 'For placement season, when you apply every week.',
     price: '₹499',
     period: '/ 6 months',
-    note: 'One payment, about ₹83 a month. Never renews on its own.',
+    note: 'One payment, about ₹83 a month.',
     cta: 'Get the Season Pass',
     featured: true,
     listTitle: 'Everything in Free, plus:',
     features: [
-      '40 resumes tailored with AI each month, instead of 3',
+      'Tailor your resume to every job description: 40 a month, each its own version',
       'Unlimited AI rewrites and quick changes (fair use)',
       'Unlimited one-click LaTeX error fixes (fair use)',
       'Share links that unlock your phone and email with a password',
       'Detailed link analytics: busiest hours, links compared side by side, CSV export',
-      '6 months of access for a single payment',
-      'Never renews or charges you again on its own',
       'Your resumes and links stay when the pass ends',
     ],
   },
@@ -69,7 +74,7 @@ const plans = [
     cta: 'Choose Pro',
     listTitle: 'Everything in Free, plus:',
     features: [
-      '40 resumes tailored with AI each month, instead of 3',
+      'Tailor your resume to every job description: 60 a month, the most of any plan',
       'Unlimited AI rewrites and quick changes (fair use)',
       'Unlimited one-click LaTeX error fixes (fair use)',
       'Share links that unlock your phone and email with a password',
@@ -87,8 +92,8 @@ const comparison: { label: string; values: [string, string, string] }[] = [
     values: ['Unlimited', 'Unlimited', 'Unlimited'],
   },
   {
-    label: 'Resumes tailored with AI',
-    values: ['3 a month', '40 a month', '40 a month'],
+    label: 'Resumes tailored to a job description',
+    values: ['1 a month', '40 a month', '60 a month'],
   },
   {
     label: 'Imports from PDF, .tex or text',
@@ -107,7 +112,19 @@ const comparison: { label: string; values: [string, string, string] }[] = [
     values: ['Included', 'Included', 'Included'],
   },
   {
+    label: 'ATS checker with job match',
+    values: ['Included', 'Included', 'Included'],
+  },
+  {
     label: 'Share links with view analytics',
+    values: ['Included', 'Included', 'Included'],
+  },
+  {
+    label: 'Hidden phone and email, unlisted and password-protected links',
+    values: ['Included', 'Included', 'Included'],
+  },
+  {
+    label: 'Version history with named checkpoints',
     values: ['Included', 'Included', 'Included'],
   },
   {
@@ -127,11 +144,15 @@ const comparison: { label: string; values: [string, string, string] }[] = [
 const faqs = [
   {
     q: 'Is the free plan really free?',
-    a: 'Yes. Resumes you write yourself are free and unlimited, including every template, downloads and share links. AI features have a monthly allowance, 3 tailored resumes on Free, because each AI request costs us money to run.',
+    a: 'Yes. Resumes you write yourself are free and unlimited, including every template, downloads, the ATS checker, version history and share links with their analytics and privacy options. Tailoring a resume to a job description is the main paid feature: Free includes one a month to try it, because each AI request costs us money to run.',
+  },
+  {
+    q: 'What is the difference between Season Pass and Pro?',
+    a: 'Both unlock the paid features. Season Pass is one payment of ₹499 for 6 months with 40 tailored resumes a month, best for a placement season. Pro is ₹129 a month with 60 tailored resumes a month, cancel anytime, best if you apply a lot or want to pay monthly.',
   },
   {
     q: 'What counts as a resume tailored with AI?',
-    a: 'Each time you ask the AI to tailor a resume to a job description, it counts as one. Writing and editing by hand, downloading and sharing never count.',
+    a: 'Each time you ask the AI to tailor a resume to a job description, it counts as one. You get a separate version for that job, so every application has its own resume. Writing and editing by hand, downloading and sharing never count.',
   },
   {
     q: 'Does importing my old resume cost anything?',

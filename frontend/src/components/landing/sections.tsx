@@ -319,7 +319,7 @@ const faqs = [
   },
   {
     q: 'Is it free?',
-    a: 'Yes. Building and editing resumes is free and unlimited. The free plan also includes 3 resumes tailored with AI each month, and the Season Pass is ₹499 for six months if you are applying a lot.',
+    a: 'Yes. Building and editing resumes is free and unlimited. The free plan also includes one resume tailored to a job description each month, and the Season Pass is ₹499 for six months if you are applying a lot.',
   },
 ]
 
