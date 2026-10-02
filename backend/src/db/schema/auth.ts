@@ -20,6 +20,8 @@ export const users = pgTable(
     isAnonymous: boolean().notNull().default(false),
     // Set by an admin; a suspended user can't sign in and their sessions are revoked.
     suspendedAt: timestamp({ withTimezone: true }),
+    // Set by an admin; AI runs before it don't count toward this month's limits.
+    usageResetAt: timestamp({ withTimezone: true }),
     ...timestamps,
   },
   (t) => [check("users_username_format", sql`${t.username} ~ '^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$'`)],

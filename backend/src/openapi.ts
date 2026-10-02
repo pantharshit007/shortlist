@@ -492,6 +492,14 @@ const paths: ZodOpenApiPathsObject = {
   "/v1/admin/users/{userId}/sessions": {
     delete: op({ summary: "Sign a user out everywhere", tag: "Admin", params: adminUserParams, noContent: true }),
   },
+  "/v1/admin/users/{userId}/usage": {
+    delete: op({
+      summary: "Reset a user's AI usage for this month",
+      tag: "Admin",
+      params: adminUserParams,
+      noContent: true,
+    }),
+  },
   "/v1/admin/users/{userId}/subscriptions": {
     post: op({
       summary: "Give a user a paid plan for free",

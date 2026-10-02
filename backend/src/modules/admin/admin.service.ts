@@ -476,6 +476,16 @@ export async function revokeSessions(adminId: string, userId: string) {
   track(adminId, "admin_sessions_revoked", { target_user_id: userId, sessions: revoked.length });
 }
 
+export async function resetUsage(adminId: string, userId: string) {
+  const [user] = await db
+    .update(users)
+    .set({ usageResetAt: new Date() })
+    .where(eq(users.id, userId))
+    .returning({ id: users.id });
+  if (!user) throw new NotFoundError("User");
+  track(adminId, "admin_usage_reset", { target_user_id: userId });
+}
+
 export async function grantSubscription(adminId: string, userId: string, plan: "season_pass" | "pro", months: number) {
   const [user] = await db.select({ id: users.id }).from(users).where(eq(users.id, userId));
   if (!user) throw new NotFoundError("User");

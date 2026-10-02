@@ -36,6 +36,9 @@ async function planOf(userId: string): Promise<Plan> {
 }
 
 async function usedThisPeriod(userId: string, kind: QuotaKind) {
+  const [user] = await db.select({ resetAt: users.usageResetAt }).from(users).where(eq(users.id, userId));
+  const start = periodStart();
+  const since = user?.resetAt && user.resetAt > start ? user.resetAt : start;
   const [row] = await db
     .select({ value: count() })
     .from(aiRuns)
@@ -45,7 +48,7 @@ async function usedThisPeriod(userId: string, kind: QuotaKind) {
         eq(aiRuns.status, "succeeded"),
         eq(aiRuns.byok, false),
         inArray(aiRuns.step, stepsFor[kind]),
-        gte(aiRuns.createdAt, periodStart()),
+        gte(aiRuns.createdAt, since),
       ),
     );
   return row?.value ?? 0;

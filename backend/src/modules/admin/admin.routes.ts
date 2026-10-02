@@ -64,6 +64,14 @@ adminRouter.delete(
   }),
 );
 
+adminRouter.delete(
+  "/admin/users/:userId/usage",
+  ...validated({ params: adminUserParams }, async (req, res) => {
+    await admin.resetUsage(currentUser(req).id, req.params.userId);
+    res.status(204).end();
+  }),
+);
+
 adminRouter.post(
   "/admin/users/:userId/subscriptions",
   ...validated({ params: adminUserParams, body: createAdminSubscriptionBody }, async (req, res) => {
