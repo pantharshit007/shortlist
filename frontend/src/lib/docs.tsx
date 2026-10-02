@@ -330,6 +330,58 @@ export const docs: DocPage[] = [
     ],
   },
   {
+    slug: 'write-with-ai',
+    title: 'Writing a resume with AI',
+    group: 'AI',
+    summary:
+      'No resume yet? Describe yourself in a few notes and the AI writes a first draft.',
+    sections: [
+      {
+        id: 'how',
+        title: 'How it works',
+        body: (
+          <ol>
+            <li>
+              In <b>New resume</b>, choose <b>Write with AI</b>.
+            </li>
+            <li>
+              Add the role you are applying for, then write about yourself the
+              way you would tell a friend: where you study, internships,
+              projects, numbers and skills. Rough notes are fine.
+            </li>
+            <li>
+              Pick a template and check the draft in the preview. Create it,
+              then edit anything in the editor like any other resume.
+            </li>
+          </ol>
+        ),
+      },
+      {
+        id: 'facts',
+        title: 'It only uses what you write',
+        body: (
+          <p>
+            The AI turns your notes into resume bullets and sections. It never
+            adds an employer, a date, a number or a skill you did not mention,
+            so the more specific your notes, the stronger the draft. Your name
+            and email come from your account and are never sent to the AI.
+          </p>
+        ),
+      },
+      {
+        id: 'limits',
+        title: 'How many you get',
+        body: (
+          <p>
+            Free includes one AI-written resume per account, to try it. Season
+            Pass and Pro include 30 a month, and with your own AI key there is
+            no limit. Writing and editing resumes yourself is always free.
+          </p>
+        ),
+      },
+    ],
+  },
+  {
     slug: 'ai-tailoring',
     title: 'Tailoring with AI',
     group: 'AI',

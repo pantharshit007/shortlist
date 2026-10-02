@@ -35,6 +35,7 @@ const plans = [
       'Every template, in the form or LaTeX editor, switch anytime',
       'Free imports from PDF, .tex or text files (fair use)',
       'Try job tailoring: 1 resume tailored to a job description each month',
+      'One resume written by AI from your notes, to start from nothing',
       '50 AI rewrites and quick fixes each month',
       'ATS checker with job match and fixes',
       'PDF, LaTeX and JSON downloads',
@@ -57,6 +58,7 @@ const plans = [
     listTitle: 'Everything in Free, plus:',
     features: [
       'Tailor your resume to every job description: 40 a month, each its own version',
+      'Write new resumes from your notes with AI',
       'Unlimited AI rewrites and quick changes (fair use)',
       'Unlimited one-click LaTeX error fixes (fair use)',
       'Share links that unlock your phone and email with a password',
@@ -75,6 +77,7 @@ const plans = [
     listTitle: 'Everything in Free, plus:',
     features: [
       'Tailor your resume to every job description: 60 a month, the most of any plan',
+      'Write new resumes from your notes with AI',
       'Unlimited AI rewrites and quick changes (fair use)',
       'Unlimited one-click LaTeX error fixes (fair use)',
       'Share links that unlock your phone and email with a password',
@@ -94,6 +97,10 @@ const comparison: { label: string; values: [string, string, string] }[] = [
   {
     label: 'Resumes tailored to a job description',
     values: ['1 a month', '40 a month', '60 a month'],
+  },
+  {
+    label: 'Resumes written by AI from your notes',
+    values: ['1, to try it', '30 a month', '30 a month'],
   },
   {
     label: 'Imports from PDF, .tex or text',
