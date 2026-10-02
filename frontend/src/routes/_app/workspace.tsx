@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { GaugeIcon, PlusIcon, UserRoundIcon } from 'lucide-react'
-import { z } from 'zod'
+import { PlusIcon, UserRoundIcon } from 'lucide-react'
 import { useState } from 'react'
 import { PageHeader } from '@/components/app/page-header'
 import {
@@ -26,8 +25,6 @@ import { site } from '@/lib/site'
 import { templateCatalog } from '@/lib/templates'
 
 export const Route = createFileRoute('/_app/workspace')({
-  // From "Check your ATS score": opening a resume runs its ATS check.
-  validateSearch: z.object({ ats: z.boolean().optional() }),
   head: () => ({ meta: [{ title: `Workspace | ${site.name}` }] }),
   loader: ({ context }) =>
     Promise.all([
@@ -64,7 +61,6 @@ function templateName(id: string | null) {
 }
 
 function WorkspacePage() {
-  const { ats } = Route.useSearch()
   const [view, setView] = useState<'active' | 'archived'>('active')
   const resumes = useQuery(resumesQuery(view === 'archived'))
   // Loads the other list too, so switching between Active and Archived shows it at once.
@@ -94,21 +90,6 @@ function WorkspacePage() {
           </Button>
         }
       />
-
-      {ats && (
-        <Alert>
-          <GaugeIcon />
-          <AlertTitle>Pick a resume to check its ATS score</AlertTitle>
-          <AlertDescription>
-            It opens with the ATS report ready, and you can fix what it finds
-            with AI. Checking a PDF made elsewhere?{' '}
-            <Link to="/ats-checker" className="underline underline-offset-4">
-              Upload it here
-            </Link>
-            .
-          </AlertDescription>
-        </Alert>
-      )}
 
       {profileEmpty && (
         <Alert>
@@ -176,7 +157,6 @@ function WorkspacePage() {
                   <Link
                     to="/resumes/$resumeId"
                     params={{ resumeId: resume.id }}
-                    search={ats ? { ats: true } : {}}
                     className="truncate font-medium after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-offset-4 focus-visible:after:ring-offset-background"
                   >
                     {resume.title}

@@ -65,11 +65,10 @@ const nav = [
     match: ['/workspace', '/resumes'],
   },
   {
-    to: '/workspace',
-    search: { ats: true },
+    to: '/ats',
     label: 'Check your ATS score',
     icon: GaugeIcon,
-    match: [],
+    match: ['/ats'],
   },
   {
     to: '/my-templates',
@@ -155,10 +154,7 @@ export function AppSidebar() {
                       pathname.startsWith(prefix),
                     )}
                   >
-                    <Link
-                      to={item.to}
-                      search={'search' in item ? item.search : {}}
-                    >
+                    <Link to={item.to}>
                       <item.icon />
                       <span>{item.label}</span>
                     </Link>
