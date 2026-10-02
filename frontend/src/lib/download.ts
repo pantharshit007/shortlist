@@ -17,7 +17,11 @@ export async function downloadFile(path: string, fallbackName: string) {
   }
   const disposition = response.headers.get('content-disposition') ?? ''
   const name = /filename="([^"]+)"/.exec(disposition)?.[1] ?? fallbackName
-  const url = URL.createObjectURL(await response.blob())
+  saveBlob(await response.blob(), name)
+}
+
+export function saveBlob(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
   link.download = name
