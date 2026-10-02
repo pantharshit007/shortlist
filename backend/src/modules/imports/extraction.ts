@@ -51,7 +51,14 @@ export const extractionSchema = z.object({
 export type Extraction = z.infer<typeof extractionSchema>;
 
 const yearMonth = /^\d{4}(-(0[1-9]|1[0-2]))?$/;
-const clean = (value: string | null | undefined) => (value?.trim() ? value.trim() : undefined);
+// Soft hyphens and the noncharacters XeLaTeX leaves at hyphenation points ("Certifi\uFFFEcate").
+const pdfLeftovers = /[\u00AD\uFFFE\uFFFF]/g;
+const clean = (value: string | null | undefined) => {
+  const v = value?.replace(pdfLeftovers, "").trim();
+  return v ? v : undefined;
+};
+// Names, titles and labels are never formatted; bold markers only belong in bullets and descriptions.
+const plain = (value: string | null | undefined) => clean(value?.replace(/\*\*/g, ""));
 const date = (value: string | null | undefined) => {
   const v = clean(value)?.toLowerCase();
   return v && yearMonth.test(v) ? v : undefined;
@@ -67,8 +74,8 @@ const url = (value: string | null | undefined) => {
 };
 const siteNames: [RegExp, string][] = [
   [/linkedin\./, "LinkedIn"],
-  [/github\./, "GitHub"],
-  [/gitlab\./, "GitLab"],
+  [/github\.com/, "GitHub"],
+  [/gitlab\.com/, "GitLab"],
   [/(twitter|x)\.com/, "X"],
   [/leetcode\./, "LeetCode"],
   [/codeforces\./, "Codeforces"],
@@ -86,19 +93,36 @@ const linkLabel = (label: string, u: string) =>
 const links = (items: { label: string; url: string }[]) =>
   items.flatMap((item) => {
     const u = url(item.url);
-    return u && clean(item.label) ? [{ label: linkLabel(item.label, u), url: u }] : [];
+    const label = plain(item.label);
+    return u && label ? [{ label: linkLabel(label, u), url: u }] : [];
   });
 // The source's own bullet glyphs ("• Built X", "- Built X"); templates draw their own bullet.
 // A dash only counts when a space follows, and "*" is left alone since "**bold**" starts with it.
 const bulletMarker = /^(?:\s*(?:[•·▪▸►‣⁃◦○●■□➢➤✓✔→]|[-\u2013\u2014](?=\s)))+\s*/u;
-const bullets = (items: string[]) =>
+const bullets = (items: (string | null)[]) =>
   items
-    .map((b) => b.replace(bulletMarker, "").trim())
-    .filter(Boolean)
+    .map((b) => clean(b?.replace(bulletMarker, "")))
+    .filter((b): b is string => Boolean(b))
     .map((text) => ({ id: shortId(), text: text.slice(0, 600), hidden: false }));
 
+type Entry = Extraction["sections"][number]["entries"][number];
+// Text the model put in a field this entry type doesn't have (a project's description in subtitle) would be
+// dropped; it becomes the first bullet instead.
+const withLeftovers = (x: Entry, fields: ("title" | "subtitle" | "name")[], kept: (string | null)[]) =>
+  bullets([...fields.map((f) => (kept.includes(x[f]) ? null : x[f])), ...x.bullets]);
+
+// A lone date comes back as the same start and end; keep it once, as the end ("2019", not "2019 - 2019").
+function range(x: Entry) {
+  const start = date(x.start);
+  const end = endDate(x.end);
+  return start && start === end ? { end } : { start, end };
+}
+
+// Words that only name a link ("Verify", "Live") aren't content once the URL is attached.
+const linkWord = /^(verify|verified|link|code|live|demo|pdf|github|website|certificate|credential|view|here)$/i;
+
 function normalizeSection(section: Extraction["sections"][number]): ResumeSection | null {
-  const base = { id: shortId(), title: clean(section.title) ?? section.type, hidden: false };
+  const base = { id: shortId(), title: plain(section.title) ?? section.type, hidden: false };
   const e = section.entries;
   switch (section.type) {
     case "experience":
@@ -106,16 +130,15 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
         ...base,
         type: "experience",
         entries: e
-          .filter((x) => clean(x.organization) || clean(x.role))
+          .filter((x) => plain(x.organization) || plain(x.role))
           .map((x) => ({
             id: shortId(),
             hidden: false,
-            organization: clean(x.organization) ?? "",
-            role: clean(x.role) ?? "",
-            location: clean(x.location),
-            start: date(x.start),
-            end: endDate(x.end),
-            bullets: bullets(x.bullets),
+            organization: plain(x.organization) ?? "",
+            role: plain(x.role) ?? "",
+            location: plain(x.location),
+            ...range(x),
+            bullets: withLeftovers(x, ["title", "subtitle", "name"], [x.organization, x.role]),
           })),
       };
     case "education":
@@ -123,18 +146,17 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
         ...base,
         type: "education",
         entries: e
-          .filter((x) => clean(x.institution))
+          .filter((x) => plain(x.institution))
           .map((x) => ({
             id: shortId(),
             hidden: false,
-            institution: clean(x.institution)!,
-            degree: clean(x.degree),
-            field: clean(x.field),
-            score: clean(x.score)?.slice(0, 20),
-            location: clean(x.location),
-            start: date(x.start),
-            end: endDate(x.end),
-            bullets: bullets(x.bullets),
+            institution: plain(x.institution)!,
+            degree: plain(x.degree),
+            field: plain(x.field),
+            score: plain(x.score)?.slice(0, 20),
+            location: plain(x.location),
+            ...range(x),
+            bullets: withLeftovers(x, ["title", "subtitle"], [x.institution, x.degree, x.field]),
           })),
       };
     case "projects":
@@ -142,20 +164,19 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
         ...base,
         type: "projects",
         entries: e
-          .filter((x) => clean(x.name))
+          .filter((x) => plain(x.name))
           .map((x) => ({
             id: shortId(),
             hidden: false,
-            name: clean(x.name)!,
+            name: plain(x.name)!,
             url: url(x.url),
             links: links(x.links),
             technologies: x.technologies
-              .map((t) => t.trim())
+              .map((t) => plain(t) ?? "")
               .filter(Boolean)
               .slice(0, 20),
-            start: date(x.start),
-            end: endDate(x.end),
-            bullets: bullets(x.bullets),
+            ...range(x),
+            bullets: withLeftovers(x, ["title", "subtitle"], [x.name]),
           })),
       };
     case "skills":
@@ -164,7 +185,11 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
         type: "skills",
         groups: section.groups
           .filter((g) => g.items.length > 0)
-          .map((g) => ({ id: shortId(), name: g.name.trim(), items: g.items.map((i) => i.trim()).filter(Boolean) })),
+          .map((g) => ({
+            id: shortId(),
+            name: plain(g.name) ?? "",
+            items: g.items.map((i) => plain(i) ?? "").filter(Boolean),
+          })),
       };
     case "links":
       return { ...base, type: "links", links: links(section.links) };
@@ -175,16 +200,21 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
         ...base,
         type: "list",
         entries: e.flatMap((x): Extract<ResumeSection, { type: "list" }>["entries"] => {
-          const title = clean(x.title) ?? clean(x.name);
+          const raw = clean(x.title) ?? plain(x.name);
+          // A title that is bold as a whole is just a name; bold inside a sentence stays.
+          const title = raw && /^\*\*[^*]+\*\*$/.test(raw) ? raw.slice(2, -2) : raw;
           // Achievements often come back as bullets with no title; each one is its own item.
           if (!title)
             return bullets(x.bullets).map((b) => ({ id: shortId(), hidden: false, title: b.text, bullets: [] }));
+          // "**Name:** description" in one field splits into a bold name and its description.
+          const joined = !clean(x.subtitle) ? /^\*\*(.+?):?\*\*\s*[:\-\u2013\u2014]?\s*(.+)$/.exec(title) : null;
+          const subtitle = joined ? joined[2] : clean(x.subtitle);
           return [
             {
               id: shortId(),
               hidden: false,
-              title,
-              subtitle: clean(x.subtitle),
+              title: joined ? joined[1]!.trim() : title,
+              subtitle: subtitle && !linkWord.test(subtitle) && subtitle !== clean(x.date) ? subtitle : undefined,
               date: clean(x.date),
               url: url(x.url),
               bullets: bullets(x.bullets),
@@ -196,9 +226,9 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
 }
 
 export function normalizeExtraction(extraction: Extraction): ResumeContent {
-  const email = clean(extraction.basics.email);
+  const email = clean(extraction.basics.email)?.replace(/^mailto:/i, "");
   const sections = extraction.sections.map(normalizeSection).filter((s): s is ResumeSection => s !== null);
-  let headline = clean(extraction.basics.headline);
+  let headline = plain(extraction.basics.headline);
   // Models sometimes put the summary paragraph in the headline; give it its own section instead.
   if (headline && headline.length > 100 && !sections.some((s) => s.type === "summary")) {
     sections.unshift({ id: shortId(), title: "Summary", hidden: false, type: "summary", text: headline });
@@ -206,11 +236,11 @@ export function normalizeExtraction(extraction: Extraction): ResumeContent {
   }
   const content = {
     basics: {
-      name: extraction.basics.name.trim(),
+      name: plain(extraction.basics.name) ?? "",
       headline,
       email: email && z.email().safeParse(email).success ? email : undefined,
       phone: clean(extraction.basics.phone)?.slice(0, 30),
-      location: clean(extraction.basics.location),
+      location: plain(extraction.basics.location),
       links: links(extraction.basics.links),
     },
     sections,

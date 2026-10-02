@@ -187,3 +187,59 @@ describe("normalizeExtraction link labels", () => {
     expect(content.basics.links.map((l) => l.label)).toEqual(["X", "LinkedIn", "Portfolio", "My Blog"]);
   });
 });
+
+describe("normalizeExtraction cleanup", () => {
+  const base = { name: "A", headline: null, phone: null, location: null, links: [] };
+  it("keeps misplaced text, single dates, clean words and site names", () => {
+    const content = normalizeExtraction({
+      basics: {
+        ...base,
+        email: "mailto:a@example.com",
+        links: [{ label: "aarav.github.io", url: "https://aarav.github.io" }],
+      },
+      sections: [
+        {
+          type: "projects",
+          title: "Projects",
+          text: null,
+          groups: [],
+          links: [],
+          entries: [
+            entry({ name: "CampusBus", subtitle: "Live bus tracking for 2,000 students", bullets: ["Built it"] }),
+          ],
+        },
+        {
+          type: "education",
+          title: "Education",
+          text: null,
+          groups: [],
+          links: [],
+          entries: [entry({ institution: "DPS", start: "2019", end: "2019" })],
+        },
+        {
+          type: "list",
+          title: "Certifications",
+          text: null,
+          groups: [],
+          links: [],
+          entries: [entry({ title: "AWS Certifi￾cate", subtitle: "Verify", date: "2023" })],
+        },
+      ],
+    });
+    expect(content.basics.email).toBe("a@example.com");
+    expect(content.basics.links[0]?.label).toBe("Portfolio");
+    const [projects, education, list] = content.sections;
+    expect(projects?.type === "projects" && projects.entries[0]!.bullets.map((b) => b.text)).toEqual([
+      "Live bus tracking for 2,000 students",
+      "Built it",
+    ]);
+    expect(education?.type === "education" && [education.entries[0]!.start, education.entries[0]!.end]).toEqual([
+      undefined,
+      "2019",
+    ]);
+    expect(list?.type === "list" && [list.entries[0]!.title, list.entries[0]!.subtitle]).toEqual([
+      "AWS Certificate",
+      undefined,
+    ]);
+  });
+});
