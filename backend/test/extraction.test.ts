@@ -462,3 +462,31 @@ describe("normalizeExtraction list dates", () => {
     expect(list.entries.map((e) => e.date)).toEqual(["Apr 2008 – May 2009", "2010"]);
   });
 });
+
+describe("normalizeExtraction jobs in a list", () => {
+  it("keeps jobs listed with a role and company as experience instead of dropping them", () => {
+    const content = normalizeExtraction({
+      basics: { name: "A", headline: null, email: null, phone: null, location: null, links: [] },
+      sections: [
+        {
+          type: "list",
+          title: "Earlier Experience",
+          text: null,
+          groups: [],
+          links: [],
+          entries: [
+            entry({ role: "Lead Developer", organization: "Acme", start: "2008-04", end: "2009-05" }),
+            entry({ role: "Software Engineer", organization: "Beta", start: "2006", end: "2008" }),
+          ],
+        },
+      ],
+    });
+    const section = content.sections[0];
+    if (section?.type !== "experience") throw new Error("expected experience");
+    expect(section.title).toBe("Earlier Experience");
+    expect(section.entries.map((e) => [e.role, e.organization, e.start, e.end])).toEqual([
+      ["Lead Developer", "Acme", "2008-04", "2009-05"],
+      ["Software Engineer", "Beta", "2006", "2008"],
+    ]);
+  });
+});

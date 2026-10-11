@@ -215,7 +215,10 @@ function bareRole(role: string, organization: string) {
 function normalizeSection(section: Extraction["sections"][number]): ResumeSection | null {
   const base = { id: shortId(), title: plain(section.title) ?? section.type, hidden: false };
   const e = section.entries;
-  switch (section.type) {
+  // Jobs in a compact list like "Earlier experience" come back as a list with roles and companies. The list
+  // reads only titles, so they would vanish; they're jobs, so they become an experience section.
+  const jobs = section.type === "list" && e.length > 0 && e.every((x) => plain(x.role) && !clean(x.title));
+  switch (jobs ? "experience" : section.type) {
     case "experience":
       return {
         ...base,
