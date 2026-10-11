@@ -28,6 +28,8 @@ describe("texRich", () => {
 describe("texUrl", () => {
   it("escapes characters that break \\href", () => {
     expect(texUrl("https://x.com/a%20b#top")).toBe("https://x.com/a\\%20b\\#top");
+    // An unescaped & inside a project heading's table broke the compile.
+    expect(texUrl("https://www.youtube.com/watch?v=abc&t=3s")).toBe("https://www.youtube.com/watch?v=abc\\&t=3s");
   });
 
   it("neutralises ^^ hex escapes", () => {

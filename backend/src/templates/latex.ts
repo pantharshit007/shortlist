@@ -27,9 +27,10 @@ export function texRich(value: string | undefined | null): string {
     .join("");
 }
 
-// TeX reads ^^5c as a backslash, so ^ is percent-encoded first (same meaning in a URL).
+// TeX reads ^^5c as a backslash, so ^ is percent-encoded first (same meaning in a URL). & is escaped because
+// an unescaped one inside a table (project headings) is read as a column break.
 export function texUrl(url: string): string {
-  return url.replace(/\^/g, "%5E").replace(/[\\%#{}]/g, (char) => `\\${char}`);
+  return url.replace(/\^/g, "%5E").replace(/[\\%#{}&]/g, (char) => `\\${char}`);
 }
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
