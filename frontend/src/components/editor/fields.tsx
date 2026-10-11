@@ -1,8 +1,15 @@
 import { LockIcon, LockOpenIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Toggle } from '@/components/ui/toggle'
 import {
   Tooltip,
@@ -102,9 +109,87 @@ export function TextField({
   )
 }
 
-// Stored as "YYYY" or "YYYY-MM"; a month input needs "YYYY-MM".
-const toMonth = (value: string | undefined) =>
-  value && /^\d{4}$/.test(value) ? `${value}-01` : (value ?? '')
+const monthNames = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]
+
+// Stored as "YYYY" or "YYYY-MM". The month is optional, which a native month input can't express: it gives no
+// value until both are filled in, so a year typed alone was lost.
+function MonthYearInput({
+  id,
+  label,
+  value,
+  disabled,
+  onChange,
+}: {
+  id: string
+  label: string
+  value: string | undefined
+  disabled?: boolean
+  onChange: (value: string | undefined) => void
+}) {
+  const [year = '', month = 'none'] = (value ?? '').split('-')
+  // The year is typed digit by digit; only a full year (or an empty box) is saved.
+  const [yearText, setYearText] = useState(year)
+  useEffect(() => setYearText(year), [year])
+  const save = (nextYear: string, nextMonth: string | undefined) =>
+    onChange(
+      nextYear
+        ? nextMonth
+          ? `${nextYear}-${nextMonth}`
+          : nextYear
+        : undefined,
+    )
+  return (
+    <div className="flex gap-2">
+      <Select
+        value={month}
+        disabled={disabled || !/^\d{4}$/.test(yearText)}
+        onValueChange={(next) =>
+          save(yearText, next === 'none' ? undefined : next)
+        }
+      >
+        <SelectTrigger aria-label={`${label} month`} className="min-w-0 flex-1">
+          <SelectValue placeholder="Month" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">No month</SelectItem>
+          {monthNames.map((name, index) => (
+            <SelectItem key={name} value={String(index + 1).padStart(2, '0')}>
+              {name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Input
+        id={id}
+        inputMode="numeric"
+        placeholder="Year"
+        maxLength={4}
+        disabled={disabled}
+        className="w-20"
+        value={disabled ? '' : yearText}
+        onChange={(event) => {
+          const next = event.target.value.replace(/\D/g, '')
+          setYearText(next)
+          if (next === '' || /^\d{4}$/.test(next))
+            save(next, month === 'none' ? undefined : month)
+        }}
+      />
+    </div>
+  )
+}
 
 export function MonthField({
   id,
@@ -120,12 +205,7 @@ export function MonthField({
   return (
     <Field>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      <Input
-        id={id}
-        type="month"
-        value={toMonth(value)}
-        onChange={(event) => onChange(event.target.value || undefined)}
-      />
+      <MonthYearInput id={id} label={label} value={value} onChange={onChange} />
     </Field>
   )
 }
@@ -159,12 +239,12 @@ export function EndDateField({
           Present
         </label>
       </div>
-      <Input
+      <MonthYearInput
         id={id}
-        type="month"
+        label="End"
+        value={present ? undefined : value}
         disabled={present}
-        value={present ? '' : toMonth(value)}
-        onChange={(event) => onChange(event.target.value || undefined)}
+        onChange={onChange}
       />
     </Field>
   )
