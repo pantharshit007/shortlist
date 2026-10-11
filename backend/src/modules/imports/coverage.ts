@@ -1,5 +1,6 @@
 import { shortId } from "../../lib/ids.js";
 import type { ResumeContent } from "../../schemas/resume-content.js";
+import { plainText } from "../../schemas/rich-text.js";
 import type { ParsedResume, SectionKind } from "../ats/parser/types.js";
 
 // After the AI reads a PDF, a rule-based read of the same PDF checks that no line was dropped.
@@ -26,7 +27,8 @@ const pairs = (text: string) => {
 // Every string in the content, plus each entry's fields joined (bullets aside), because a PDF prints
 // "Languages: Go, TypeScript" or "LedgerLite | Go, Kafka | GitHub" on one line from separate fields.
 function strings(value: unknown): string[] {
-  if (typeof value === "string") return [value];
+  // A link's address isn't printed on the page, so only its words count.
+  if (typeof value === "string") return [plainText(value)];
   if (Array.isArray(value)) return value.flatMap(strings);
   if (value && typeof value === "object") {
     const fields = Object.entries(value).filter(([key]) => key !== "id");

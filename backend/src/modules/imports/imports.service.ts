@@ -5,7 +5,7 @@ import { users } from "../../db/schema/index.js";
 import { generateStructured } from "../../lib/ai/generate.js";
 import { readUpload } from "../uploads/uploads.service.js";
 import { assertAiQuota } from "../usage/quotas.js";
-import { applyBold, extractionSchema, normalizeExtraction } from "./extraction.js";
+import { applyBold, extractionSchema, normalizeExtraction, placeLinks } from "./extraction.js";
 import { linkStyleOf, type pdfHints } from "./pdf-hints.js";
 import { track } from "../../lib/analytics.js";
 import { logger } from "../../lib/logger.js";
@@ -93,7 +93,7 @@ export async function createImport(
       hidden = links;
       boldPhrases = bold;
       if (links.length) {
-        prompt += `\n\nThese links are hidden behind text in the PDF. Each shows the words it sits on (or its line, for an icon), then where it points. Put each URL in the url or links field of the item it belongs to, a mailto: address in basics.email, a tel: number in basics.phone, and profile links in basics.links:\n${links.map((l) => `- "${l.text}" -> ${l.url}`).join("\n")}`;
+        prompt += `\n\nThese links are hidden behind text in the PDF. Each shows the words it sits on (or its line, for an icon), then where it points. Put a mailto: address in basics.email, a tel: number in basics.phone and profile links in basics.links. A link on an item's name or title goes in that item's url. A link on some words inside a bullet, summary, or list item's title or description stays on those words, written inline as [the words](url), with the rest of the text unchanged; each such link is kept, even when one item has several:\n${links.map((l) => `- "${l.text}" -> ${l.url}`).join("\n")}`;
       }
       if (bold.length) {
         prompt += `\n\nThese phrases are bold in the PDF. Wherever one appears inside a bullet, summary or list item, wrap it in **double asterisks**:\n${bold.map((b) => `- ${b}`).join("\n")}`;
@@ -125,7 +125,7 @@ export async function createImport(
     prompt,
     files,
   });
-  const extracted = applyBold(normalizeExtraction(data), boldPhrases);
+  const extracted = applyBold(placeLinks(normalizeExtraction(data), hidden), boldPhrases);
   // The model sometimes skips an email or phone that sits only behind an icon.
   const behind = (scheme: string) => {
     const link = hidden.find((l) => l.url.toLowerCase().startsWith(scheme));
