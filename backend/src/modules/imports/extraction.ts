@@ -58,9 +58,11 @@ export type Extraction = z.infer<typeof extractionSchema>;
 
 const yearMonth = /^\d{4}(-(0[1-9]|1[0-2]))?$/;
 // Soft hyphens and the noncharacters XeLaTeX leaves at hyphenation points ("Certifi\uFFFEcate").
-const pdfLeftovers = /[\u00AD\uFFFE\uFFFF]/g;
+// Soft hyphens, unmapped glyphs and control characters, which icon fonts (a GitHub star) leave in a PDF's text.
+const pdfLeftovers = /[^\P{Cc}\t\n\r]|[\u00AD\uFFFE\uFFFF]/gu;
 const clean = (value: string | null | undefined) => {
-  const v = value?.replace(pdfLeftovers, "").trim();
+  // A removed icon leaves its spaces behind: "(36k+ )" becomes "(36k+)".
+  const v = value?.replace(pdfLeftovers, "").replace(/\( +/g, "(").replace(/ +\)/g, ")").trim();
   return v ? v : undefined;
 };
 // Names, titles and labels are never formatted; bold markers only belong in bullets and descriptions.

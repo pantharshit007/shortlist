@@ -490,3 +490,23 @@ describe("normalizeExtraction jobs in a list", () => {
     ]);
   });
 });
+
+describe("normalizeExtraction icon leftovers", () => {
+  it("drops the control character an icon leaves and the gap around it", () => {
+    const content = normalizeExtraction({
+      basics: { name: "A", headline: null, email: null, phone: null, location: null, links: [] },
+      sections: [
+        {
+          type: "list",
+          title: "Open Source",
+          text: null,
+          groups: [],
+          links: [],
+          entries: [entry({ title: "CopilotKit (36k+ \u0087)" })],
+        },
+      ],
+    });
+    const list = content.sections[0];
+    expect(list?.type === "list" && list.entries[0]!.title).toBe("CopilotKit (36k+)");
+  });
+});
