@@ -27,8 +27,8 @@ const linkSchema = z.object({
 const entryBase = {
   id,
   hidden: z.boolean().default(false),
-  // Extra space after the entry on the PDF, in points.
-  spaceAfter: z.number().int().min(0).max(24).optional(),
+  // Space after the entry on the PDF, in points: negative is tighter than the template, positive looser.
+  spaceAfter: z.number().int().min(-8).max(24).optional(),
   bullets: z.array(bulletSchema).max(20).default([]),
 };
 
@@ -85,8 +85,8 @@ const sectionBase = {
   id,
   title: z.string().trim().min(1).max(60),
   hidden: z.boolean().default(false),
-  // Extra space after the whole section on the PDF, in points.
-  spaceAfter: z.number().int().min(0).max(24).optional(),
+  // Space after the whole section on the PDF, in points: negative is tighter than the template, positive looser.
+  spaceAfter: z.number().int().min(-8).max(24).optional(),
 };
 
 export const sectionSchema = z.discriminatedUnion("type", [

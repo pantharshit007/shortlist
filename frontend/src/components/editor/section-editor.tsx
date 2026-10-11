@@ -49,15 +49,16 @@ import type {
 import { EndDateField, ListField, MonthField, TextField } from './fields'
 import { LinksEditor } from './links-field'
 
-// Extra space after an entry on the PDF, in points.
+// Space after an entry on the PDF, in points; Tighter pulls the next item closer than the template does.
 const spaceOptions = [
+  { label: 'Tighter', value: -6 },
   { label: 'None', value: 0 },
   { label: 'Small', value: 4 },
   { label: 'Medium', value: 8 },
   { label: 'Large', value: 14 },
 ] as const
 
-// "Space below" for an entry or a whole section: None, Small, Medium or Large.
+// "Space below" for an entry or a whole section: Tighter, None, Small, Medium or Large.
 function SpaceBelowMenu({
   value,
   onChange,
