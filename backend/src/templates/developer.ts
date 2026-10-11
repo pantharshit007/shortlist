@@ -172,7 +172,11 @@ function renderSection(s: ResumeSection): string {
           "\n",
         );
       });
-      return section(s.title, `\\resumeSubHeadingListStart\n${entries.join("\n")}\n\\resumeSubHeadingListEnd`);
+      // Spaced like projects, which share the heading; without it each item sat almost twice as far apart.
+      return section(
+        s.title,
+        `\\resumeSubHeadingListStart\n${entries.join("\n\\vspace{-13pt}\n")}\n\\resumeSubHeadingListEnd`,
+      );
     }
   }
 }
