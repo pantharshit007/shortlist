@@ -86,6 +86,13 @@ export function OperationTitle({
           {content && op.targetId ? labelFor(content, op.targetId) : 'item'}
         </>
       )
+    case 'set_space_after':
+      return (
+        <>
+          Change the space below{' '}
+          {content && op.targetId ? labelFor(content, op.targetId) : 'an item'}
+        </>
+      )
     case 'reorder':
       return (
         <>
@@ -153,6 +160,15 @@ export function OperationBody({
         <Rich text={text} />
       </p>
     ) : null
+  }
+  if (op.type === 'set_space_after' && op.points !== undefined) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        {op.points === 0
+          ? "Back to the template's spacing"
+          : `${op.points < 0 ? 'Tighter' : 'Looser'} by ${Math.abs(op.points)}pt`}
+      </p>
+    )
   }
   if (op.type === 'reorder' && op.orderedIds && content && op.parentId) {
     const old = childIds(content, op.parentId)
