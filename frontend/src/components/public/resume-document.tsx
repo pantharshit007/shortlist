@@ -1,4 +1,5 @@
 import type { ResumeContent, ResumeSection } from '@/lib/api/types'
+import { linkParts } from '@/lib/rich-text'
 
 // An HTML rendering of structured resume content, styled like the typeset PDF.
 
@@ -22,7 +23,7 @@ function dateRange(start?: string, end?: string) {
   return [formatMonth(start), formatMonth(end)].filter(Boolean).join(' – ')
 }
 
-function Rich({ text }: { text: string }) {
+function Bold({ text }: { text: string }) {
   return (
     <>
       {text
@@ -30,6 +31,29 @@ function Rich({ text }: { text: string }) {
         .map((part, index) =>
           index % 2 === 1 ? <strong key={index}>{part}</strong> : part,
         )}
+    </>
+  )
+}
+
+// Links are the resume owner's, so they open in a new tab and aren't endorsed for search engines.
+function Rich({ text }: { text: string }) {
+  return (
+    <>
+      {linkParts(text).map((part, index) =>
+        part.url ? (
+          <a
+            key={index}
+            href={part.url}
+            target="_blank"
+            rel="noopener nofollow ugc"
+            className="underline underline-offset-2"
+          >
+            <Bold text={part.text} />
+          </a>
+        ) : (
+          <Bold key={index} text={part.text} />
+        ),
+      )}
     </>
   )
 }

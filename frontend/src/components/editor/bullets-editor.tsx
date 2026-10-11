@@ -66,7 +66,8 @@ export function BulletsEditor({
       <p className="text-sm font-medium">
         Bullet points{' '}
         <span className="font-normal text-muted-foreground">
-          Select words and press Ctrl+B (⌘B on Mac) to bold them.
+          Select words and press Ctrl+B (⌘B on Mac) to bold them. Write
+          [words](https://…) to link them.
         </span>
       </p>
       {bullets.map((bullet, index) => (

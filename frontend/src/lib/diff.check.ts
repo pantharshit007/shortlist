@@ -28,4 +28,12 @@ assert.match(
   text(richWordDiff('Used **Redis** daily', 'Used Postgres daily')),
   /-\[Redis\]/,
 )
+// A link shows as its words; its address never appears as a changed word.
+const linked = richWordDiff(
+  'Ranked 2495 globally',
+  'Ranked [2495 globally](https://drive.google.com/x) in the cup',
+)
+assert.ok(linked.every((p) => p.runs.every((r) => !r.text.includes('drive'))))
+assert.match(text(linked), /\+in the cup/)
+
 console.log('diff check ok')

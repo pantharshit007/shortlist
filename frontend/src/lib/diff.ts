@@ -1,5 +1,6 @@
 import { diffWords, structuredPatch } from 'diff'
 import type { ResumeContent } from './api/types'
+import { withoutLinks } from './rich-text.ts'
 
 export type Change =
   | { type: 'text'; where: string; before: string; after: string }
@@ -173,9 +174,10 @@ export function lineHunks(before: string, after: string, context = 2) {
 
 export type Run = { text: string; bold: boolean }
 
-// Splits **bold** markers out of text, the same way the LaTeX and public pages read them.
+// Splits **bold** markers out of text, the same way the LaTeX and public pages read them. Links show as their
+// words; their addresses aren't part of what changed.
 export function richRuns(text: string): Run[] {
-  return text
+  return withoutLinks(text)
     .split(/\*\*(.+?)\*\*/g)
     .map((part, index) => ({ text: part, bold: index % 2 === 1 }))
     .filter((run) => run.text)

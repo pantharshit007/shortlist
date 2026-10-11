@@ -480,7 +480,10 @@ function SummaryEditor({
         }
       />
       <FieldDescription className="flex justify-between gap-4">
-        <span>Select words and press Ctrl+B (⌘B on Mac) to bold them.</span>
+        <span>
+          Select words and press Ctrl+B (⌘B on Mac) to bold them. Write
+          [words](https://…) to link them.
+        </span>
         <span className="tabular-nums">
           {section.text.length}/{SUMMARY_MAX}
         </span>

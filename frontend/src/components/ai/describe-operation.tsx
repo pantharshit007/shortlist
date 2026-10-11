@@ -1,5 +1,6 @@
 import { ItemsDiff, LineDiff, WordDiff } from '@/components/diff'
 import type { ResumeContent, SuggestionOperation } from '@/lib/api/types'
+import { withoutLinks } from '@/lib/rich-text'
 import { cn } from '@/lib/utils'
 
 type Entry = { id: string; bullets?: { id: string; text: string }[] } & Record<
@@ -56,7 +57,7 @@ function labelFor(content: ResumeContent, id: string): string {
 function Rich({ text }: { text: string }) {
   return (
     <>
-      {text
+      {withoutLinks(text)
         .split(/\*\*(.+?)\*\*/g)
         .map((part, index) =>
           index % 2 === 1 ? <b key={index}>{part}</b> : part,
