@@ -82,6 +82,12 @@ const byRole: [RegExp, TemplateId, string][] = [
   ],
 ]
 
+const engineering =
+  /\b(engineer\w*|developer|programmer|sde|swe|devops|sre|mts|member of technical staff|full[- ]?stack|back[- ]?end|front[- ]?end|tech(nical)? lead|architect|(technology|programmer|application development) analyst)\b/
+// Lookarounds instead of \b, so C++, C# and .NET match.
+const programming =
+  /(?<![\w.+#])(java|python|javascript|typescript|react|node(\.js)?|sql|c\+\+|c#|golang|go|kotlin|swift|spring|django|\.net|aws|docker|kubernetes)(?![\w+#])/
+
 const seniorRole =
   /\b(architect|director|vp|vice president|head|chief|cto|ceo|cfo|coo|principal|general manager|partner)\b/
 
@@ -104,6 +110,25 @@ export function recommendTemplate(
       reason: senior
         ? `${years} years of experience and senior roles like ${senior}.`
         : `${years} years of experience.`,
+    }
+
+  // Most people here are engineers, and a word like "Consultant" (a developer's title at many IT services firms)
+  // or "Growth" mustn't move them off the developer layout. Interns and freshers in tech use it too.
+  const skills = content.sections
+    .flatMap((section) => (section.type === 'skills' ? section.groups : []))
+    .flatMap((group) => group.items)
+    .join(' ')
+    .toLowerCase()
+  const titles = [content.basics.headline ?? '', ...roles]
+    .join(' | ')
+    .toLowerCase()
+  if (
+    engineering.test(titles) ||
+    (/\b(consultant|analyst)\b/.test(titles) && programming.test(skills))
+  )
+    return {
+      templateId: 'developer',
+      reason: 'The layout most people in tech use.',
     }
 
   if (roles.length === 0 || years < 1)
