@@ -648,7 +648,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -672,7 +672,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -775,7 +775,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -799,7 +799,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -906,7 +906,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -930,7 +930,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -1062,7 +1062,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -1130,7 +1130,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -1154,7 +1154,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -1241,7 +1241,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -1282,7 +1282,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -1477,7 +1477,7 @@
                                 },
                                 "spaceAfter": {
                                   "type": "integer",
-                                  "minimum": 0,
+                                  "minimum": -8,
                                   "maximum": 24
                                 },
                                 "type": {
@@ -1501,7 +1501,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "bullets": {
@@ -1597,7 +1597,7 @@
                                 },
                                 "spaceAfter": {
                                   "type": "integer",
-                                  "minimum": 0,
+                                  "minimum": -8,
                                   "maximum": 24
                                 },
                                 "type": {
@@ -1621,7 +1621,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "bullets": {
@@ -1721,7 +1721,7 @@
                                 },
                                 "spaceAfter": {
                                   "type": "integer",
-                                  "minimum": 0,
+                                  "minimum": -8,
                                   "maximum": 24
                                 },
                                 "type": {
@@ -1745,7 +1745,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "bullets": {
@@ -1867,7 +1867,7 @@
                                 },
                                 "spaceAfter": {
                                   "type": "integer",
-                                  "minimum": 0,
+                                  "minimum": -8,
                                   "maximum": 24
                                 },
                                 "type": {
@@ -1932,7 +1932,7 @@
                                 },
                                 "spaceAfter": {
                                   "type": "integer",
-                                  "minimum": 0,
+                                  "minimum": -8,
                                   "maximum": 24
                                 },
                                 "type": {
@@ -1956,7 +1956,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "bullets": {
@@ -2036,7 +2036,7 @@
                                 },
                                 "spaceAfter": {
                                   "type": "integer",
-                                  "minimum": 0,
+                                  "minimum": -8,
                                   "maximum": 24
                                 },
                                 "type": {
@@ -2074,7 +2074,7 @@
                                 },
                                 "spaceAfter": {
                                   "type": "integer",
-                                  "minimum": 0,
+                                  "minimum": -8,
                                   "maximum": 24
                                 },
                                 "type": {
@@ -2237,7 +2237,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -2261,7 +2261,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -2364,7 +2364,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -2388,7 +2388,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -2495,7 +2495,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -2519,7 +2519,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -2651,7 +2651,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -2719,7 +2719,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -2743,7 +2743,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -2830,7 +2830,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -2871,7 +2871,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -4547,7 +4547,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -4571,7 +4571,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -4674,7 +4674,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -4698,7 +4698,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -4805,7 +4805,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -4829,7 +4829,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -4961,7 +4961,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -5029,7 +5029,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -5053,7 +5053,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -5140,7 +5140,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -5181,7 +5181,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -5438,7 +5438,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -5462,7 +5462,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -5565,7 +5565,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -5589,7 +5589,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -5696,7 +5696,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -5720,7 +5720,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -5852,7 +5852,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -5920,7 +5920,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -5944,7 +5944,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -6031,7 +6031,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -6072,7 +6072,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -6348,7 +6348,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -6372,7 +6372,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -6475,7 +6475,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -6499,7 +6499,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -6606,7 +6606,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -6630,7 +6630,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -6762,7 +6762,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -6830,7 +6830,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -6854,7 +6854,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -6941,7 +6941,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -6982,7 +6982,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -7516,7 +7516,7 @@
                                         },
                                         "spaceAfter": {
                                           "type": "integer",
-                                          "minimum": 0,
+                                          "minimum": -8,
                                           "maximum": 24
                                         },
                                         "type": {
@@ -7540,7 +7540,7 @@
                                               },
                                               "spaceAfter": {
                                                 "type": "integer",
-                                                "minimum": 0,
+                                                "minimum": -8,
                                                 "maximum": 24
                                               },
                                               "bullets": {
@@ -7636,7 +7636,7 @@
                                         },
                                         "spaceAfter": {
                                           "type": "integer",
-                                          "minimum": 0,
+                                          "minimum": -8,
                                           "maximum": 24
                                         },
                                         "type": {
@@ -7660,7 +7660,7 @@
                                               },
                                               "spaceAfter": {
                                                 "type": "integer",
-                                                "minimum": 0,
+                                                "minimum": -8,
                                                 "maximum": 24
                                               },
                                               "bullets": {
@@ -7760,7 +7760,7 @@
                                         },
                                         "spaceAfter": {
                                           "type": "integer",
-                                          "minimum": 0,
+                                          "minimum": -8,
                                           "maximum": 24
                                         },
                                         "type": {
@@ -7784,7 +7784,7 @@
                                               },
                                               "spaceAfter": {
                                                 "type": "integer",
-                                                "minimum": 0,
+                                                "minimum": -8,
                                                 "maximum": 24
                                               },
                                               "bullets": {
@@ -7906,7 +7906,7 @@
                                         },
                                         "spaceAfter": {
                                           "type": "integer",
-                                          "minimum": 0,
+                                          "minimum": -8,
                                           "maximum": 24
                                         },
                                         "type": {
@@ -7971,7 +7971,7 @@
                                         },
                                         "spaceAfter": {
                                           "type": "integer",
-                                          "minimum": 0,
+                                          "minimum": -8,
                                           "maximum": 24
                                         },
                                         "type": {
@@ -7995,7 +7995,7 @@
                                               },
                                               "spaceAfter": {
                                                 "type": "integer",
-                                                "minimum": 0,
+                                                "minimum": -8,
                                                 "maximum": 24
                                               },
                                               "bullets": {
@@ -8075,7 +8075,7 @@
                                         },
                                         "spaceAfter": {
                                           "type": "integer",
-                                          "minimum": 0,
+                                          "minimum": -8,
                                           "maximum": 24
                                         },
                                         "type": {
@@ -8113,7 +8113,7 @@
                                         },
                                         "spaceAfter": {
                                           "type": "integer",
-                                          "minimum": 0,
+                                          "minimum": -8,
                                           "maximum": 24
                                         },
                                         "type": {
@@ -8509,7 +8509,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -8533,7 +8533,7 @@
                                                         },
                                                         "spaceAfter": {
                                                           "type": "integer",
-                                                          "minimum": 0,
+                                                          "minimum": -8,
                                                           "maximum": 24
                                                         },
                                                         "bullets": {
@@ -8636,7 +8636,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -8660,7 +8660,7 @@
                                                         },
                                                         "spaceAfter": {
                                                           "type": "integer",
-                                                          "minimum": 0,
+                                                          "minimum": -8,
                                                           "maximum": 24
                                                         },
                                                         "bullets": {
@@ -8767,7 +8767,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -8791,7 +8791,7 @@
                                                         },
                                                         "spaceAfter": {
                                                           "type": "integer",
-                                                          "minimum": 0,
+                                                          "minimum": -8,
                                                           "maximum": 24
                                                         },
                                                         "bullets": {
@@ -8923,7 +8923,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -8991,7 +8991,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -9015,7 +9015,7 @@
                                                         },
                                                         "spaceAfter": {
                                                           "type": "integer",
-                                                          "minimum": 0,
+                                                          "minimum": -8,
                                                           "maximum": 24
                                                         },
                                                         "bullets": {
@@ -9102,7 +9102,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -9143,7 +9143,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -9559,7 +9559,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -9583,7 +9583,7 @@
                                                         },
                                                         "spaceAfter": {
                                                           "type": "integer",
-                                                          "minimum": 0,
+                                                          "minimum": -8,
                                                           "maximum": 24
                                                         },
                                                         "bullets": {
@@ -9686,7 +9686,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -9710,7 +9710,7 @@
                                                         },
                                                         "spaceAfter": {
                                                           "type": "integer",
-                                                          "minimum": 0,
+                                                          "minimum": -8,
                                                           "maximum": 24
                                                         },
                                                         "bullets": {
@@ -9817,7 +9817,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -9841,7 +9841,7 @@
                                                         },
                                                         "spaceAfter": {
                                                           "type": "integer",
-                                                          "minimum": 0,
+                                                          "minimum": -8,
                                                           "maximum": 24
                                                         },
                                                         "bullets": {
@@ -9973,7 +9973,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -10041,7 +10041,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -10065,7 +10065,7 @@
                                                         },
                                                         "spaceAfter": {
                                                           "type": "integer",
-                                                          "minimum": 0,
+                                                          "minimum": -8,
                                                           "maximum": 24
                                                         },
                                                         "bullets": {
@@ -10152,7 +10152,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -10193,7 +10193,7 @@
                                                   },
                                                   "spaceAfter": {
                                                     "type": "integer",
-                                                    "minimum": 0,
+                                                    "minimum": -8,
                                                     "maximum": 24
                                                   },
                                                   "type": {
@@ -10883,7 +10883,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -10907,7 +10907,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "bullets": {
@@ -11003,7 +11003,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -11027,7 +11027,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "bullets": {
@@ -11127,7 +11127,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -11151,7 +11151,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "bullets": {
@@ -11273,7 +11273,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -11338,7 +11338,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -11362,7 +11362,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "bullets": {
@@ -11442,7 +11442,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -11480,7 +11480,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -11748,7 +11748,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -11772,7 +11772,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -11875,7 +11875,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -11899,7 +11899,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -12006,7 +12006,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -12030,7 +12030,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -12162,7 +12162,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -12230,7 +12230,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -12254,7 +12254,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -12341,7 +12341,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -12382,7 +12382,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -12664,7 +12664,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -12688,7 +12688,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -12791,7 +12791,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -12815,7 +12815,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -12922,7 +12922,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -12946,7 +12946,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -13078,7 +13078,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -13146,7 +13146,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -13170,7 +13170,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -13257,7 +13257,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -13298,7 +13298,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -13612,7 +13612,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -13636,7 +13636,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -13739,7 +13739,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -13763,7 +13763,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -13870,7 +13870,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -13894,7 +13894,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -14026,7 +14026,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -14094,7 +14094,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -14118,7 +14118,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -14205,7 +14205,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -14246,7 +14246,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -14650,7 +14650,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -14674,7 +14674,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "bullets": {
@@ -14770,7 +14770,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -14794,7 +14794,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "bullets": {
@@ -14894,7 +14894,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -14918,7 +14918,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "bullets": {
@@ -15040,7 +15040,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -15105,7 +15105,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -15129,7 +15129,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "bullets": {
@@ -15209,7 +15209,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -15247,7 +15247,7 @@
                                     },
                                     "spaceAfter": {
                                       "type": "integer",
-                                      "minimum": 0,
+                                      "minimum": -8,
                                       "maximum": 24
                                     },
                                     "type": {
@@ -15756,7 +15756,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -15780,7 +15780,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -15883,7 +15883,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -15907,7 +15907,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -16014,7 +16014,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -16038,7 +16038,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -16170,7 +16170,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -16238,7 +16238,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -16262,7 +16262,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -16349,7 +16349,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -16390,7 +16390,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -16659,7 +16659,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -16683,7 +16683,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -16786,7 +16786,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -16810,7 +16810,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -16917,7 +16917,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -16941,7 +16941,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -17073,7 +17073,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -17141,7 +17141,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -17165,7 +17165,7 @@
                                             },
                                             "spaceAfter": {
                                               "type": "integer",
-                                              "minimum": 0,
+                                              "minimum": -8,
                                               "maximum": 24
                                             },
                                             "bullets": {
@@ -17252,7 +17252,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -17293,7 +17293,7 @@
                                       },
                                       "spaceAfter": {
                                         "type": "integer",
-                                        "minimum": 0,
+                                        "minimum": -8,
                                         "maximum": 24
                                       },
                                       "type": {
@@ -18199,6 +18199,7 @@
                                   "add_bullet",
                                   "update_headline",
                                   "set_hidden",
+                                  "set_space_after",
                                   "reorder",
                                   "update_skills",
                                   "replace_source"
@@ -18233,6 +18234,11 @@
                               },
                               "hidden": {
                                 "type": "boolean"
+                              },
+                              "points": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
                               },
                               "orderedIds": {
                                 "type": "array",
@@ -18417,6 +18423,7 @@
                                   "add_bullet",
                                   "update_headline",
                                   "set_hidden",
+                                  "set_space_after",
                                   "reorder",
                                   "update_skills",
                                   "replace_source"
@@ -18451,6 +18458,11 @@
                               },
                               "hidden": {
                                 "type": "boolean"
+                              },
+                              "points": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
                               },
                               "orderedIds": {
                                 "type": "array",
@@ -20106,7 +20118,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -20130,7 +20142,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -20233,7 +20245,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -20257,7 +20269,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -20364,7 +20376,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -20388,7 +20400,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -20520,7 +20532,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -20588,7 +20600,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -20612,7 +20624,7 @@
                                                 },
                                                 "spaceAfter": {
                                                   "type": "integer",
-                                                  "minimum": 0,
+                                                  "minimum": -8,
                                                   "maximum": 24
                                                 },
                                                 "bullets": {
@@ -20699,7 +20711,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {
@@ -20740,7 +20752,7 @@
                                           },
                                           "spaceAfter": {
                                             "type": "integer",
-                                            "minimum": 0,
+                                            "minimum": -8,
                                             "maximum": 24
                                           },
                                           "type": {

@@ -5447,7 +5447,7 @@ export interface paths {
                                 operations: {
                                     id: string;
                                     /** @enum {string} */
-                                    type: "update_bullet" | "add_bullet" | "update_headline" | "set_hidden" | "reorder" | "update_skills" | "replace_source";
+                                    type: "update_bullet" | "add_bullet" | "update_headline" | "set_hidden" | "set_space_after" | "reorder" | "update_skills" | "replace_source";
                                     reason: string;
                                     flags: string[];
                                     bulletId?: string;
@@ -5457,6 +5457,7 @@ export interface paths {
                                     groupId?: string;
                                     text?: string;
                                     hidden?: boolean;
+                                    points?: number;
                                     orderedIds?: string[];
                                     items?: string[];
                                     texSource?: string;
@@ -5527,7 +5528,7 @@ export interface paths {
                                 operations: {
                                     id: string;
                                     /** @enum {string} */
-                                    type: "update_bullet" | "add_bullet" | "update_headline" | "set_hidden" | "reorder" | "update_skills" | "replace_source";
+                                    type: "update_bullet" | "add_bullet" | "update_headline" | "set_hidden" | "set_space_after" | "reorder" | "update_skills" | "replace_source";
                                     reason: string;
                                     flags: string[];
                                     bulletId?: string;
@@ -5537,6 +5538,7 @@ export interface paths {
                                     groupId?: string;
                                     text?: string;
                                     hidden?: boolean;
+                                    points?: number;
                                     orderedIds?: string[];
                                     items?: string[];
                                     texSource?: string;
