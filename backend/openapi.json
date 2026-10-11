@@ -689,7 +689,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -816,7 +816,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -947,7 +947,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -1171,7 +1171,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -1188,11 +1188,11 @@
                                             },
                                             "title": {
                                               "type": "string",
-                                              "maxLength": 200
+                                              "maxLength": 400
                                             },
                                             "subtitle": {
                                               "type": "string",
-                                              "maxLength": 200
+                                              "maxLength": 400
                                             },
                                             "date": {
                                               "type": "string",
@@ -1518,7 +1518,7 @@
                                             },
                                             "text": {
                                               "type": "string",
-                                              "maxLength": 600
+                                              "maxLength": 1000
                                             },
                                             "hidden": {
                                               "default": false,
@@ -1638,7 +1638,7 @@
                                             },
                                             "text": {
                                               "type": "string",
-                                              "maxLength": 600
+                                              "maxLength": 1000
                                             },
                                             "hidden": {
                                               "default": false,
@@ -1762,7 +1762,7 @@
                                             },
                                             "text": {
                                               "type": "string",
-                                              "maxLength": 600
+                                              "maxLength": 1000
                                             },
                                             "hidden": {
                                               "default": false,
@@ -1973,7 +1973,7 @@
                                             },
                                             "text": {
                                               "type": "string",
-                                              "maxLength": 600
+                                              "maxLength": 1000
                                             },
                                             "hidden": {
                                               "default": false,
@@ -1988,11 +1988,11 @@
                                       },
                                       "title": {
                                         "type": "string",
-                                        "maxLength": 200
+                                        "maxLength": 400
                                       },
                                       "subtitle": {
                                         "type": "string",
-                                        "maxLength": 200
+                                        "maxLength": 400
                                       },
                                       "date": {
                                         "type": "string",
@@ -2278,7 +2278,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -2405,7 +2405,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -2536,7 +2536,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -2760,7 +2760,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -2777,11 +2777,11 @@
                                             },
                                             "title": {
                                               "type": "string",
-                                              "maxLength": 200
+                                              "maxLength": 400
                                             },
                                             "subtitle": {
                                               "type": "string",
-                                              "maxLength": 200
+                                              "maxLength": 400
                                             },
                                             "date": {
                                               "type": "string",
@@ -4588,7 +4588,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -4715,7 +4715,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -4846,7 +4846,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -5070,7 +5070,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -5087,11 +5087,11 @@
                                                 },
                                                 "title": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "subtitle": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "date": {
                                                   "type": "string",
@@ -5479,7 +5479,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -5606,7 +5606,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -5737,7 +5737,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -5961,7 +5961,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -5978,11 +5978,11 @@
                                                 },
                                                 "title": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "subtitle": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "date": {
                                                   "type": "string",
@@ -6389,7 +6389,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -6516,7 +6516,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -6647,7 +6647,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -6871,7 +6871,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -6888,11 +6888,11 @@
                                                 },
                                                 "title": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "subtitle": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "date": {
                                                   "type": "string",
@@ -7557,7 +7557,7 @@
                                                     },
                                                     "text": {
                                                       "type": "string",
-                                                      "maxLength": 600
+                                                      "maxLength": 1000
                                                     },
                                                     "hidden": {
                                                       "default": false,
@@ -7677,7 +7677,7 @@
                                                     },
                                                     "text": {
                                                       "type": "string",
-                                                      "maxLength": 600
+                                                      "maxLength": 1000
                                                     },
                                                     "hidden": {
                                                       "default": false,
@@ -7801,7 +7801,7 @@
                                                     },
                                                     "text": {
                                                       "type": "string",
-                                                      "maxLength": 600
+                                                      "maxLength": 1000
                                                     },
                                                     "hidden": {
                                                       "default": false,
@@ -8012,7 +8012,7 @@
                                                     },
                                                     "text": {
                                                       "type": "string",
-                                                      "maxLength": 600
+                                                      "maxLength": 1000
                                                     },
                                                     "hidden": {
                                                       "default": false,
@@ -8027,11 +8027,11 @@
                                               },
                                               "title": {
                                                 "type": "string",
-                                                "maxLength": 200
+                                                "maxLength": 400
                                               },
                                               "subtitle": {
                                                 "type": "string",
-                                                "maxLength": 200
+                                                "maxLength": 400
                                               },
                                               "date": {
                                                 "type": "string",
@@ -8550,7 +8550,7 @@
                                                               },
                                                               "text": {
                                                                 "type": "string",
-                                                                "maxLength": 600
+                                                                "maxLength": 1000
                                                               },
                                                               "hidden": {
                                                                 "default": false,
@@ -8677,7 +8677,7 @@
                                                               },
                                                               "text": {
                                                                 "type": "string",
-                                                                "maxLength": 600
+                                                                "maxLength": 1000
                                                               },
                                                               "hidden": {
                                                                 "default": false,
@@ -8808,7 +8808,7 @@
                                                               },
                                                               "text": {
                                                                 "type": "string",
-                                                                "maxLength": 600
+                                                                "maxLength": 1000
                                                               },
                                                               "hidden": {
                                                                 "default": false,
@@ -9032,7 +9032,7 @@
                                                               },
                                                               "text": {
                                                                 "type": "string",
-                                                                "maxLength": 600
+                                                                "maxLength": 1000
                                                               },
                                                               "hidden": {
                                                                 "default": false,
@@ -9049,11 +9049,11 @@
                                                         },
                                                         "title": {
                                                           "type": "string",
-                                                          "maxLength": 200
+                                                          "maxLength": 400
                                                         },
                                                         "subtitle": {
                                                           "type": "string",
-                                                          "maxLength": 200
+                                                          "maxLength": 400
                                                         },
                                                         "date": {
                                                           "type": "string",
@@ -9600,7 +9600,7 @@
                                                               },
                                                               "text": {
                                                                 "type": "string",
-                                                                "maxLength": 600
+                                                                "maxLength": 1000
                                                               },
                                                               "hidden": {
                                                                 "default": false,
@@ -9727,7 +9727,7 @@
                                                               },
                                                               "text": {
                                                                 "type": "string",
-                                                                "maxLength": 600
+                                                                "maxLength": 1000
                                                               },
                                                               "hidden": {
                                                                 "default": false,
@@ -9858,7 +9858,7 @@
                                                               },
                                                               "text": {
                                                                 "type": "string",
-                                                                "maxLength": 600
+                                                                "maxLength": 1000
                                                               },
                                                               "hidden": {
                                                                 "default": false,
@@ -10082,7 +10082,7 @@
                                                               },
                                                               "text": {
                                                                 "type": "string",
-                                                                "maxLength": 600
+                                                                "maxLength": 1000
                                                               },
                                                               "hidden": {
                                                                 "default": false,
@@ -10099,11 +10099,11 @@
                                                         },
                                                         "title": {
                                                           "type": "string",
-                                                          "maxLength": 200
+                                                          "maxLength": 400
                                                         },
                                                         "subtitle": {
                                                           "type": "string",
-                                                          "maxLength": 200
+                                                          "maxLength": 400
                                                         },
                                                         "date": {
                                                           "type": "string",
@@ -10924,7 +10924,7 @@
                                                 },
                                                 "text": {
                                                   "type": "string",
-                                                  "maxLength": 600
+                                                  "maxLength": 1000
                                                 },
                                                 "hidden": {
                                                   "default": false,
@@ -11044,7 +11044,7 @@
                                                 },
                                                 "text": {
                                                   "type": "string",
-                                                  "maxLength": 600
+                                                  "maxLength": 1000
                                                 },
                                                 "hidden": {
                                                   "default": false,
@@ -11168,7 +11168,7 @@
                                                 },
                                                 "text": {
                                                   "type": "string",
-                                                  "maxLength": 600
+                                                  "maxLength": 1000
                                                 },
                                                 "hidden": {
                                                   "default": false,
@@ -11379,7 +11379,7 @@
                                                 },
                                                 "text": {
                                                   "type": "string",
-                                                  "maxLength": 600
+                                                  "maxLength": 1000
                                                 },
                                                 "hidden": {
                                                   "default": false,
@@ -11394,11 +11394,11 @@
                                           },
                                           "title": {
                                             "type": "string",
-                                            "maxLength": 200
+                                            "maxLength": 400
                                           },
                                           "subtitle": {
                                             "type": "string",
-                                            "maxLength": 200
+                                            "maxLength": 400
                                           },
                                           "date": {
                                             "type": "string",
@@ -11789,7 +11789,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -11916,7 +11916,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -12047,7 +12047,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -12271,7 +12271,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -12288,11 +12288,11 @@
                                                 },
                                                 "title": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "subtitle": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "date": {
                                                   "type": "string",
@@ -12705,7 +12705,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -12832,7 +12832,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -12963,7 +12963,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -13187,7 +13187,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -13204,11 +13204,11 @@
                                                 },
                                                 "title": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "subtitle": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "date": {
                                                   "type": "string",
@@ -13653,7 +13653,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -13780,7 +13780,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -13911,7 +13911,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -14135,7 +14135,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -14152,11 +14152,11 @@
                                                 },
                                                 "title": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "subtitle": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "date": {
                                                   "type": "string",
@@ -14691,7 +14691,7 @@
                                                 },
                                                 "text": {
                                                   "type": "string",
-                                                  "maxLength": 600
+                                                  "maxLength": 1000
                                                 },
                                                 "hidden": {
                                                   "default": false,
@@ -14811,7 +14811,7 @@
                                                 },
                                                 "text": {
                                                   "type": "string",
-                                                  "maxLength": 600
+                                                  "maxLength": 1000
                                                 },
                                                 "hidden": {
                                                   "default": false,
@@ -14935,7 +14935,7 @@
                                                 },
                                                 "text": {
                                                   "type": "string",
-                                                  "maxLength": 600
+                                                  "maxLength": 1000
                                                 },
                                                 "hidden": {
                                                   "default": false,
@@ -15146,7 +15146,7 @@
                                                 },
                                                 "text": {
                                                   "type": "string",
-                                                  "maxLength": 600
+                                                  "maxLength": 1000
                                                 },
                                                 "hidden": {
                                                   "default": false,
@@ -15161,11 +15161,11 @@
                                           },
                                           "title": {
                                             "type": "string",
-                                            "maxLength": 200
+                                            "maxLength": 400
                                           },
                                           "subtitle": {
                                             "type": "string",
-                                            "maxLength": 200
+                                            "maxLength": 400
                                           },
                                           "date": {
                                             "type": "string",
@@ -15797,7 +15797,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -15924,7 +15924,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -16055,7 +16055,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -16279,7 +16279,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -16296,11 +16296,11 @@
                                             },
                                             "title": {
                                               "type": "string",
-                                              "maxLength": 200
+                                              "maxLength": 400
                                             },
                                             "subtitle": {
                                               "type": "string",
-                                              "maxLength": 200
+                                              "maxLength": 400
                                             },
                                             "date": {
                                               "type": "string",
@@ -16700,7 +16700,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -16827,7 +16827,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -16958,7 +16958,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -17182,7 +17182,7 @@
                                                   },
                                                   "text": {
                                                     "type": "string",
-                                                    "maxLength": 600
+                                                    "maxLength": 1000
                                                   },
                                                   "hidden": {
                                                     "default": false,
@@ -17199,11 +17199,11 @@
                                             },
                                             "title": {
                                               "type": "string",
-                                              "maxLength": 200
+                                              "maxLength": 400
                                             },
                                             "subtitle": {
                                               "type": "string",
-                                              "maxLength": 200
+                                              "maxLength": 400
                                             },
                                             "date": {
                                               "type": "string",
@@ -20159,7 +20159,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -20286,7 +20286,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -20417,7 +20417,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -20641,7 +20641,7 @@
                                                       },
                                                       "text": {
                                                         "type": "string",
-                                                        "maxLength": 600
+                                                        "maxLength": 1000
                                                       },
                                                       "hidden": {
                                                         "default": false,
@@ -20658,11 +20658,11 @@
                                                 },
                                                 "title": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "subtitle": {
                                                   "type": "string",
-                                                  "maxLength": 200
+                                                  "maxLength": 400
                                                 },
                                                 "date": {
                                                   "type": "string",
