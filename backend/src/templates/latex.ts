@@ -92,7 +92,16 @@ type ListEntry = Extract<ResumeContent["sections"][number], { type: "list" }>["e
 export const gap = (e: { spaceAfter?: number | undefined }) => (e.spaceAfter ? `\n\\vspace{${e.spaceAfter}pt}` : "");
 
 // A rendered section followed by the space the user asked for; empty sections stay empty.
-export const withGap = (rendered: string, s: { spaceAfter?: number | undefined }) => rendered && rendered + gap(s);
+// Space after a section's closing list is merged with the list's own end spacing and the next heading's, so LaTeX
+// added about 10pt more than asked and ignored tightening. Just inside the list, before it closes, it's exact.
+const closingList = /\\(?:end\{(?:itemize|enumerate|description)\}|[A-Za-z]*ListEnd)(?:\\vspace\{[^}]*\})?\s*$/;
+export const withGap = (rendered: string, s: { spaceAfter?: number | undefined }) => {
+  if (!rendered || !s.spaceAfter) return rendered;
+  const end = closingList.exec(rendered);
+  return end
+    ? `${rendered.slice(0, end.index)}\\vspace{${s.spaceAfter}pt}\n${rendered.slice(end.index)}`
+    : rendered + gap(s);
+};
 
 // Achievements and certifications without bullets of their own read best as one tight bulleted list:
 // "Name, a dash, description" with the name bold (and linked), or the item as plain text when it is one sentence.
