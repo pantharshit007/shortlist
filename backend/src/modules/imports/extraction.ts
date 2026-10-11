@@ -118,6 +118,21 @@ function range(x: Entry) {
   return start && start === end ? { end } : { start, end };
 }
 
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const shown = (value: string | undefined) => {
+  if (!value) return undefined;
+  if (value === "present") return "Present";
+  const [year, month] = value.split("-");
+  return month ? `${monthNames[Number(month) - 1]} ${year}` : year;
+};
+
+// List items keep one free-text date. Jobs in a list like "Earlier experience" come back with a start and end
+// instead, which would otherwise be dropped.
+function listDate(x: Entry) {
+  const { start, end } = range(x);
+  return [shown(start), shown(end)].filter(Boolean).join(" \u2013 ") || undefined;
+}
+
 // Templates link a project's url from its name without a label, so a repo the model put there would look lost
 // next to a visible "Live" link. It's shown as a labelled link too, first, as resumes usually list code first.
 // A link labelled with the project's own name was the name itself in the source, so it links the title and isn't
@@ -301,7 +316,7 @@ function normalizeSection(section: Extraction["sections"][number]): ResumeSectio
               hidden: false,
               title: joined ? joined[1]!.trim() : title,
               subtitle: subtitle && !linkWord.test(subtitle) && subtitle !== clean(x.date) ? subtitle : undefined,
-              date: clean(x.date),
+              date: clean(x.date) ?? listDate(x),
               url: url(x.url),
               bullets: bullets(x.bullets),
             },

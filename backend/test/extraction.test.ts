@@ -438,3 +438,27 @@ describe("normalizeExtraction taglines and stacks", () => {
     expect(job.bullets.map((b) => b.hidden)).toEqual([true, false, false]);
   });
 });
+
+describe("normalizeExtraction list dates", () => {
+  it("keeps a listed job's start and end as its date", () => {
+    const content = normalizeExtraction({
+      basics: { name: "A", headline: null, email: null, phone: null, location: null, links: [] },
+      sections: [
+        {
+          type: "list",
+          title: "Earlier Experience",
+          text: null,
+          groups: [],
+          links: [],
+          entries: [
+            entry({ title: "Lead Developer", subtitle: "Acme", start: "2008-04", end: "2009-05" }),
+            entry({ title: "Consultant", subtitle: "Beta", date: "2010" }),
+          ],
+        },
+      ],
+    });
+    const list = content.sections[0];
+    if (list?.type !== "list") throw new Error("expected a list");
+    expect(list.entries.map((e) => e.date)).toEqual(["Apr 2008 – May 2009", "2010"]);
+  });
+});
