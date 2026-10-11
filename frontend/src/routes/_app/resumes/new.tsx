@@ -57,6 +57,8 @@ import type {
 } from '@/lib/api/types'
 import { usePdfPreview } from '@/hooks/use-pdf-preview'
 import { apiUrl } from '@/lib/env'
+import { recommendTemplate } from '@/lib/recommend-template'
+import type { TemplateRecommendation } from '@/lib/recommend-template'
 import { site } from '@/lib/site'
 import { blankLatex, templateCatalog } from '@/lib/templates'
 import type { TemplateId } from '@/lib/templates'
@@ -156,6 +158,8 @@ function NewResumePage() {
   const [fileTex, setFileTex] = useState('')
   // What the AI read from an uploaded or pasted resume, shown for review before creating.
   const [imported, setImported] = useState<ResumeContent | null>(null)
+  const [recommendation, setRecommendation] =
+    useState<TemplateRecommendation | null>(null)
   // PDF lines the AI skipped. Placed ones are already in the import as hidden bullets.
   const [missed, setMissed] = useState<Missed>([])
   // The source PDF's link style, so an import that named its links ("LinkedIn") keeps doing so.
@@ -229,6 +233,12 @@ function NewResumePage() {
     mutationFn: importContent,
     onSuccess: ({ content, missed: skipped, linkStyle: style }) => {
       setImported(content)
+      // A template picked before arriving here (from the templates page) is kept.
+      if (!search.template) {
+        const recommended = recommendTemplate(content)
+        setTemplateId(recommended.templateId)
+        setRecommendation(recommended)
+      }
       setMissed(skipped)
       setLinkStyle(style)
       setChoosingTemplate(false)
@@ -393,6 +403,16 @@ function NewResumePage() {
               <dd>
                 {imported.sections.map((section) => section.title).join(', ') ||
                   'None found'}
+              </dd>
+              <dt className="text-muted-foreground">Template</dt>
+              <dd>
+                <span className="font-medium">{templateName}</span>
+                {recommendation?.templateId === templateId && (
+                  <span className="text-muted-foreground">
+                    {' '}
+                    (recommended). {recommendation.reason}
+                  </span>
+                )}
               </dd>
             </dl>
             <MissedLines missed={missed} />
