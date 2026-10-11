@@ -1,3 +1,4 @@
+import { linkParts } from "../schemas/rich-text.js";
 import type { ResumeContent } from "../schemas/resume-content.js";
 import type { ResumeLayout } from "./layout.js";
 
@@ -19,11 +20,18 @@ export function tex(value: string | undefined | null): string {
   return (value ?? "").replace(/[\\&%$#_{}~^]/g, (char) => latexSpecials[char]!);
 }
 
-// Escapes text and turns **bold** markers into \textbf{}.
-export function texRich(value: string | undefined | null): string {
-  return (value ?? "")
+const texBold = (value: string) =>
+  value
     .split(/\*\*(.+?)\*\*/g)
     .map((part, index) => (index % 2 === 1 ? `\\textbf{${tex(part)}}` : tex(part)))
+    .join("");
+
+// Escapes text, turns **bold** markers into \textbf{} and [words](url) into an underlined link on those words.
+export function texRich(value: string | undefined | null): string {
+  return linkParts(value ?? "")
+    .map((part) =>
+      "url" in part ? `\\href{${texUrl(part.url)}}{\\underline{${texBold(part.text)}}}` : texBold(part.text),
+    )
     .join("");
 }
 
@@ -107,13 +115,13 @@ export const withGap = (rendered: string, s: { spaceAfter?: number | undefined }
 // "Name, a dash, description" with the name bold (and linked), or the item as plain text when it is one sentence.
 export function compactList(entries: ListEntry[]) {
   const items = entries.map((e) => {
-    // A linked name stays bold (underlines collide with the next line here); a linked sentence gets a link icon.
+    // A linked name is bold and underlined like other links; a linked sentence gets a link icon.
     const title = !e.url
       ? e.subtitle
         ? `\\textbf{${texRich(e.title)}}`
         : texRich(e.title)
       : e.subtitle
-        ? `\\href{${texUrl(e.url)}}{\\textbf{${texRich(e.title)}}}`
+        ? `\\href{${texUrl(e.url)}}{\\underline{\\textbf{${texRich(e.title)}}}}`
         : `${texRich(e.title)}\\,\\href{${texUrl(e.url)}}{${icon("\\faLink")}}`;
     const subtitle = e.subtitle ? ` -- ${texRich(e.subtitle)}` : "";
     const date = e.date ? ` (${tex(e.date)})` : "";

@@ -1,10 +1,12 @@
 import type { ResumeContent, ResumeSection } from "../schemas/resume-content.js";
+import { plainText } from "../schemas/rich-text.js";
 import { renderSections } from "./classic-body.js";
 import {
   contactParts,
   dateRange,
   joinNonEmpty,
   tex,
+  texRich,
   texUrl,
   visibleContent,
   gap,
@@ -107,8 +109,8 @@ function sidebarSection(s: ResumeSection): string {
         return s.entries.map(
           (e) =>
             lines([
-              e.url ? sideLink(e.url, `\\textbf{${tex(e.title)}}`) : `\\textbf{${tex(e.title)}}`,
-              tex(e.subtitle),
+              e.url ? sideLink(e.url, `\\textbf{${tex(plainText(e.title))}}`) : `\\textbf{${texRich(e.title)}}`,
+              texRich(e.subtitle),
               e.date ? `\\textcolor{muted}{${tex(e.date)}}` : undefined,
             ]) + gap(e),
         );

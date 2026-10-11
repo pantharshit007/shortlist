@@ -1,6 +1,7 @@
 import type { z } from "zod";
 import { compileTex } from "../../lib/latex/compile.js";
 import type { ResumeContent } from "../../schemas/resume-content.js";
+import { plainText } from "../../schemas/rich-text.js";
 import { visibleContent } from "../../templates/latex.js";
 import type { atsReport } from "./ats.schemas.js";
 import { findKnockouts, resumeExperience } from "./knockouts.js";
@@ -212,7 +213,7 @@ const isLinkedInUrl = (url: string) => /(^|\.)linkedin\.com$/i.test(URL.parse(ur
 
 function factsFromContent(full: ResumeContent): Facts {
   const content = visibleContent(full);
-  const strip = (value: string) => value.replace(/\*\*/g, "");
+  const strip = plainText;
   const join = (parts: (string | undefined)[]) => parts.filter(Boolean).join(" | ");
   const lines: string[] = [
     content.basics.name,

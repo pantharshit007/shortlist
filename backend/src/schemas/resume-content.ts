@@ -7,10 +7,13 @@ const shortText = z.string().trim().max(200);
 const yearMonth = z.string().regex(/^\d{4}(-(0[1-9]|1[0-2]))?$/, "Use YYYY or YYYY-MM");
 const endDate = z.union([yearMonth, z.literal("present")]);
 
+// Room for link addresses written inline as [words](url), which don't print.
+export const BULLET_MAX = 1000;
+
 export const bulletSchema = z.object({
   id,
-  // Supports **bold** for emphasised keywords.
-  text: z.string().trim().max(600),
+  // Supports **bold** for emphasised keywords and [words](url) links.
+  text: z.string().trim().max(BULLET_MAX),
   hidden: z.boolean().default(false),
 });
 
@@ -67,10 +70,13 @@ const projectEntry = z.object({
 });
 
 // Achievements, certifications, positions of responsibility and any custom section.
+// Titles and descriptions of list items can hold [words](url) links, whose addresses take room but don't print.
+const listText = z.string().trim().max(400);
+
 const genericEntry = z.object({
   ...entryBase,
-  title: shortText,
-  subtitle: shortText.optional(),
+  title: listText,
+  subtitle: listText.optional(),
   date: z.string().trim().max(40).optional(),
   url: webUrl.optional(),
 });

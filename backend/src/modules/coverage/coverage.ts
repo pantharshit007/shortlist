@@ -1,12 +1,12 @@
 import type { ResumeContent } from "../../schemas/resume-content.js";
+import { plainText } from "../../schemas/rich-text.js";
 import { visibleContent } from "../../templates/latex.js";
 
 export type RequirementStatus = "covered" | "in_profile" | "missing";
 
 const normalize = (value: string) =>
-  ` ${value
+  ` ${plainText(value)
     .toLowerCase()
-    .replace(/\*\*/g, "")
     .replace(/[^a-z0-9.+#/ ]+/g, " ")
     .replace(/\s+/g, " ")
     .trim()} `;

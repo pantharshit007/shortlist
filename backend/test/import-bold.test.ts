@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { BULLET_MAX } from "../src/schemas/resume-content.js";
 import { applyBold } from "../src/modules/imports/extraction.js";
 import { resumeContentSchema } from "../src/schemas/resume-content.js";
 
@@ -40,11 +41,11 @@ describe("bold from the PDF", () => {
     );
   });
 
-  it("leaves a bullet unchanged when bolding would push it past 600 characters", () => {
-    const text = `Redis ${"x".repeat(592)}`;
-    expect(text).toHaveLength(598);
+  it("leaves a bullet unchanged when bolding would push it past the length limit", () => {
+    const text = `Redis ${"x".repeat(BULLET_MAX - 8)}`;
+    expect(text).toHaveLength(BULLET_MAX - 2);
     const result = bullet(applyBold(content(text), ["Redis"]));
     expect(result).toBe(text);
-    expect(result.length).toBeLessThanOrEqual(600);
+    expect(result.length).toBeLessThanOrEqual(BULLET_MAX);
   });
 });

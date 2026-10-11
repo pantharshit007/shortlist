@@ -1,4 +1,5 @@
 import type { ResumeSection } from "../schemas/resume-content.js";
+import { plainText } from "../schemas/rich-text.js";
 import { dateRange, joinNonEmpty, tex, texRich, texUrl, gap, withGap, displayUrl } from "./latex.js";
 
 // Section bodies shared by the business templates (banking, finance, consulting, marketing, executive).
@@ -53,7 +54,9 @@ function bullets(items: { text: string }[]) {
   return ["\\begin{itemize}", ...items.map((item) => `  \\item ${texRich(item.text)}`), "\\end{itemize}"].join("\n");
 }
 
-const linked = (url: string | undefined, label: string) => (url ? `\\href{${texUrl(url)}}{${tex(label)}}` : tex(label));
+// A title that is a link as a whole can't hold links of its own, so it shows just their words.
+const linked = (url: string | undefined, label: string) =>
+  url ? `\\href{${texUrl(url)}}{${tex(plainText(label))}}` : texRich(label);
 
 export type BusinessOptions = {
   // Renders skills as a flowing keyword block via \competencies instead of one line per group.
@@ -67,7 +70,7 @@ function renderBody(s: ResumeSection, options: BusinessOptions): string {
     return s.entries
       .map((e) =>
         [
-          e.title || e.subtitle ? `\\summarytext{${tex(joinNonEmpty([e.title, e.subtitle], " "))}}` : "",
+          e.title || e.subtitle ? `\\summarytext{${texRich(joinNonEmpty([e.title, e.subtitle], " "))}}` : "",
           bullets(e.bullets) + gap(e),
         ]
           .filter(Boolean)
@@ -108,7 +111,7 @@ function renderBody(s: ResumeSection, options: BusinessOptions): string {
       return s.entries
         .map((e) =>
           [
-            `\\listentry{${linked(e.url, e.title)}}{${tex(e.subtitle)}}{${tex(e.date)}}`,
+            `\\listentry{${linked(e.url, e.title)}}{${texRich(e.subtitle)}}{${tex(e.date)}}`,
             bullets(e.bullets) + gap(e),
           ].join("\n"),
         )

@@ -42,6 +42,8 @@ const rules = `Rules you must follow:
 - For a request about spacing ("less space between these", "tighten the gaps"), use set_space_after on each
   section or entry above a gap, never a text edit. spaceAfter in the JSON is the current value; lower it to
   tighten (down to -8) or raise it to loosen. To even out a list, set every entry but the last.
+- Text like [the words](https://address) is a link on those words. Keep every link and its address exactly as
+  written when you rephrase; never add, change or remove one.
 - Refer to items only by the ids given in the JSON. Propose only changes that clearly help.
 - Follow the conventions (spelling, date format, terminology) of the job's location when a job is given,
   otherwise keep the resume's own.

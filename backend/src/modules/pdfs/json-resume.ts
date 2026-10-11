@@ -1,4 +1,5 @@
 import type { ResumeContent } from "../../schemas/resume-content.js";
+import { inlineLink } from "../../schemas/rich-text.js";
 
 // Maps our content to the JSON Resume schema (jsonresume.org) for portability.
 export function toJsonResume(content: ResumeContent) {
@@ -14,7 +15,8 @@ export function toJsonResume(content: ResumeContent) {
     },
   };
   const bullets = (items: { text: string; hidden: boolean }[]) =>
-    items.filter((b) => !b.hidden).map((b) => b.text.replace(/\*\*/g, ""));
+    // JSON Resume has no formatting, so a link keeps its address in brackets after its words.
+    items.filter((b) => !b.hidden).map((b) => b.text.replace(inlineLink, "$1 ($2)").replace(/\*\*/g, ""));
   // A resume can have several sections of one type ("Experience" and "Internships"), so each one appends.
   const add = (key: string, items: unknown[]) => (out[key] = [...((out[key] as unknown[]) ?? []), ...items]);
 

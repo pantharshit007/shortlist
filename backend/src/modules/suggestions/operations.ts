@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ResumeContent } from "../../schemas/resume-content.js";
+import { BULLET_MAX, type ResumeContent } from "../../schemas/resume-content.js";
 
 // Edits the AI may propose on structured content. None of them may add new facts: bullets are rephrased in place or
 // split into a new bullet after an existing one (checked for unknown facts like a rewrite), and skills can only be
@@ -78,10 +78,10 @@ function hasTarget(content: ResumeContent, id: string) {
 export function isApplicable(content: ResumeContent, op: z.infer<typeof operationSchema>) {
   switch (op.type) {
     case "update_bullet":
-      return Boolean(findBullet(content, op.bulletId)) && op.text.trim().length > 0 && op.text.length <= 600;
+      return Boolean(findBullet(content, op.bulletId)) && op.text.trim().length > 0 && op.text.length <= BULLET_MAX;
     case "add_bullet": {
       const entry = entryOfBullet(content, op.afterBulletId);
-      return Boolean(entry) && entry!.bullets.length < 20 && op.text.trim().length > 0 && op.text.length <= 600;
+      return Boolean(entry) && entry!.bullets.length < 20 && op.text.trim().length > 0 && op.text.length <= BULLET_MAX;
     }
     case "update_headline":
       return op.text.trim().length > 0 && op.text.length <= 200;
