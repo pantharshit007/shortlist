@@ -6,7 +6,16 @@ import { resumeContentSchema } from "../src/schemas/resume-content.js";
 const op = (items: string[] | null) => ({
   summary: "s",
   operations: [
-    { type: "update_skills", targetId: "g1", text: null, hidden: null, orderedIds: null, items, reason: "r" },
+    {
+      type: "update_skills",
+      targetId: "g1",
+      text: null,
+      hidden: null,
+      points: null,
+      orderedIds: null,
+      items,
+      reason: "r",
+    },
   ],
 });
 

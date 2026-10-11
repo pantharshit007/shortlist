@@ -12,6 +12,8 @@ export const operationSchema = z.discriminatedUnion("type", [
   // parentId is a section id (orders entries), an entry id (orders bullets) or "sections".
   z.object({ type: z.literal("reorder"), parentId: z.string(), orderedIds: z.array(z.string()) }),
   z.object({ type: z.literal("update_skills"), groupId: z.string(), items: z.array(z.string()) }),
+  // Space after a section or an entry, in points: negative tighter, 0 the template's own, positive looser.
+  z.object({ type: z.literal("set_space_after"), targetId: z.string(), points: z.number().int() }),
   // Code-mode resumes: the whole revised LaTeX source.
   z.object({ type: z.literal("replace_source"), texSource: z.string() }),
 ]);
@@ -62,6 +64,10 @@ function childIds(content: ResumeContent, parentId: string): string[] | undefine
   return undefined;
 }
 
+function hasEntryOrSection(content: ResumeContent, id: string) {
+  return content.sections.some((s) => s.id === id || entriesOf(s).some((e) => e.id === id));
+}
+
 function hasTarget(content: ResumeContent, id: string) {
   return content.sections.some(
     (s) => s.id === id || entriesOf(s).some((e) => e.id === id || e.bullets.some((b) => b.id === id)),
@@ -81,6 +87,8 @@ export function isApplicable(content: ResumeContent, op: z.infer<typeof operatio
       return op.text.trim().length > 0 && op.text.length <= 200;
     case "set_hidden":
       return hasTarget(content, op.targetId);
+    case "set_space_after":
+      return op.points >= -8 && op.points <= 24 && hasEntryOrSection(content, op.targetId);
     case "reorder": {
       const current = childIds(content, op.parentId);
       return (
@@ -128,6 +136,19 @@ export function applyOperations(content: ResumeContent, operations: Operation[])
       case "update_headline":
         next.basics.headline = op.text;
         break;
+      case "set_space_after": {
+        // 0 is the template's own spacing, which is the field left out.
+        const space = (target: { spaceAfter?: number | undefined }) => {
+          if (op.points) target.spaceAfter = op.points;
+          else delete target.spaceAfter;
+        };
+        for (const section of next.sections) {
+          if (section.id === op.targetId) space(section);
+          for (const entry of entriesOf(section) as (Entry & { spaceAfter?: number | undefined })[])
+            if (entry.id === op.targetId) space(entry);
+        }
+        break;
+      }
       case "set_hidden":
         for (const section of next.sections) {
           if (section.id === op.targetId) section.hidden = op.hidden;

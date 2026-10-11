@@ -24,6 +24,7 @@ const operationResponse = z.object({
     "add_bullet",
     "update_headline",
     "set_hidden",
+    "set_space_after",
     "reorder",
     "update_skills",
     "replace_source",
@@ -38,6 +39,7 @@ const operationResponse = z.object({
   groupId: z.string().optional(),
   text: z.string().optional(),
   hidden: z.boolean().optional(),
+  points: z.number().int().optional(),
   orderedIds: z.array(z.string()).optional(),
   items: z.array(z.string()).optional(),
   texSource: z.string().optional(),
@@ -81,15 +83,28 @@ export const aiStructuredOutput = z.object({
   summary: z.string().describe("One or two sentences on what changed and why"),
   operations: z.array(
     z.object({
-      type: z.enum(["update_bullet", "add_bullet", "update_headline", "set_hidden", "reorder", "update_skills"]),
+      type: z.enum([
+        "update_bullet",
+        "add_bullet",
+        "update_headline",
+        "set_hidden",
+        "set_space_after",
+        "reorder",
+        "update_skills",
+      ]),
       targetId: z
         .string()
         .nullable()
         .describe(
-          "update_bullet: bullet id; add_bullet: id of the bullet the new one goes after; set_hidden: section, entry or bullet id; reorder: parent id (section id, entry id, or 'sections'); update_skills: skill group id; update_headline: null",
+          "update_bullet: bullet id; add_bullet: id of the bullet the new one goes after; set_hidden: section, entry or bullet id; set_space_after: section or entry id; reorder: parent id (section id, entry id, or 'sections'); update_skills: skill group id; update_headline: null",
         ),
       text: z.string().nullable().describe("New text for update_bullet, add_bullet or update_headline"),
       hidden: z.boolean().nullable(),
+      points: z
+        .number()
+        .int()
+        .nullable()
+        .describe("set_space_after: space below the target in points, -8 (tighter) to 24 (looser), 0 for the default"),
       orderedIds: z.array(z.string()).nullable().describe("reorder: every child id of the parent, in the new order"),
       items: skillItems.describe("update_skills: the group's items, reordered or trimmed"),
       reason: z.string().describe("Short reason shown to the user"),

@@ -39,6 +39,9 @@ const rules = `Rules you must follow:
 - To split a long bullet or give an item more bullets, rewrite the existing bullet with update_bullet and put the
   rest in add_bullet after it. New bullets follow the same rule: only facts already in the resume or profile.
   A rewritten bullet is never longer than the one it replaces, unless that one was under 120 characters.
+- For a request about spacing ("less space between these", "tighten the gaps"), use set_space_after on each
+  section or entry above a gap, never a text edit. spaceAfter in the JSON is the current value; lower it to
+  tighten (down to -8) or raise it to loosen. To even out a list, set every entry but the last.
 - Refer to items only by the ids given in the JSON. Propose only changes that clearly help.
 - Follow the conventions (spelling, date format, terminology) of the job's location when a job is given,
   otherwise keep the resume's own.
@@ -54,9 +57,11 @@ function toOperation(raw: z.infer<typeof aiStructuredOutput>["operations"][numbe
           ? { type: raw.type, text: raw.text }
           : raw.type === "set_hidden"
             ? { type: raw.type, targetId: raw.targetId, hidden: raw.hidden }
-            : raw.type === "reorder"
-              ? { type: raw.type, parentId: raw.targetId, orderedIds: raw.orderedIds }
-              : { type: raw.type, groupId: raw.targetId, items: raw.items };
+            : raw.type === "set_space_after"
+              ? { type: raw.type, targetId: raw.targetId, points: raw.points }
+              : raw.type === "reorder"
+                ? { type: raw.type, parentId: raw.targetId, orderedIds: raw.orderedIds }
+                : { type: raw.type, groupId: raw.targetId, items: raw.items };
   const parsed = operationSchema.safeParse(candidate);
   return parsed.success ? parsed.data : null;
 }

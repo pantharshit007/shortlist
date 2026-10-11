@@ -111,3 +111,27 @@ describe("add_bullet", () => {
     expect(isApplicable(content, { type: "add_bullet", afterBulletId: "b1", text: " " })).toBe(false);
   });
 });
+
+describe("set_space_after", () => {
+  const space = (c: typeof content) => {
+    const section = c.sections[0];
+    return [section?.spaceAfter, section?.type === "experience" ? section.entries[0]!.spaceAfter : null];
+  };
+
+  it("tightens or loosens an entry or a section, and 0 returns it to the template's spacing", () => {
+    const tighter = applyOperations(content, [
+      op({ type: "set_space_after", targetId: "e1", points: -6 }),
+      op({ type: "set_space_after", targetId: "ex", points: 8 }),
+    ]);
+    expect(space(tighter)).toEqual([8, -6]);
+    expect(resumeContentSchema.safeParse(tighter).success).toBe(true);
+    const reset = applyOperations(tighter, [op({ type: "set_space_after", targetId: "e1", points: 0 })]);
+    expect(space(reset)).toEqual([8, undefined]);
+  });
+
+  it("only targets sections and entries, within -8 to 24 points", () => {
+    expect(isApplicable(content, { type: "set_space_after", targetId: "e1", points: -8 })).toBe(true);
+    expect(isApplicable(content, { type: "set_space_after", targetId: "e1", points: -20 })).toBe(false);
+    expect(isApplicable(content, { type: "set_space_after", targetId: "b1", points: -4 })).toBe(false);
+  });
+});
