@@ -574,10 +574,42 @@ const starts = [
 // Real renders of four templates, laid on the field like printed resumes on a desk. They sit in the
 // side margins only, so nothing ever covers the heading or the dialog.
 const prints = [
-  { id: 'developer', side: 'left', top: '18%', inset: '4%', rotate: -9 },
-  { id: 'finance', side: 'left', top: '50%', inset: '11%', rotate: 5 },
-  { id: 'consulting', side: 'right', top: '14%', inset: '10%', rotate: 7 },
-  { id: 'designer', side: 'right', top: '48%', inset: '3%', rotate: -6 },
+  {
+    id: 'developer',
+    side: 'left',
+    top: '18%',
+    inset: '4%',
+    rotate: -9,
+    sway: 2,
+    float: 6,
+  },
+  {
+    id: 'finance',
+    side: 'left',
+    top: '50%',
+    inset: '11%',
+    rotate: 5,
+    sway: -1.5,
+    float: 7.5,
+  },
+  {
+    id: 'consulting',
+    side: 'right',
+    top: '14%',
+    inset: '10%',
+    rotate: 7,
+    sway: -2,
+    float: 6.8,
+  },
+  {
+    id: 'designer',
+    side: 'right',
+    top: '48%',
+    inset: '3%',
+    rotate: -6,
+    sway: 1.5,
+    float: 8,
+  },
 ] as const
 
 function Print({
@@ -602,16 +634,31 @@ function Print({
       style={{ x, rotate, top: print.top, [print.side]: print.inset }}
       whileHover={reduceMotion ? undefined : { rotate: 0, scale: 1.04 }}
       transition={{ duration: 0.25, ease }}
-      className="absolute hidden w-52 bg-sheet p-2 hover:z-10 min-[1400px]:block 2xl:w-60"
+      className="absolute hidden w-52 hover:z-10 min-[1400px]:block 2xl:w-60"
     >
-      <img
-        src={`/templates/thumbs/${print.id}.webp`}
-        alt=""
-        width={560}
-        height={724}
-        loading="lazy"
-        className="aspect-[560/724] w-full"
-      />
+      {/* Keeps floating once settled, each print on its own slow rhythm, like paper in a light draught. */}
+      <motion.div
+        className="bg-sheet p-2"
+        animate={
+          reduceMotion
+            ? undefined
+            : { y: [0, -14, 0], rotate: [0, print.sway, 0] }
+        }
+        transition={{
+          duration: print.float,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      >
+        <img
+          src={`/templates/thumbs/${print.id}.webp`}
+          alt=""
+          width={560}
+          height={724}
+          loading="lazy"
+          className="aspect-[560/724] w-full"
+        />
+      </motion.div>
     </motion.div>
   )
 }
