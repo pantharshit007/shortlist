@@ -7,8 +7,14 @@ import {
   LockIcon,
   PenLineIcon,
 } from 'lucide-react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useEffect, useId, useMemo, useState } from 'react'
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from 'motion/react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Reveal, ease } from '@/components/landing/reveal'
 import { Button } from '@/components/ui/button'
 import type { ResumeContent } from '@/lib/api/types'
@@ -565,112 +571,169 @@ const starts = [
   },
 ] as const
 
+// Real renders of four templates, laid on the field like printed resumes on a desk. They sit in the
+// side margins only, so nothing ever covers the heading or the dialog.
+const prints = [
+  { id: 'developer', side: 'left', top: '18%', inset: '4%', rotate: -9 },
+  { id: 'finance', side: 'left', top: '50%', inset: '11%', rotate: 5 },
+  { id: 'consulting', side: 'right', top: '14%', inset: '10%', rotate: 7 },
+  { id: 'designer', side: 'right', top: '48%', inset: '3%', rotate: -6 },
+] as const
+
+function Print({
+  print,
+  progress,
+}: {
+  print: (typeof prints)[number]
+  progress: ReturnType<typeof useScroll>['scrollYProgress']
+}) {
+  const reduceMotion = useReducedMotion()
+  const from = print.side === 'left' ? -80 : 80
+  // Drifts in from its own side and settles as the section scrolls into place.
+  const x = useTransform(progress, [0, 1], [reduceMotion ? 0 : from, 0])
+  const rotate = useTransform(
+    progress,
+    [0, 1],
+    [reduceMotion ? print.rotate : print.rotate * 1.8, print.rotate],
+  )
+  return (
+    <motion.div
+      aria-hidden="true"
+      style={{ x, rotate, top: print.top, [print.side]: print.inset }}
+      whileHover={reduceMotion ? undefined : { rotate: 0, scale: 1.04 }}
+      transition={{ duration: 0.25, ease }}
+      className="absolute hidden w-52 bg-sheet p-2 hover:z-10 min-[1400px]:block 2xl:w-60"
+    >
+      <img
+        src={`/templates/thumbs/${print.id}.webp`}
+        alt=""
+        width={560}
+        height={724}
+        loading="lazy"
+        className="aspect-[560/724] w-full"
+      />
+    </motion.div>
+  )
+}
+
 export function FinalCta() {
+  const field = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: field,
+    offset: ['start end', 'start 0.25'],
+  })
   const [source, setSource] =
     useState<(typeof starts)[number]['source']>('upload')
   const chosen = starts.find((s) => s.source === source) ?? starts[0]
 
   return (
-    <Reveal
-      as="section"
+    <section
+      ref={field}
       aria-labelledby="start"
-      className="mt-28 bg-primary px-5 py-20 text-center text-primary-foreground sm:py-24"
+      className="relative mt-28 overflow-hidden bg-primary"
     >
-      <h2
-        id="start"
-        data-reveal
-        className="mx-auto max-w-4xl font-serif text-5xl leading-[0.98] font-semibold tracking-[-0.03em] sm:text-7xl"
-      >
-        Start with what you have
-      </h2>
-      <p
-        data-reveal
-        className="mx-auto mt-5 max-w-xl text-lg text-balance sm:text-xl"
-      >
-        Free, no card needed. Choose how to begin and that is where you land
-        after signing up.
-      </p>
-
-      <div
-        data-ui
-        data-reveal
-        className="mx-auto mt-12 max-w-xl rounded-3xl bg-card p-3 text-left text-card-foreground sm:p-4"
-      >
-        <fieldset>
-          <legend className="px-3 pt-2 pb-3 text-lg font-semibold">
-            New resume
-          </legend>
-          <div className="flex flex-col gap-2">
-            {starts.map(({ icon: Icon, label, hint, source: id }) => (
-              <label
-                key={id}
-                className="flex cursor-pointer items-center gap-4 rounded-2xl p-3 transition-colors hover:bg-accent has-checked:bg-primary/10 has-focus-visible:outline-2 has-focus-visible:outline-primary"
-              >
-                <input
-                  type="radio"
-                  name="start"
-                  value={id}
-                  checked={source === id}
-                  onChange={() => setSource(id)}
-                  className="sr-only"
-                />
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
-                  <Icon className="size-5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-base font-semibold">{label}</span>
-                  <span className="block text-base text-muted-foreground">
-                    {hint}
-                  </span>
-                </span>
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    'flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors',
-                    source === id
-                      ? 'border-primary bg-primary'
-                      : 'border-input',
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'size-2 rounded-full bg-primary-foreground transition',
-                      source === id
-                        ? 'scale-100 opacity-100'
-                        : 'scale-75 opacity-0',
-                    )}
-                  />
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-        <Button
-          size="lg"
-          asChild
-          className="mt-3 h-13 w-full rounded-2xl text-base"
+      {prints.map((print) => (
+        <Print key={print.id} print={print} progress={scrollYProgress} />
+      ))}
+      <Reveal className="relative px-5 py-20 text-center text-primary-foreground sm:py-28">
+        <h2
+          id="start"
+          data-reveal
+          className="mx-auto max-w-4xl font-serif text-5xl leading-[0.95] font-semibold tracking-[-0.035em] sm:text-7xl lg:text-8xl"
         >
-          <Link
-            to="/login"
-            search={{
-              mode: 'signup',
-              redirect: `/resumes/new?source=${source}`,
-            }}
-          >
-            {chosen.action}
-          </Link>
-        </Button>
-        <p className="px-3 pt-3 pb-1 text-center text-sm text-muted-foreground">
-          Already have an account?{' '}
-          <Link
-            to="/login"
-            search={{ redirect: `/resumes/new?source=${source}` }}
-            className="font-medium text-foreground underline underline-offset-4 hover:no-underline"
-          >
-            Sign in
-          </Link>
+          Start with what you have
+        </h2>
+        <p
+          data-reveal
+          className="mx-auto mt-5 max-w-xl text-lg text-balance sm:text-xl"
+        >
+          Free, no card needed. Choose how to begin and that is where you land
+          after signing up.
         </p>
-      </div>
-    </Reveal>
+
+        <div
+          data-ui
+          data-reveal
+          className="mx-auto mt-12 max-w-xl rounded-3xl bg-card p-3 text-left text-card-foreground sm:p-4"
+        >
+          <fieldset>
+            <legend className="px-3 pt-2 pb-3 text-lg font-semibold">
+              New resume
+            </legend>
+            <div className="flex flex-col gap-2">
+              {starts.map(({ icon: Icon, label, hint, source: id }) => (
+                <label
+                  key={id}
+                  className="flex cursor-pointer items-center gap-4 rounded-2xl p-3 transition-colors hover:bg-accent has-checked:bg-primary/10 has-focus-visible:outline-2 has-focus-visible:outline-primary"
+                >
+                  <input
+                    type="radio"
+                    name="start"
+                    value={id}
+                    checked={source === id}
+                    onChange={() => setSource(id)}
+                    className="sr-only"
+                  />
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
+                    <Icon className="size-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-base font-semibold">
+                      {label}
+                    </span>
+                    <span className="block text-base text-muted-foreground">
+                      {hint}
+                    </span>
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      'flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors',
+                      source === id
+                        ? 'border-primary bg-primary'
+                        : 'border-input',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'size-2 rounded-full bg-primary-foreground transition',
+                        source === id
+                          ? 'scale-100 opacity-100'
+                          : 'scale-75 opacity-0',
+                      )}
+                    />
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <Button
+            size="lg"
+            asChild
+            className="mt-3 h-13 w-full rounded-2xl text-base"
+          >
+            <Link
+              to="/login"
+              search={{
+                mode: 'signup',
+                redirect: `/resumes/new?source=${source}`,
+              }}
+            >
+              {chosen.action}
+            </Link>
+          </Button>
+          <p className="px-3 pt-3 pb-1 text-center text-sm text-muted-foreground">
+            Already have an account?{' '}
+            <Link
+              to="/login"
+              search={{ redirect: `/resumes/new?source=${source}` }}
+              className="font-medium text-foreground underline underline-offset-4 hover:no-underline"
+            >
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </Reveal>
+    </section>
   )
 }
