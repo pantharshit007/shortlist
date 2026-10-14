@@ -282,3 +282,23 @@
     display: none;
   }
 }
+
+/* Opens and closes a <details> smoothly where the browser can animate to auto height; others snap. */
+@utility details-smooth {
+  interpolate-size: allow-keywords;
+  &::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      content-visibility 300ms allow-discrete;
+  }
+  &[open]::details-content {
+    block-size: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &::details-content {
+      transition: none;
+    }
+  }
+}
