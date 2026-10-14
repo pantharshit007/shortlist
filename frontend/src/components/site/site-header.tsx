@@ -26,10 +26,10 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-40 border-b border-transparent bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
+    <header className="sticky top-0 z-40 bg-background">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-5">
         <Logo />
-        <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
           {nav.map((item) => (
             <Button key={item.to} variant="ghost" asChild>
               <Link
@@ -65,13 +65,21 @@ export function SiteHeader() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="lg:hidden"
                 aria-label="Open menu"
               >
                 <MenuIcon />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72">
+            {/* Tapping any link, the logo included, closes the menu. */}
+            <SheetContent
+              side="right"
+              className="w-72"
+              onClick={(event) => {
+                if ((event.target as HTMLElement).closest('a[href]'))
+                  setOpen(false)
+              }}
+            >
               <SheetHeader>
                 <SheetTitle className="sr-only">Menu</SheetTitle>
                 <Logo />
@@ -83,12 +91,11 @@ export function SiteHeader() {
                     variant="ghost"
                     className="justify-start"
                     asChild
-                    onClick={() => setOpen(false)}
                   >
                     <Link to={item.to}>{item.label}</Link>
                   </Button>
                 ))}
-                <Button className="mt-4" asChild onClick={() => setOpen(false)}>
+                <Button className="mt-4" asChild>
                   <Link to={session ? '/workspace' : '/login'}>
                     {session ? 'Open workspace' : 'Sign in'}
                   </Link>
