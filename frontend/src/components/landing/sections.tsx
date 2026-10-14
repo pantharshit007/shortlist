@@ -539,66 +539,137 @@ export function Faq() {
   )
 }
 
+// The product's own "New resume" dialog, open and working: the choice rides through sign-up, so the
+// visitor lands on that import screen.
 const starts = [
   {
     icon: FileUpIcon,
     label: 'Upload a PDF',
-    hint: 'We read it into the editor',
+    hint: 'We read your current resume into the editor.',
+    action: 'Sign up and upload my PDF',
+    source: 'upload',
   },
   {
     icon: FileTextIcon,
     label: 'Paste a .tex file',
-    hint: 'Your Overleaf resume compiles as it is',
+    hint: 'Your Overleaf resume compiles here as it is.',
+    action: 'Sign up and paste my .tex',
+    source: 'tex',
   },
   {
     icon: PenLineIcon,
     label: 'Start from a blank form',
-    hint: 'Pick a template later',
+    hint: 'Fill in your details, then pick a template.',
+    action: 'Sign up and start blank',
+    source: 'blank',
   },
-]
+] as const
 
 export function FinalCta() {
+  const [source, setSource] =
+    useState<(typeof starts)[number]['source']>('upload')
+  const chosen = starts.find((s) => s.source === source) ?? starts[0]
+
   return (
     <Reveal
       as="section"
       aria-labelledby="start"
-      className="mt-28 bg-primary px-5 py-28 text-center text-primary-foreground"
+      className="mt-28 bg-primary px-5 py-20 text-center text-primary-foreground sm:py-24"
     >
       <h2
         id="start"
         data-reveal
-        className="mx-auto max-w-4xl font-serif text-5xl leading-[0.95] font-semibold tracking-[-0.03em] sm:text-8xl"
+        className="mx-auto max-w-4xl font-serif text-5xl leading-[0.98] font-semibold tracking-[-0.03em] sm:text-7xl"
       >
         Start with what you have
       </h2>
-      <p data-reveal className="mx-auto mt-6 max-w-lg text-lg">
-        Free, no card needed. Sign up and your first resume opens in the editor.
+      <p
+        data-reveal
+        className="mx-auto mt-5 max-w-xl text-lg text-balance sm:text-xl"
+      >
+        Free, no card needed. Choose how to begin and that is where you land
+        after signing up.
       </p>
+
       <div
         data-ui
         data-reveal
-        className="mx-auto mt-12 max-w-md rounded-2xl bg-card p-2 text-left text-card-foreground shadow-2xl" // taste-skill-ignore: an open dialog casts its shadow
+        className="mx-auto mt-12 max-w-xl rounded-3xl bg-card p-3 text-left text-card-foreground sm:p-4"
       >
-        <p className="px-4 pt-3 pb-2 font-medium">New resume</p>
-        <ul>
-          {starts.map(({ icon: Icon, label, hint }) => (
-            <li key={label}>
-              <Link
-                to="/login"
-                search={{ mode: 'signup' }}
-                className="flex min-h-14 items-center gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-accent focus-visible:outline-2"
+        <fieldset>
+          <legend className="px-3 pt-2 pb-3 text-lg font-semibold">
+            New resume
+          </legend>
+          <div className="flex flex-col gap-2">
+            {starts.map(({ icon: Icon, label, hint, source: id }) => (
+              <label
+                key={id}
+                className="flex cursor-pointer items-center gap-4 rounded-2xl p-3 transition-colors hover:bg-accent has-checked:bg-primary/10 has-focus-visible:outline-2 has-focus-visible:outline-primary"
               >
-                <Icon className="size-5 shrink-0 text-primary" />
-                <span>
-                  <span className="block font-medium">{label}</span>
-                  <span className="block text-sm text-muted-foreground">
+                <input
+                  type="radio"
+                  name="start"
+                  value={id}
+                  checked={source === id}
+                  onChange={() => setSource(id)}
+                  className="sr-only"
+                />
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
+                  <Icon className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-base font-semibold">{label}</span>
+                  <span className="block text-base text-muted-foreground">
                     {hint}
                   </span>
                 </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors',
+                    source === id
+                      ? 'border-primary bg-primary'
+                      : 'border-input',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'size-2 rounded-full bg-primary-foreground transition',
+                      source === id
+                        ? 'scale-100 opacity-100'
+                        : 'scale-75 opacity-0',
+                    )}
+                  />
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <Button
+          size="lg"
+          asChild
+          className="mt-3 h-13 w-full rounded-2xl text-base"
+        >
+          <Link
+            to="/login"
+            search={{
+              mode: 'signup',
+              redirect: `/resumes/new?source=${source}`,
+            }}
+          >
+            {chosen.action}
+          </Link>
+        </Button>
+        <p className="px-3 pt-3 pb-1 text-center text-sm text-muted-foreground">
+          Already have an account?{' '}
+          <Link
+            to="/login"
+            search={{ redirect: `/resumes/new?source=${source}` }}
+            className="font-medium text-foreground underline underline-offset-4 hover:no-underline"
+          >
+            Sign in
+          </Link>
+        </p>
       </div>
     </Reveal>
   )
