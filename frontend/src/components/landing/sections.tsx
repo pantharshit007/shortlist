@@ -10,6 +10,7 @@ import {
 import {
   AnimatePresence,
   motion,
+  useInView,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -72,10 +73,13 @@ export function TemplateFinder() {
   const inputId = useId()
   const [jobTitle, setJobTitle] = useState(examples[0])
   const [typing, setTyping] = useState(true)
+  const box = useRef<HTMLDivElement>(null)
+  const seen = useInView(box, { once: true, amount: 0.6 })
 
   // Types each example once, ending back on the first, unless the visitor clicks in first (WCAG 2.2.2).
+  // It waits until the box is on screen, so the motion carries on below the hero instead of finishing unseen.
   useEffect(() => {
-    if (!typing || reduceMotion) return
+    if (!typing || reduceMotion || !seen) return
     let example = 0
     let length = examples[0].length
     let deleting = true
@@ -97,12 +101,12 @@ export function TemplateFinder() {
       if (full) deleting = true
       timer = setTimeout(
         step,
-        full ? 2200 : deleting && text === examples[example] ? 28 : 70,
+        full ? 3000 : deleting && text === examples[example] ? 35 : 90,
       )
     }
-    timer = setTimeout(step, 2600)
+    timer = setTimeout(step, 1200)
     return () => clearTimeout(timer)
-  }, [typing, reduceMotion])
+  }, [typing, reduceMotion, seen])
   const suggestion = useMemo(() => suggestFor(jobTitle), [jobTitle])
   const ordered = [
     ...templateCatalog.filter((t) => t.id === suggestion.templateId),
@@ -122,7 +126,7 @@ export function TemplateFinder() {
         <label htmlFor={inputId} className="text-lg">
           Type the job you’re applying for
         </label>
-        <div data-ui className="mt-3 rounded-2xl bg-card px-5 py-4">
+        <div ref={box} data-ui className="mt-3 rounded-2xl bg-card px-5 py-4">
           <input
             id={inputId}
             value={jobTitle}
