@@ -404,14 +404,20 @@ export function PlanPicker() {
   return (
     <Reveal
       as="section"
-      aria-label="Pricing"
+      aria-labelledby="pricing"
       className="mx-auto max-w-6xl px-5 pt-28 text-center"
     >
+      <h2 id="pricing" data-reveal className={heading}>
+        Pricing
+      </h2>
+      <p data-reveal className="mt-3 text-lg text-muted-foreground">
+        Pick a plan to see what it includes.
+      </p>
       <div
         data-reveal
         role="group"
         aria-label="Plans"
-        className="flex flex-wrap justify-center gap-x-8 gap-y-2"
+        className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2"
       >
         {plans.map((p) => (
           <button
@@ -420,7 +426,7 @@ export function PlanPicker() {
             aria-pressed={p.id === selected}
             onClick={() => setSelected(p.id)}
             onFocus={() => setSelected(p.id)}
-            className="flex items-center gap-3 font-serif text-[2rem] font-semibold tracking-[-0.02em] text-muted-foreground transition-colors hover:text-foreground aria-pressed:text-foreground sm:text-5xl"
+            className="flex min-h-11 items-center gap-2.5 font-serif text-2xl font-semibold tracking-[-0.02em] text-muted-foreground transition-colors hover:text-foreground aria-pressed:text-foreground sm:text-4xl"
           >
             <span
               aria-hidden="true"
