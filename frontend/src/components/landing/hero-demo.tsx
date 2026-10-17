@@ -359,10 +359,16 @@ export function Hero() {
         <br />
         <Redline word={titles[title]} />
       </h1>
-      <p className="mx-auto mt-8 max-w-2xl text-lg sm:text-xl">
-        Paste a job description and get your resume rewritten for it in under a
-        minute. Every change is highlighted, and you keep only the ones you
-        like.
+      <p className="mx-auto mt-6 max-w-2xl text-lg sm:mt-8 sm:text-xl">
+        <span className="max-sm:hidden">
+          Paste a job description and get your resume rewritten for it in under
+          a minute. Every change is highlighted, and you keep only the ones you
+          like.
+        </span>
+        <span className="sm:hidden">
+          Paste a job, get your resume rewritten for it, and keep the changes
+          you like.
+        </span>
       </p>
       <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
         <Button size="lg" asChild className="h-12 rounded-full px-7 text-base">
