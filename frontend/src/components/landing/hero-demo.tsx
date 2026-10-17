@@ -128,9 +128,9 @@ const sectionRule =
 
 // One tick streams one word; a hidden bullet takes a few ticks so its strike lands like a beat.
 const hidePause = 3
-const tickMs = 60
-// How long a finished resume stays before the headline moves to the next job.
-const holdMs = 1200
+const tickMs = 110
+// How long a finished resume stays before the demo moves to the next job, long enough to read it.
+const holdMs = 4000
 
 // The headline keeps its own quicker rhythm, independent of the demo, across many fields.
 const titles = [
@@ -143,8 +143,8 @@ const titles = [
   'Product Manager',
   'Investment Banker',
 ]
-const firstSwapMs = 700
-const titleMs = 1700
+const firstSwapMs = 1200
+const titleMs = 2600
 
 // Splits a rewrite into words, bolding what sits between *stars*.
 const wordsOf = (text: string) =>
