@@ -351,7 +351,7 @@ export function Hero() {
       {/* The label keeps one steady name for the page while the job in the line keeps changing. */}
       <h1
         aria-label="Your resume, rewritten for every job"
-        className="isolate mx-auto font-serif text-[2.4rem] leading-[1.04] font-semibold tracking-[-0.035em] sm:text-6xl lg:text-[5.5rem] xl:text-[6.5rem]"
+        className="isolate mx-auto max-w-5xl font-serif text-[2.4rem] leading-[1.04] font-semibold tracking-[-0.035em] sm:text-6xl lg:text-7xl xl:text-[5.25rem]"
       >
         {/* Phones drop "Your resume," so the line and the job each fit on one line. */}
         <span className="max-sm:hidden">Your resume, rewritten for</span>
@@ -392,13 +392,13 @@ export function Hero() {
       <div
         ref={stage}
         data-ui
-        className="mx-auto mt-20 grid w-full max-w-7xl items-start gap-3 text-left lg:grid-cols-[minmax(0,1fr)_38rem_minmax(0,1fr)] lg:gap-5"
+        className="mx-auto mt-20 grid w-full max-w-2xl items-start gap-3 text-left xl:max-w-6xl xl:grid-cols-[minmax(0,1fr)_34rem_minmax(0,1fr)] xl:gap-4"
       >
-        <aside className="flex flex-col gap-5 rounded-2xl bg-card p-5 lg:sticky lg:top-24">
+        <aside className="flex flex-col gap-5 rounded-2xl bg-card p-5 xl:sticky xl:top-24">
           <div
             role="group"
             aria-label="Example job"
-            className="flex w-fit gap-1 rounded-full bg-secondary p-1"
+            className="grid grid-cols-3 gap-1 rounded-full bg-secondary p-1 [&>button]:justify-center [&>button]:px-2"
           >
             {demos.map((d, i) => (
               <Choice
