@@ -327,46 +327,53 @@ export function Hero() {
   }
 
   return (
-    <section ref={hero} className="px-5 pt-16 pb-12 text-center sm:pt-24">
-      {/* The label keeps one steady name for the page while the job in the line keeps changing. */}
-      <h1
-        aria-label="Your resume, tailored to every job you apply for"
-        className="isolate mx-auto max-w-6xl font-serif text-[2.4rem] leading-[1.04] font-semibold tracking-[-0.035em] sm:text-6xl lg:text-7xl"
-      >
-        {/* Phones drop "Your resume," so the line and the job each fit on one line. */}
-        <span className="max-sm:hidden">Your resume, tailored to every</span>
-        <span className="sm:hidden">Tailored to every</span>
-        <br />
-        <span className="whitespace-nowrap">
-          <JobTitle word={titles[title]} /> job
-        </span>
-      </h1>
-      <p className="mx-auto mt-6 max-w-2xl text-lg sm:mt-8 sm:text-xl">
-        Paste the job you want. Our AI rewrites your resume for it, using only
-        what you have really done. You see every change and keep the ones you
-        like.
-      </p>
-      <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-        <Button size="lg" asChild className="h-12 rounded-full px-7 text-base">
-          <Link to="/login" search={{ mode: 'signup' }}>
-            Build my resume free
-          </Link>
-        </Button>
-        <Button
-          size="lg"
-          variant="ghost"
-          asChild
-          className="h-12 rounded-full px-6 text-base"
+    <section ref={hero} className="px-5 pb-12 text-center">
+      {/* The promise fills the first screen below the 4rem header, centred; the example starts below it. */}
+      <div className="flex min-h-[calc(100svh-4rem)] flex-col justify-center py-12">
+        {/* The label keeps one steady name for the page while the job in the line keeps changing. */}
+        <h1
+          aria-label="Your resume, tailored to every job you apply for"
+          className="isolate mx-auto max-w-6xl font-serif text-[2.4rem] leading-[1.04] font-semibold tracking-[-0.035em] sm:text-6xl lg:text-7xl"
         >
-          <Link to="/ats-checker">Check my ATS score</Link>
-        </Button>
+          {/* Phones drop "Your resume," so the line and the job each fit on one line. */}
+          <span className="max-sm:hidden">Your resume, tailored to every</span>
+          <span className="sm:hidden">Tailored to every</span>
+          <br />
+          <span className="whitespace-nowrap">
+            <JobTitle word={titles[title]} /> job
+          </span>
+        </h1>
+        <p className="mx-auto mt-6 max-w-2xl text-lg sm:mt-8 sm:text-xl">
+          Paste the job you want. Our AI rewrites your resume for it, using only
+          what you have really done. You see every change and keep the ones you
+          like.
+        </p>
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <Button
+            size="lg"
+            asChild
+            className="h-12 rounded-full px-7 text-base"
+          >
+            <Link to="/login" search={{ mode: 'signup' }}>
+              Build my resume free
+            </Link>
+          </Button>
+          <Button
+            size="lg"
+            variant="ghost"
+            asChild
+            className="h-12 rounded-full px-6 text-base"
+          >
+            <Link to="/ats-checker">Check my ATS score</Link>
+          </Button>
+        </div>
+        <p className="mt-4 text-base text-muted-foreground">
+          Free plan: 1 tailored resume and 50 AI edits every month. No card
+          needed.
+        </p>
       </div>
-      <p className="mt-4 text-base text-muted-foreground">
-        Free plan: 1 tailored resume and 50 AI edits every month. No card
-        needed.
-      </p>
 
-      <h2 className="mt-20 font-serif text-[1.75rem] leading-tight font-semibold tracking-[-0.02em] sm:text-4xl">
+      <h2 className="mt-8 font-serif text-[1.75rem] leading-tight font-semibold tracking-[-0.02em] sm:text-4xl">
         Try it on an example
       </h2>
       <p className="mx-auto mt-2 max-w-xl text-lg">
