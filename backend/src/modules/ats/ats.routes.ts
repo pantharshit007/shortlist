@@ -12,9 +12,10 @@ import { getJob } from "../jobs/jobs.service.js";
 import { texForVersion } from "../pdfs/pdfs.service.js";
 import { resumeParams } from "../resumes/resumes.schemas.js";
 import { getResume } from "../resumes/resumes.service.js";
+import { withAiMatch } from "./ai-match.js";
 import { atsReport, createAtsReportBody, createResumeAtsReportBody } from "./ats.schemas.js";
 import type { Expected } from "./parser/quality.js";
-import { parsePdfItems, parseTex, scoreResume, texToText } from "./scoring.js";
+import { parsePdfItems, parseTex, resumeText, scoreResume, texToText } from "./scoring.js";
 
 export const atsRouter = Router();
 
@@ -57,13 +58,14 @@ atsRouter.post(
   requireAuth,
   compileLimiter,
   ...validated({ params: resumeParams, body: createResumeAtsReportBody }, async (req, res) => {
-    const userId = currentUser(req).id;
+    const user = currentUser(req);
+    const userId = user.id;
     const resume = await getResume(userId, req.params.resumeId);
     const { head } = resume;
     if (!head) throw new NotFoundError("Version");
     const job = req.body.jobId ? await getJob(userId, req.body.jobId) : null;
     const text = head.texSource && texToText(head.texSource);
-    const report = scoreResume({
+    const scored = scoreResume({
       content: head.content,
       text,
       jobText: job?.rawText,
@@ -74,24 +76,42 @@ atsRouter.post(
         ),
       ),
     });
+    // Guest accounts are free to make, so like the public checker they don't get the AI check on our key.
+    const report =
+      job && !("isAnonymous" in user && user.isAnonymous === true)
+        ? await withAiMatch(scored, {
+            userId,
+            resumeText: resumeText({ content: head.content, text }),
+            jobText: job.rawText,
+            content: head.content,
+            resumeId: resume.id,
+            jobId: job.id,
+          })
+        : scored;
     track(userId, "ats_report_created", { source: "resume", score: report.score, withJob: Boolean(job) });
     sendData(res, atsReport, report);
   }),
 );
 
-// Public: the text is scored in memory and never stored or logged.
+// Public: the text is scored in memory and never stored or logged. With a job description, a signed-in user
+// (not a guest) also gets the AI check, on their own quota; anyone else gets the rule-based report.
 atsRouter.post(
   "/ats-reports",
   atsLimiter,
-  ...validated({ body: createAtsReportBody }, (req, res) => {
+  ...validated({ body: createAtsReportBody }, async (req, res) => {
     const { text, jobDescription, items, page, file } = req.body;
-    const report = scoreResume({
+    const scored = scoreResume({
       text,
       jobText: jobDescription,
       parse: items && page ? parsePdfItems(items, page) : null,
       pdf: items && page ? { items, page } : null,
       file: file ?? null,
     });
+    const user = req.user;
+    const report =
+      jobDescription && user && !("isAnonymous" in user && user.isAnonymous === true)
+        ? await withAiMatch(scored, { userId: user.id, resumeText: resumeText({ text }), jobText: jobDescription })
+        : scored;
     trackServer("ats_report_created", {
       source: "public",
       score: report.score,

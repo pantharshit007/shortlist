@@ -1253,7 +1253,7 @@ export interface paths {
                                     id: string;
                                     createdAt: string;
                                     /** @enum {string} */
-                                    step: "import" | "jd_parse" | "plan" | "rewrite" | "verify" | "inline_edit" | "chat_edit" | "fix_compile" | "draft";
+                                    step: "import" | "jd_parse" | "plan" | "rewrite" | "verify" | "inline_edit" | "chat_edit" | "fix_compile" | "draft" | "ats_match";
                                     /** @enum {string} */
                                     status: "pending" | "succeeded" | "failed";
                                     model: string;
@@ -6647,6 +6647,123 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/refunds/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What a refund of the latest payment would return, while it is within 24 hours */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                quote: {
+                                    /** Format: uuid */
+                                    paymentId: string;
+                                    plan: ("season_pass" | "pro") | null;
+                                    amountPaidPaise: number;
+                                    feePaise: number;
+                                    refundPaise: number;
+                                    refundableUntil: string;
+                                } | null;
+                                reason: string | null;
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/refunds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refund a payment made in the last 6 hours, less Razorpay's fee, and end its plan */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        paymentId: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** Format: uuid */
+                                paymentId: string;
+                                refundPaise: number;
+                                razorpayRefundId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/promo-redemptions": {
         parameters: {
             query?: never;
@@ -8273,6 +8390,10 @@ export interface components {
                     missing: string[];
                 };
                 mustHaveMissing: string[];
+                implied: {
+                    skill: string;
+                    evidence: string;
+                }[];
             } | null;
             title: {
                 jobTitle: string;
@@ -8299,6 +8420,7 @@ export interface components {
                 status: "met" | "not-met" | "unclear" | "not-on-resume";
                 evidence: string | null;
                 advice: string;
+                checkedWithAi: boolean;
             }[] | null;
             stats: {
                 words: number;

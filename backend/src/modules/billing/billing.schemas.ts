@@ -25,3 +25,26 @@ export const subscriptionResponse = z.object({
     })
     .nullable(),
 });
+
+export const refundQuoteResponse = z.object({
+  // Null when no payment is still inside its 6 hour refund window, or when `reason` says why it can't be refunded.
+  quote: z
+    .object({
+      paymentId: z.uuid(),
+      plan: z.enum(["season_pass", "pro"]).nullable(),
+      amountPaidPaise: z.number().int(),
+      feePaise: z.number().int(),
+      refundPaise: z.number().int(),
+      refundableUntil: z.date(),
+    })
+    .nullable(),
+  reason: z.string().nullable(),
+});
+
+export const createRefundBody = z.object({ paymentId: z.uuid() });
+
+export const refundResponse = z.object({
+  paymentId: z.uuid(),
+  refundPaise: z.number().int(),
+  razorpayRefundId: z.string(),
+});
