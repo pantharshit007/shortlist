@@ -345,12 +345,7 @@ export function Hero() {
           <JobTitle word={titles[title]} /> job
         </span>
       </h1>
-      <p className="mx-auto mt-6 max-w-2xl text-lg sm:mt-8 sm:text-xl">
-        Paste the job you want. Our AI rewrites your resume for it, using only
-        what you have really done. You see every change and keep the ones you
-        like.
-      </p>
-      <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-10">
         <Button size="lg" asChild className="h-12 px-7 text-base">
           <Link to="/login" search={{ mode: 'signup' }}>
             Build my resume free
@@ -365,9 +360,10 @@ export function Hero() {
           <Link to="/ats-checker">Check my ATS score</Link>
         </Button>
       </div>
-      <p className="mt-4 text-base text-muted-foreground">
-        Free plan: 1 tailored resume and 50 AI edits every month. No card
-        needed.
+      <p className="mx-auto mt-8 max-w-2xl text-lg sm:text-xl">
+        Paste the job you want. Our AI rewrites your resume for it, using only
+        what you have really done. You see every change and keep the ones you
+        like.
       </p>
 
       <h2 className="mt-20 font-serif text-[1.75rem] leading-tight font-semibold tracking-[-0.02em] sm:text-4xl">
