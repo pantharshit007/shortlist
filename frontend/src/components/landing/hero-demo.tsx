@@ -375,28 +375,28 @@ export function Hero() {
       </p>
 
       <div
-        data-ui
-        className="mx-auto mt-8 grid w-full max-w-2xl items-start gap-3 text-left xl:max-w-6xl xl:grid-cols-[minmax(0,1fr)_34rem_minmax(0,1fr)] xl:gap-4"
+        role="group"
+        aria-label="Example job"
+        className="mx-auto mt-6 flex w-fit gap-1 rounded-full bg-secondary p-1 [&>button]:h-10 [&>button]:px-5 [&>button]:text-base"
       >
-        <aside className="flex flex-col gap-5 rounded-2xl bg-card p-5 xl:sticky xl:top-24">
-          <div
-            role="group"
-            aria-label="Example job"
-            className="grid grid-cols-3 gap-1 rounded-full bg-secondary p-1 [&>button]:justify-center [&>button]:px-2"
+        {demos.map((d, i) => (
+          <Choice
+            key={d.field}
+            pressed={i === index}
+            onClick={() => {
+              setPicked(true)
+              show(i)
+            }}
           >
-            {demos.map((d, i) => (
-              <Choice
-                key={d.field}
-                pressed={i === index}
-                onClick={() => {
-                  setPicked(true)
-                  show(i)
-                }}
-              >
-                {d.field}
-              </Choice>
-            ))}
-          </div>
+            {d.field}
+          </Choice>
+        ))}
+      </div>
+      <div
+        data-ui
+        className="mx-auto mt-8 grid w-full max-w-2xl items-start gap-3 text-left xl:max-w-6xl xl:items-stretch xl:grid-cols-[minmax(0,1fr)_34rem_minmax(0,1fr)] xl:gap-4"
+      >
+        <aside className="flex flex-col gap-5 rounded-2xl bg-card p-5">
           <div className="relative">
             {!reduceMotion && (
               <div className="absolute top-0 right-0">
@@ -504,7 +504,7 @@ export function Hero() {
         </figure>
 
         <div className="rounded-2xl bg-card p-4 text-left text-base">
-          <div className="flex min-h-9 items-center justify-between gap-3">
+          <div className="flex min-h-9 items-center justify-between gap-2 [&>button]:shrink-0 [&>button]:px-2.5 [&>button]:whitespace-nowrap">
             <p className="font-medium" aria-live={picked ? 'polite' : 'off'}>
               {done
                 ? `${kept} of ${demo.bullets.length} changes kept`
