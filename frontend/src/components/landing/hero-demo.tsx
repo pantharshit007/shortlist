@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { PauseIcon, PlayIcon } from 'lucide-react'
 import {
   AnimatePresence,
   motion,
@@ -73,16 +74,6 @@ export function Hero() {
     return () => clearTimeout(timer)
   }, [title, reduceMotion, onScreen])
 
-  // The recording plays muted while it's on screen and pauses off it; with reduced motion it waits for a click.
-  const video = useRef<HTMLVideoElement>(null)
-  const videoOnScreen = useInView(video, { amount: 0.4 })
-  useEffect(() => {
-    const element = video.current
-    if (!element || reduceMotion) return
-    if (videoOnScreen) element.play().catch(() => {})
-    else element.pause()
-  }, [videoOnScreen, reduceMotion])
-
   return (
     <section ref={hero} className="px-5 pt-16 pb-12 text-center sm:pt-24">
       {/* The label keeps one steady name for the page while the job in the line keeps changing. */}
@@ -124,33 +115,165 @@ export function Hero() {
       </h2>
       <p className="mx-auto mt-2 max-w-xl text-lg">
         Import a resume, tailor it to a job, review each change and download the
-        PDF, in under a minute.
+        PDF.
       </p>
-      <figure className="mx-auto mt-8 max-w-5xl">
-        <video
-          ref={video}
-          className="aspect-[1280/800] w-full rounded-2xl bg-card shadow-[0_1px_2px_rgb(0_0_0/0.06),0_12px_40px_-12px_rgb(0_0_0/0.25)] ring-1 ring-black/5"
-          poster="/video/how-it-works.jpg"
-          width={1280}
-          height={800}
-          muted
-          loop
-          playsInline
-          controls
-          preload="metadata"
-          aria-describedby="how-it-works-video"
-        >
-          <source src="/video/how-it-works.webm" type="video/webm" />
-          <source src="/video/how-it-works.mp4" type="video/mp4" />
-        </video>
-        <figcaption id="how-it-works-video" className="sr-only">
-          A screen recording of Shortlist: a marketing resume is imported from a
-          PDF, the headline is edited, a job description is pasted and the AI
-          tailors the resume, each suggested change is reviewed and one is
-          skipped, the changes are applied, and the resume is downloaded as a
-          PDF.
-        </figcaption>
-      </figure>
+      <HowItWorksVideo />
     </section>
+  )
+}
+
+// Where each caption starts in the recording, in seconds.
+const steps = [
+  { label: 'Import', at: 0 },
+  { label: 'Edit', at: 6.3 },
+  { label: 'Tailor with AI', at: 9.3 },
+  { label: 'Review', at: 15.3 },
+  { label: 'Apply', at: 23 },
+  { label: 'Download', at: 26 },
+]
+const videoLength = 30.8
+
+// The recording with its own quiet controls instead of the browser's: a row of steps that fill as they play
+// and jump there when clicked, and a small pause button (WCAG 2.2.2). It plays muted while on screen; with
+// reduced motion it waits for a click.
+function HowItWorksVideo() {
+  const reduceMotion = useReducedMotion()
+  const video = useRef<HTMLVideoElement>(null)
+  const onScreen = useInView(video, { amount: 0.4 })
+  const [playing, setPlaying] = useState(false)
+  const [time, setTime] = useState(0)
+  const [stopped, setStopped] = useState(false)
+
+  useEffect(() => {
+    const element = video.current
+    if (!element || reduceMotion || stopped) return
+    if (onScreen) element.play().catch(() => {})
+    else element.pause()
+  }, [onScreen, reduceMotion, stopped])
+
+  // timeupdate only fires a few times a second, so the step bars follow the frames while playing.
+  useEffect(() => {
+    if (!playing) return
+    let frame = requestAnimationFrame(function tick() {
+      setTime(video.current?.currentTime ?? 0)
+      frame = requestAnimationFrame(tick)
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [playing])
+
+  const toggle = () => {
+    const element = video.current
+    if (!element) return
+    if (element.paused) {
+      setStopped(false)
+      element.play().catch(() => {})
+    } else {
+      setStopped(true)
+      element.pause()
+    }
+  }
+  const seek = (at: number) => {
+    const element = video.current
+    if (!element) return
+    element.currentTime = at
+    setTime(at)
+    setStopped(false)
+    element.play().catch(() => {})
+  }
+  const current = steps.filter((step) => time >= step.at).length - 1
+
+  return (
+    <figure className="mx-auto mt-8 max-w-5xl">
+      {/* A soft bezel around a dark app window, so the recording reads as the product on a screen. */}
+      <div className="rounded-[1.75rem] bg-[linear-gradient(to_bottom,var(--secondary),var(--card))] p-2.5 shadow-[0_1px_2px_rgb(0_0_0/0.05),0_24px_60px_-20px_rgb(0_0_0/0.25)] ring-1 ring-black/5 sm:p-4 dark:ring-white/10">
+        <div className="overflow-hidden rounded-[1.25rem] bg-[#1c1d1b] ring-1 ring-black/30">
+          <div
+            aria-hidden="true"
+            className="flex h-8 items-center gap-2 px-4 sm:h-10"
+          >
+            <span className="size-3 rounded-full bg-[#ff5f57]" />
+            <span className="size-3 rounded-full bg-[#febc2e]" />
+            <span className="size-3 rounded-full bg-[#28c840]" />
+          </div>
+          <div className="relative">
+            <video
+              ref={video}
+              className="block aspect-[1280/800] w-full cursor-pointer bg-sheet"
+              poster="/video/how-it-works.jpg"
+              width={1280}
+              height={800}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-describedby="how-it-works-video"
+              onClick={toggle}
+              onPlay={() => setPlaying(true)}
+              onPause={() => setPlaying(false)}
+              onTimeUpdate={(event) => setTime(event.currentTarget.currentTime)}
+            >
+              <source src="/video/how-it-works.webm" type="video/webm" />
+              <source src="/video/how-it-works.mp4" type="video/mp4" />
+            </video>
+            {/* The recording is always light, so the button keeps its light glass in dark mode too. */}
+            <Button
+              variant="glass"
+              size="icon-lg"
+              onClick={toggle}
+              aria-label={playing ? 'Pause video' : 'Play video'}
+              className="absolute right-3 bottom-3 size-11 rounded-full border-black/10 bg-[rgb(255_255_255/0.72)] text-[#18201d] dark:border-black/10 dark:bg-[rgb(255_255_255/0.72)] dark:text-[#18201d] sm:right-4 sm:bottom-4"
+            >
+              {playing ? (
+                <PauseIcon className="size-4" />
+              ) : (
+                <PlayIcon className="size-4" />
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+      <ol className="mt-4 grid grid-cols-3 gap-x-3 gap-y-2 sm:grid-cols-6">
+        {steps.map((step, index) => {
+          const end = steps[index + 1]?.at ?? videoLength
+          const fill =
+            index < current
+              ? 1
+              : index > current
+                ? 0
+                : (time - step.at) / (end - step.at)
+          return (
+            <li key={step.label}>
+              <button
+                type="button"
+                onClick={() => seek(step.at)}
+                aria-current={index === current ? 'step' : undefined}
+                className="group flex min-h-11 w-full flex-col justify-center gap-2 rounded-md text-left text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 aria-[current=step]:text-foreground"
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-1 w-full overflow-hidden rounded-full bg-border"
+                >
+                  <span
+                    className="block h-full origin-left rounded-full bg-primary"
+                    style={{
+                      transform: `scaleX(${Math.min(1, Math.max(0, fill))})`,
+                    }}
+                  />
+                </span>
+                <span className="font-medium">
+                  {index + 1}. {step.label}
+                </span>
+              </button>
+            </li>
+          )
+        })}
+      </ol>
+      <figcaption id="how-it-works-video" className="sr-only">
+        A screen recording of Shortlist: a marketing resume is imported from a
+        PDF, the headline is edited, a job description is pasted and the AI
+        tailors the resume, each suggested change is reviewed and one is
+        skipped, the changes are applied, and the resume is downloaded as a PDF.
+      </figcaption>
+    </figure>
   )
 }
