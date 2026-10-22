@@ -184,12 +184,12 @@ function HowItWorksVideo() {
 
   return (
     <figure className="mx-auto mt-8 max-w-5xl">
-      {/* A soft bezel around a dark app window, so the recording reads as the product on a screen. */}
-      <div className="rounded-[1.75rem] bg-[linear-gradient(to_bottom,var(--secondary),var(--card))] p-2.5 shadow-[0_1px_2px_rgb(0_0_0/0.05),0_24px_60px_-20px_rgb(0_0_0/0.25)] ring-1 ring-black/5 sm:p-4 dark:ring-white/10">
-        <div className="overflow-hidden rounded-[1.25rem] bg-[#1c1d1b] ring-1 ring-black/30">
+      {/* A faint bezel and a window bar in the page's own colours, so the recording sits in the page like a screen. */}
+      <div className="rounded-[1.75rem] bg-[linear-gradient(to_bottom,color-mix(in_oklch,var(--background),var(--foreground)_4%),var(--background))] p-2.5 shadow-[0_30px_80px_-40px_rgb(0_0_0/0.18)] sm:p-4">
+        <div className="overflow-hidden rounded-[1.25rem] bg-card ring-1 ring-[color-mix(in_oklch,var(--border),transparent_30%)]">
           <div
             aria-hidden="true"
-            className="flex h-8 items-center gap-2 px-4 sm:h-10"
+            className="flex h-8 items-center gap-2 border-b border-[color-mix(in_oklch,var(--border),transparent_30%)] px-4 sm:h-10"
           >
             <span className="size-3 rounded-full bg-[#ff5f57]" />
             <span className="size-3 rounded-full bg-[#febc2e]" />
