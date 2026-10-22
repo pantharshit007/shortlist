@@ -1,10 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import {
   BanIcon,
-  EyeIcon,
   FileTextIcon,
   FileUpIcon,
-  LinkIcon,
   LockIcon,
   PenLineIcon,
   ScanTextIcon,
@@ -17,7 +15,6 @@ import { PricingCards } from '@/components/site/pricing-cards'
 import { Button } from '@/components/ui/button'
 import type { ResumeContent } from '@/lib/api/types'
 import { recommendTemplate } from '@/lib/recommend-template'
-import { site } from '@/lib/site'
 import { categoryName, templateCatalog } from '@/lib/templates'
 import { cn } from '@/lib/utils'
 
@@ -177,160 +174,6 @@ export function TemplateFinder() {
       >
         <Link to="/templates">View all {templateCatalog.length} templates</Link>
       </Button>
-    </Reveal>
-  )
-}
-
-const stages = [
-  {
-    title: '1. Bring your resume',
-    body: 'Upload the PDF you already have, or fill in a simple form. No resume yet? Start blank.',
-  },
-  {
-    title: '2. Add the job',
-    body: 'Paste the job description. We pick out what the role asks for and check what your resume already shows.',
-  },
-  {
-    title: '3. Approve the changes',
-    body: 'The AI rewrites your points for this job. Each change is highlighted, and you keep only the ones you like.',
-  },
-  {
-    title: '4. Download or share',
-    body: 'Get a clean PDF to upload anywhere, or send one link that always shows your latest version.',
-  },
-]
-
-function StageFragment({ index }: { index: number }) {
-  if (index === 0)
-    return (
-      <div className="rounded-xl border bg-card p-4 text-left text-base">
-        <p className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2.5">
-          <FileUpIcon className="size-5 shrink-0 text-primary" />
-          <span className="min-w-0 flex-1 truncate font-medium">
-            Ananya_Rao_Resume.pdf
-          </span>
-        </p>
-        <p className="mt-3">
-          Read into the editor: 2 jobs, 7 points, 9 skills.
-        </p>
-        <p className="mt-1 text-muted-foreground">
-          Every line stays yours to edit.
-        </p>
-      </div>
-    )
-  if (index === 1)
-    return (
-      <div className="rounded-xl border bg-card p-4 text-left text-base">
-        <p className="font-medium">Job description</p>
-        <div className="mt-2 rounded-lg bg-muted p-3 text-muted-foreground">
-          <p className="line-clamp-3">
-            We are hiring a Marketing Executive to plan social media, run
-            campaigns with creators, and report results from Google Analytics.
-            You will also help manage monthly budgets.
-          </p>
-        </div>
-        <p className="mt-4 font-medium">What this role asks for</p>
-        <ul className="mt-2 flex flex-wrap gap-1.5 text-sm">
-          {[
-            ['Social media', true],
-            ['Campaigns', true],
-            ['Google Analytics', true],
-            ['Budgets', false],
-          ].map(([skill, found]) => (
-            <li
-              key={String(skill)}
-              className={cn(
-                'rounded-full px-2.5 py-1',
-                found
-                  ? 'bg-primary/12 text-primary'
-                  : 'bg-muted text-muted-foreground',
-              )}
-            >
-              {skill}
-              {found ? '' : ' (not on your resume)'}
-            </li>
-          ))}
-        </ul>
-      </div>
-    )
-  if (index === 2)
-    return (
-      <div className="flex flex-col gap-2 text-left text-base">
-        <div className="rounded-xl border bg-card p-4">
-          <p className="text-muted-foreground line-through">
-            Helped in Diwali sale campaign, followed up with 30 influencers
-          </p>
-          <p className="mt-1">
-            Coordinated 30 influencers for the Diwali sale{' '}
-            <span className="rounded-[2px] bg-highlight/70 px-0.5 dark:bg-primary/30">
-              campaign
-            </span>
-          </p>
-          <p className="mt-2 font-medium text-success">Accepted</p>
-        </div>
-        <div className="rounded-xl border border-destructive/40 bg-card p-4 dark:border-border">
-          <p>Managed a ₹20L monthly ad budget</p>
-          <p className="mt-2 text-destructive dark:text-muted-foreground">
-            Not applied. Your resume never mentions a budget.
-          </p>
-        </div>
-      </div>
-    )
-  return (
-    <div className="rounded-xl border bg-card p-4 text-left text-base">
-      <p className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2.5">
-        <FileTextIcon className="size-5 shrink-0 text-primary" />
-        <span className="min-w-0 flex-1 truncate font-medium">
-          Ananya_Rao_Marketing_Executive.pdf
-        </span>
-      </p>
-      <p className="mt-2 flex min-w-0 items-center gap-3 rounded-lg bg-muted px-3 py-2.5 break-all">
-        <LinkIcon className="size-5 shrink-0 text-primary" />
-        {site.displayDomain}/ananya/marketing
-      </p>
-      <p className="mt-4 flex items-center gap-2 text-muted-foreground">
-        <EyeIcon className="size-4 shrink-0" />
-        See how many times your link was opened.
-      </p>
-    </div>
-  )
-}
-
-export function Stages() {
-  return (
-    <Reveal
-      as="section"
-      aria-labelledby="how-it-works"
-      className="mt-28 bg-secondary px-5 py-20 sm:py-24"
-    >
-      <div className="mx-auto max-w-6xl">
-        <h2
-          id="how-it-works"
-          data-reveal
-          className={cn(heading, 'text-center')}
-        >
-          How it works
-        </h2>
-        <ol className="mt-12 grid gap-4 md:grid-cols-2">
-          {stages.map((stage, index) => (
-            <li
-              key={stage.title}
-              data-reveal
-              className="flex min-w-0 flex-col gap-6 rounded-2xl bg-background p-6 sm:p-8"
-            >
-              <div>
-                <h3 className="font-serif text-2xl font-semibold tracking-[-0.01em]">
-                  {stage.title}
-                </h3>
-                <p className="mt-2 text-lg">{stage.body}</p>
-              </div>
-              <div data-ui className="mt-auto">
-                <StageFragment index={index} />
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
     </Reveal>
   )
 }
