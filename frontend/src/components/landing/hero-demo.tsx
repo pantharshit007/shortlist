@@ -145,8 +145,8 @@ const titles = [
   'Data',
   'Software',
 ]
-const firstSwapMs = 2500
-const titleMs = 3500
+const firstSwapMs = 1500
+const titleMs = 2500
 
 // Splits a rewrite into words, bolding what sits between *stars*.
 const wordsOf = (text: string) =>
