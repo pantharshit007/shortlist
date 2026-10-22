@@ -26,7 +26,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { property: 'og:site_name', content: site.name },
       { property: 'og:type', content: 'website' },
       // Link previews (WhatsApp, LinkedIn, X) show the homepage's first screen instead of whatever image comes first.
-      { property: 'og:image', content: `${site.url}/og.png` },
+      // Bump ?v= when og.png changes: those apps cache previews by image URL.
+      { property: 'og:image', content: `${site.url}/og.png?v=2` },
       { property: 'og:image:width', content: '1200' },
       { property: 'og:image:height', content: '630' },
       {
@@ -34,7 +35,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         content: `${site.name}: your resume, rewritten for every job you apply to`,
       },
       { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:image', content: `${site.url}/og.png` },
+      { name: 'twitter:image', content: `${site.url}/og.png?v=2` },
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
