@@ -17,6 +17,9 @@ const buttonVariants = cva(
           'border-border bg-[linear-gradient(to_bottom,var(--card),var(--background))] shadow-[inset_0_1px_0_rgb(255_255_255/0.7),0_1px_2px_rgb(0_0_0/0.07)] hover:brightness-[0.98] hover:text-foreground active:shadow-[inset_0_1px_2px_rgb(0_0_0/0.08)] aria-expanded:text-foreground dark:border-input dark:shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_1px_2px_rgb(0_0_0/0.4)] dark:hover:brightness-[1.12]',
         secondary:
           'border-[color-mix(in_oklch,var(--secondary),var(--foreground)_10%)] bg-[linear-gradient(to_bottom,var(--card),var(--secondary))] text-secondary-foreground shadow-[inset_0_1px_0_rgb(255_255_255/0.7),0_1px_2px_rgb(0_0_0/0.07)] hover:brightness-[0.98] active:shadow-[inset_0_1px_2px_rgb(0_0_0/0.08)] aria-expanded:text-secondary-foreground dark:shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_1px_2px_rgb(0_0_0/0.4)] dark:hover:brightness-[1.12]',
+        // Frosted glass: a translucent paper sheen with a bright top edge, blurring whatever sits behind it.
+        glass:
+          'border-[color-mix(in_oklch,var(--card),transparent_20%)] bg-[linear-gradient(to_bottom,color-mix(in_oklch,var(--card),transparent_25%),color-mix(in_oklch,var(--card),transparent_65%))] text-foreground shadow-[inset_0_1px_0_rgb(255_255_255/0.75),0_1px_2px_rgb(0_0_0/0.06),0_6px_16px_-6px_rgb(0_0_0/0.12)] ring-1 ring-black/5 backdrop-blur-md hover:brightness-[1.03] active:shadow-[inset_0_1px_2px_rgb(0_0_0/0.08)] dark:border-white/15 dark:bg-[linear-gradient(to_bottom,rgb(255_255_255/0.10),rgb(255_255_255/0.04))] dark:shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_1px_2px_rgb(0_0_0/0.4)] dark:ring-0 dark:hover:brightness-[1.15]',
         ghost:
           'hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
         destructive:
