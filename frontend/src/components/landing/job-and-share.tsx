@@ -22,9 +22,10 @@ import { cn } from '@/lib/utils'
 
 // The two things the recording above doesn't show: reading a job from its link, and sharing the resume as a
 // link. They sit on a desk photo inside a rounded panel the width of the page. The photo is always dark, so
-// text here uses fixed light colours rather than the theme's.
+// text here uses fixed light colours rather than the theme's. The cards are tinted, not backdrop-blurred:
+// a blur under a card that is still fading in shows the photo's bright window through as a white smear.
 const glass =
-  'min-w-0 rounded-3xl border border-white/12 bg-[rgb(18_20_18/0.5)] p-6 text-left backdrop-blur-xl transition-[border-color,background-color] duration-300 hover:border-white/20 hover:bg-[rgb(18_20_18/0.42)] sm:p-8'
+  'min-w-0 rounded-3xl border border-white/12 bg-[rgb(20_22_20/0.72)] p-6 text-left transition-[border-color,background-color] duration-300 hover:border-white/20 hover:bg-[rgb(20_22_20/0.66)] sm:p-8'
 const panel = 'mt-6 rounded-2xl bg-card p-4 text-sm text-card-foreground'
 
 // Made-up postings, described rather than tied to a real employer.
@@ -410,7 +411,7 @@ export function JobAndShare() {
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[rgb(16_18_16/0.62)]"
+        className="absolute inset-0 bg-[rgb(16_18_16/0.66)]"
       />
       <Reveal className="relative px-4 py-16 text-center text-[#f4f1ea] sm:px-10 sm:py-20">
         <h2
