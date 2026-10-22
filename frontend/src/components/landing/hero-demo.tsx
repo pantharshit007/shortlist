@@ -351,16 +351,16 @@ export function Hero() {
         like.
       </p>
       <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-        <Button size="lg" asChild className="h-12 rounded-full px-7 text-base">
+        <Button size="lg" asChild className="h-12 px-7 text-base">
           <Link to="/login" search={{ mode: 'signup' }}>
             Build my resume free
           </Link>
         </Button>
         <Button
           size="lg"
-          variant="ghost"
+          variant="glass"
           asChild
-          className="h-12 rounded-full px-6 text-base"
+          className="h-12 px-6 text-base"
         >
           <Link to="/ats-checker">Check my ATS score</Link>
         </Button>

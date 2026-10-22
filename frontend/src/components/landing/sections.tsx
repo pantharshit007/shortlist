@@ -173,7 +173,7 @@ export function TemplateFinder() {
         size="lg"
         variant="secondary"
         asChild
-        className="mt-10 h-12 rounded-full px-6 text-base"
+        className="mt-10 h-12 px-6 text-base"
       >
         <Link to="/templates">View all {templateCatalog.length} templates</Link>
       </Button>
@@ -686,11 +686,7 @@ export function FinalCta() {
               ))}
             </div>
           </fieldset>
-          <Button
-            size="lg"
-            asChild
-            className="mt-3 h-13 w-full rounded-2xl text-base"
-          >
+          <Button size="lg" asChild className="mt-3 h-13 w-full text-base">
             <Link
               to="/login"
               search={{
