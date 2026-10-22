@@ -11,7 +11,7 @@ import {
 } from '@/components/landing/sections'
 import { site } from '@/lib/site'
 
-const title = `AI Resume Builder, Tailored to Every Job | ${site.name}`
+const title = `Free AI Resume Builder, Tailored to Every Job | ${site.name}`
 const description =
   'Free AI resume builder for students and freshers in every field: tailor your resume to each job description, keep only the changes you like, and download an ATS-friendly PDF. Built in India.'
 
