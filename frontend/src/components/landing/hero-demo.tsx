@@ -332,6 +332,9 @@ export function Hero() {
 
   return (
     <section ref={hero} className="px-5 pt-16 pb-12 text-center sm:pt-24">
+      <p className="mb-5 text-base font-medium text-muted-foreground">
+        Free AI resume builder
+      </p>
       {/* The label keeps one steady name for the page while the job in the line keeps changing. */}
       <h1
         aria-label="Your resume, tailored to every job you apply for"
