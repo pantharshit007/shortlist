@@ -168,24 +168,28 @@ const spans = (demo: Demo) => {
 }
 
 // The streamed part of a rewrite: each word fades in.
+// Every word of a rewrite is laid out from the start and the untyped ones stay transparent, so the line
+// never re-wraps as words arrive and nothing below it jumps.
 function Streamed({ text, upTo }: { text: string; upTo: number }) {
   const reduceMotion = useReducedMotion()
-  return wordsOf(text)
-    .slice(0, upTo)
-    .map(({ word, bold }, index) => {
-      const Tag = bold ? motion.b : motion.span
-      return (
-        <Tag
-          key={index}
-          className="whitespace-pre-wrap"
-          initial={reduceMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.35, ease }}
-        >
-          {word}
-        </Tag>
-      )
-    })
+  return wordsOf(text).map(({ word, bold }, index) => {
+    const Tag = bold ? motion.b : motion.span
+    const shown = index < upTo
+    return (
+      <Tag
+        key={index}
+        className={cn(
+          'box-decoration-clone whitespace-pre-wrap',
+          shown && 'bg-highlight/80 dark:bg-highlight/50',
+        )}
+        initial={false}
+        animate={{ opacity: shown ? 1 : 0 }}
+        transition={reduceMotion ? { duration: 0 } : { duration: 0.35, ease }}
+      >
+        {word}
+      </Tag>
+    )
+  })
 }
 
 function Choice({
@@ -394,9 +398,9 @@ export function Hero() {
       </div>
       <div
         data-ui
-        className="mx-auto mt-8 grid w-full max-w-2xl items-start gap-3 text-left xl:max-w-6xl xl:items-stretch xl:grid-cols-[minmax(0,1fr)_34rem_minmax(0,1fr)] xl:gap-4"
+        className="mx-auto mt-8 grid w-full max-w-2xl items-start gap-3 text-left xl:min-h-[29.5rem] xl:max-w-6xl xl:grid-cols-[minmax(0,1fr)_34rem_minmax(0,1fr)] xl:gap-4"
       >
-        <aside className="flex flex-col gap-5 rounded-2xl bg-card p-5">
+        <aside className="flex flex-col gap-5 rounded-2xl bg-card p-5 max-xl:min-h-[18.5rem] xl:sticky xl:top-24">
           <div className="relative">
             {!reduceMotion && (
               <div className="absolute top-0 right-0">
@@ -452,7 +456,7 @@ export function Hero() {
 
         <figure
           aria-label={`${demo.name}'s resume, tailored for a ${demo.job.title} role`}
-          className="bg-sheet px-6 pt-10 pb-8 text-left text-sheet-foreground ring-1 ring-black/5 sm:px-12"
+          className="bg-sheet px-6 pt-10 pb-8 text-left text-sheet-foreground ring-1 ring-black/5 max-xl:min-h-[30rem] sm:px-12"
         >
           <div className="text-center font-serif">
             <p className="text-2xl tracking-wide [font-variant-caps:small-caps]">
@@ -480,17 +484,27 @@ export function Hero() {
                   transition={{ duration: 0.4 }}
                 >
                   <span aria-hidden="true">•</span>
+                  {/* The old and new line share one cell, so the bullet is as tall as the longer of the two
+                      from the start and doesn't grow as the rewrite comes in. */}
                   <span
                     className={cn(
+                      'grid [&>*]:col-start-1 [&>*]:row-start-1',
                       struck && 'line-through decoration-neutral-500',
                     )}
                   >
-                    {rewriting && bullet.after ? (
-                      <span className="box-decoration-clone rounded-[2px] bg-highlight/80 px-0.5 dark:bg-highlight/50">
-                        <Streamed text={bullet.after} upTo={typed(i)} />
+                    <span
+                      className={cn(rewriting && 'invisible')}
+                      aria-hidden={rewriting ? true : undefined}
+                    >
+                      {bullet.before}
+                    </span>
+                    {bullet.after && (
+                      <span aria-hidden={rewriting ? undefined : true}>
+                        <Streamed
+                          text={bullet.after}
+                          upTo={rewriting ? typed(i) : 0}
+                        />
                       </span>
-                    ) : (
-                      bullet.before
                     )}
                   </span>
                 </motion.li>
@@ -503,7 +517,7 @@ export function Hero() {
           </p>
         </figure>
 
-        <div className="rounded-2xl bg-card p-4 text-left text-base">
+        <div className="rounded-2xl bg-card p-4 text-left text-base max-xl:min-h-[28rem]">
           <div className="flex min-h-9 items-center justify-between gap-2 [&>button]:shrink-0 [&>button]:px-2.5 [&>button]:whitespace-nowrap">
             <p className="font-medium" aria-live={picked ? 'polite' : 'off'}>
               {done
