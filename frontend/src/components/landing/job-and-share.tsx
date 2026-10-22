@@ -11,12 +11,11 @@ import { Reveal } from '@/components/landing/reveal'
 import { cn } from '@/lib/utils'
 
 // The two things the recording above doesn't show: reading a job from its link, and sharing the resume as a
-// link. They sit on a desk photo that fades into the page at both ends. The photo is always dark, so text
-// here uses fixed light colours rather than the theme's.
+// link. They sit on a desk photo inside a rounded panel the width of the page. The photo is always dark, so
+// text here uses fixed light colours rather than the theme's.
 const glass =
-  'min-w-0 rounded-3xl border border-white/12 bg-[rgb(18_20_18/0.55)] p-6 text-left shadow-[0_24px_60px_-30px_rgb(0_0_0/0.6)] backdrop-blur-xl sm:p-8'
-const panel =
-  'mt-6 rounded-2xl bg-card p-4 text-sm text-card-foreground shadow-[0_8px_24px_-12px_rgb(0_0_0/0.5)]'
+  'min-w-0 rounded-3xl border border-white/12 bg-[rgb(18_20_18/0.5)] p-6 text-left  backdrop-blur-xl sm:p-8'
+const panel = 'mt-6 rounded-2xl bg-card p-4 text-sm text-card-foreground'
 
 const asks = [
   { skill: 'Instagram', found: true },
@@ -43,7 +42,7 @@ export function JobAndShare() {
   return (
     <section
       aria-labelledby="job-and-share"
-      className="relative mt-20 overflow-hidden"
+      className="relative mx-auto mt-20 max-w-6xl overflow-hidden rounded-[2rem] max-sm:mx-3"
     >
       <img
         src="/images/desk.webp"
@@ -57,9 +56,9 @@ export function JobAndShare() {
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[linear-gradient(to_bottom,var(--background)_0%,rgb(16_18_16/0.74)_16%,rgb(16_18_16/0.8)_84%,var(--background)_100%)]"
+        className="absolute inset-0 bg-[rgb(16_18_16/0.62)]"
       />
-      <Reveal className="relative mx-auto max-w-6xl px-5 py-28 text-center text-[#f4f1ea] sm:py-36">
+      <Reveal className="relative px-4 py-16 text-center text-[#f4f1ea] sm:px-10 sm:py-20">
         <h2
           id="job-and-share"
           data-reveal
