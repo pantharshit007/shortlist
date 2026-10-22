@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { Bento } from '@/components/landing/bento'
 import { Hero } from '@/components/landing/hero-demo'
 import { JobAndShare } from '@/components/landing/job-and-share'
 import {
@@ -63,6 +64,7 @@ function LandingPage() {
       <Hero />
       <JobAndShare />
       <TemplateFinder />
+      <Bento />
       <PlanPicker />
       <Faq />
       <FinalCta />
