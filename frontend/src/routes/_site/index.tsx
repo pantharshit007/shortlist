@@ -1,12 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { ExampleResume } from '@/components/landing/example-resume'
 import { Hero } from '@/components/landing/hero-demo'
 import { JobAndShare } from '@/components/landing/job-and-share'
 import {
   Faq,
   FinalCta,
   PlanPicker,
-  Promises,
   TemplateFinder,
 } from '@/components/landing/sections'
 import { site } from '@/lib/site'
@@ -64,9 +62,7 @@ function LandingPage() {
     <>
       <Hero />
       <JobAndShare />
-      <ExampleResume />
       <TemplateFinder />
-      <Promises />
       <PlanPicker />
       <Faq />
       <FinalCta />

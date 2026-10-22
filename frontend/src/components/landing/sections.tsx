@@ -1,13 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import {
-  BanIcon,
-  FileTextIcon,
-  FileUpIcon,
-  LockIcon,
-  PenLineIcon,
-  ScanTextIcon,
-  ShieldCheckIcon,
-} from 'lucide-react'
+import { FileTextIcon, FileUpIcon, PenLineIcon } from 'lucide-react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { useId, useMemo, useRef, useState } from 'react'
 import { Reveal, ease } from '@/components/landing/reveal'
@@ -174,67 +166,6 @@ export function TemplateFinder() {
       >
         <Link to="/templates">View all {templateCatalog.length} templates</Link>
       </Button>
-    </Reveal>
-  )
-}
-
-const promises = [
-  {
-    icon: ShieldCheckIcon,
-    title: 'We never invent experience',
-    body: 'The AI only rewrites what you gave it. If a change mentions something you have not done, it is flagged and left out.',
-  },
-  {
-    icon: BanIcon,
-    title: 'Your resume stays yours',
-    body: 'Only people you share a link with can see it. It goes to our AI provider only to do what you ask, like tailoring it or checking it against a job, and is never used to train AI models.',
-  },
-  {
-    icon: LockIcon,
-    title: 'Share links stay private',
-    body: 'Links hide your phone and email unless you turn them on. Add a password or an expiry date if you like.',
-  },
-  {
-    icon: ScanTextIcon,
-    title: 'Easy for hiring software to read',
-    body: 'One column, real text you can select, and standard headings, which is what ATS software reads best. Typeset with LaTeX for clean spacing.',
-  },
-]
-
-export function Promises() {
-  return (
-    <Reveal
-      as="section"
-      aria-labelledby="promises"
-      className="mx-auto max-w-6xl px-5 pt-28"
-    >
-      <h2 id="promises" data-reveal className={cn(heading, 'text-center')}>
-        Honest and private
-      </h2>
-      <p data-reveal className="mx-auto mt-4 max-w-2xl text-center text-lg">
-        You can download or delete everything we hold about you from Settings,
-        any time.
-      </p>
-      <ul className="mt-12 grid gap-4 sm:grid-cols-2">
-        {promises.map(({ icon: Icon, title, body }) => (
-          <li
-            key={title}
-            data-reveal
-            className="flex gap-4 rounded-2xl bg-card p-6"
-          >
-            <Icon
-              aria-hidden="true"
-              className="mt-1 size-6 shrink-0 text-primary"
-            />
-            <div>
-              <h3 className="font-serif text-2xl font-semibold tracking-[-0.01em]">
-                {title}
-              </h3>
-              <p className="mt-2 text-lg">{body}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
     </Reveal>
   )
 }
