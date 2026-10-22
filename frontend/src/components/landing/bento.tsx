@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
 // motion every tile shows its finished state.
 
 const tile =
-  'group/tile relative flex min-w-0 flex-col overflow-hidden rounded-[1.75rem] border bg-card p-6 text-left transition-[transform,border-color] duration-300 lg:min-h-60 hover:-translate-y-0.5 hover:border-[color-mix(in_oklch,var(--border),var(--foreground)_14%)] sm:p-7'
+  'group/tile relative flex min-w-0 flex-col overflow-hidden rounded-[1.75rem] border bg-card p-6 text-left transition-[transform,border-color] duration-300 lg:min-h-60 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--border),var(--foreground)_14%)] sm:p-7'
 const title = 'text-lg leading-snug font-semibold tracking-[-0.01em]'
 const body = 'mt-1.5 text-sm text-muted-foreground'
 
