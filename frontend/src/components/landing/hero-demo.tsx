@@ -89,7 +89,12 @@ export function Hero() {
           <JobTitle word={titles[title]} /> job
         </span>
       </h1>
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-10">
+      <p className="mx-auto mt-6 max-w-2xl text-lg sm:mt-8 sm:text-xl">
+        Upload your resume and paste the job you want. Our AI tailors it in
+        under a minute and shows your ATS match. You keep only the changes you
+        like.
+      </p>
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Button size="lg" asChild className="h-12 px-7 text-base">
           <Link to="/login" search={{ mode: 'signup' }}>
             Build my resume free
@@ -104,18 +109,9 @@ export function Hero() {
           <Link to="/ats-checker">Check my ATS score</Link>
         </Button>
       </div>
-      <p className="mx-auto mt-8 max-w-2xl text-lg sm:text-xl">
-        Upload your resume and paste the job you want. Our AI tailors it in
-        under a minute and shows your ATS match. You keep only the changes you
-        like.
-      </p>
-
-      <h2 className="mt-20 font-serif text-[1.75rem] leading-tight font-semibold tracking-[-0.02em] sm:text-4xl">
-        See it work
-      </h2>
-      <p className="mx-auto mt-2 max-w-xl text-lg">
-        Import a resume, tailor it to a job, review each change and download the
-        PDF.
+      <p className="mt-4 text-base text-muted-foreground">
+        Free plan: 1 tailored resume and 50 AI edits every month. No card
+        needed.
       </p>
       <HowItWorksVideo />
     </section>
@@ -183,7 +179,7 @@ function HowItWorksVideo() {
   const current = steps.filter((step) => time >= step.at).length - 1
 
   return (
-    <figure className="mx-auto mt-8 max-w-5xl">
+    <figure className="mx-auto mt-16 max-w-5xl sm:mt-20">
       {/* A faint bezel and a window bar in the page's own colours, so the recording sits in the page like a screen. */}
       <div className="rounded-[1.75rem] bg-[linear-gradient(to_bottom,color-mix(in_oklch,var(--background),var(--foreground)_4%),var(--background))] p-2.5 shadow-[0_30px_80px_-40px_rgb(0_0_0/0.18)] sm:p-4">
         <div className="overflow-hidden rounded-[1.25rem] bg-card ring-1 ring-[color-mix(in_oklch,var(--border),transparent_30%)]">
