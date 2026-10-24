@@ -1,6 +1,6 @@
 # Shortlist
 
-An AI resume builder for students and professionals in every field, from software and data to banking, finance, consulting, marketing and design, live at [shortlist.co.in](https://shortlist.co.in). Built in India, for jobs anywhere.
+An AI resume builder for students and professionals in every field, from software and data to banking, finance, consulting, marketing and design, live at [shortlist.co.in](https://shortlist.co.in). For jobs anywhere.
 Write a resume in a form or in LaTeX, tailor it to a job post with AI, download a real LaTeX PDF and share it
 with a link that tells you who opened it.
 

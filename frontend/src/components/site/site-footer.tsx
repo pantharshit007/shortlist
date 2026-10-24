@@ -38,8 +38,8 @@ export function SiteFooter() {
         <div className="col-span-2 flex flex-col items-start lg:col-span-1">
           <Logo />
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-            Your resume, tailored to every job. Made in India for students and
-            freshers in every field.
+            Your resume, tailored to every job. For students and professionals
+            in every field, anywhere.
           </p>
           <Button asChild className="mt-6 h-10 px-4">
             <Link to="/login" search={{ mode: 'signup' }}>
@@ -105,7 +105,7 @@ export function SiteFooter() {
       <div className="mx-auto mt-14 flex max-w-6xl flex-wrap items-center justify-between gap-4 border-t px-5 pt-6 text-sm text-muted-foreground">
         <p>
           <span suppressHydrationWarning>© {new Date().getFullYear()}</span>{' '}
-          {site.name}. Made in India.
+          {site.name}.
         </p>
         <a
           href={`mailto:${site.contactEmail}`}

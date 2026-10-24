@@ -18,7 +18,7 @@ export const templatePages: Record<
   developer: {
     heading: 'Software Engineer Resume Template',
     intro:
-      "The layout most Indian developers already know from Overleaf: Jake's Resume with a small-caps name and link icons for GitHub, LinkedIn and LeetCode. It suits freshers applying for SDE roles as well as engineers with a few years of experience.",
+      "The layout most developers already know from Overleaf: Jake's Resume with a small-caps name and link icons for GitHub, LinkedIn and LeetCode. It suits freshers applying for SDE roles as well as engineers with a few years of experience.",
     whoFor:
       'Pick this if you are applying for software engineering roles: SDE internships, campus placements, or a switch after a year or two at a service company. It reads as "engineer" at a glance, which is what recruiters scanning a stack of resumes for a backend or full-stack opening want to see. If you have no internship yet, it still works: lead with two strong projects and your skills.',
     includes: [
