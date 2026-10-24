@@ -85,7 +85,7 @@ const faqs = [
   },
   {
     q: 'What is the difference between Season Pass and Pro?',
-    a: 'Both unlock the paid features. Season Pass is one payment of ₹499 for 6 months with 40 tailored resumes a month, best for a placement season. Pro is ₹129 a month with 60 tailored resumes a month, cancel anytime, best if you apply a lot or want to pay monthly.',
+    a: 'Both unlock the paid features. Season Pass is one payment of ₹499 for 6 months with 40 tailored resumes a month, best for a busy job search. Pro is ₹129 a month with 60 tailored resumes a month, cancel anytime, best if you apply a lot or want to pay monthly.',
   },
   {
     q: 'What counts as a resume tailored with AI?',

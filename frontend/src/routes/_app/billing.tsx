@@ -287,7 +287,7 @@ function Billing({
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   {plan.name}
-                  {plan.id === 'season_pass' && <Badge>Most popular</Badge>}
+                  {plan.id === 'season_pass' && <Badge>Best value</Badge>}
                 </CardTitle>
                 <CardDescription>{plan.price}</CardDescription>
               </CardHeader>

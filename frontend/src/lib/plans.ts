@@ -22,13 +22,13 @@ export const plans = [
   {
     id: 'season_pass',
     name: 'Season Pass',
-    forWhom: 'For placement season, when you apply to new roles every week.',
+    forWhom: 'For a busy job search, when you apply to new roles every week.',
     price: '₹499',
     period: '/ 6 months',
     note: 'One payment, about ₹83 a month.',
     cta: 'Get the Season Pass',
     featured: true,
-    badge: 'Made for placement season',
+    badge: 'Best value',
     listTitle: 'Everything in Free, plus:',
     features: [
       '40 resumes tailored to a job description each month',
